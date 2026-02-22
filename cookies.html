@@ -1,53 +1,80 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html>
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cookie 條款 | Clockomistry</title>
+    <title>Cookie Policy | Clockomistry</title>
     <link rel="stylesheet" href="output.css">
     <style>
         body {
             background: #0a0a1a;
             color: #e2e8f0;
             font-family: ui-sans-serif, system-ui, sans-serif;
+            transition: opacity 0.3s;
+            opacity: 0;
+        }
+
+        [data-i18n] {
+            display: none;
+        }
+
+        .lang-active {
+            display: block;
         }
     </style>
 </head>
 
-<body class="min-h-screen p-8 md:p-24">
+<body class="min-h-screen p-8 md:p-24 line-height-relaxed">
     <div class="max-w-3xl mx-auto space-y-8">
         <a href="index.html"
             class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all mb-8">
-            ← 返回時鐘
+            <span data-i18n="zh-TW">← 返回時鐘</span>
+            <span data-i18n="en">← Back to Clock</span>
+            <span data-i18n="ja">← 時計に戻る</span>
         </a>
 
-        <h1 class="text-4xl font-bold border-b border-white/10 pb-4">Cookie 與儲存條款</h1>
+        <h1 class="text-4xl font-bold border-b border-white/10 pb-4">
+            <span data-i18n="zh-TW">Cookie 條款</span>
+            <span data-i18n="en">Cookie Policy</span>
+            <span data-i18n="ja">Cookie ポリシー</span>
+        </h1>
 
-        <section class="space-y-4">
-            <h2 class="text-2xl font-semibold">什麼是 Cookie/本地儲存？</h2>
-            <p class="opacity-80">Cookie 及本地儲存（Local Storage）是網站儲存在您的電腦或移動設備上的小型資料檔案。</p>
-        </section>
+        <div data-i18n="zh-TW" class="space-y-8">
+            <p class="opacity-80">本網頁主要使用瀏覽器本地存儲（LocalStorage）而非傳統網頁 Cookies。</p>
+            <section class="space-y-4">
+                <h2 class="text-2xl font-semibold">1. 存儲目的</h2>
+                <p class="opacity-80">我們僅將資料用於記住您的個人化設定（語系、主題、字體等），以優化您的使用體驗。</p>
+            </section>
+        </div>
 
-        <section class="space-y-4">
-            <h2 class="text-2xl font-semibold">我們如何使用？</h2>
-            <p class="opacity-80">Clockomistry 僅使用這些技術來儲存功能性偏好，例如：</p>
-            <ul class="list-disc list-inside opacity-80 ps-4">
-                <li>您的主題與顏色設定</li>
-                <li>您上傳的字體與背景圖片</li>
-                <li>您的世界時鐘時區選擇</li>
-            </ul>
-        </section>
+        <div data-i18n="en" class="space-y-8">
+            <p class="opacity-80">This site primarily uses Browser LocalStorage instead of traditional HTTP Cookies.</p>
+            <section class="space-y-4">
+                <h2 class="text-2xl font-semibold">1. Purpose</h2>
+                <p class="opacity-80">We only use local data to remember your personal preferences (language, theme,
+                    fonts) to optimize your experience.</p>
+            </section>
+        </div>
 
-        <section class="space-y-4">
-            <h2 class="text-2xl font-semibold">管理您的設定</h2>
-            <p class="opacity-80">您可以隨時透過清除瀏覽器快取來移除這些設定數據。</p>
-        </section>
+        <div data-i18n="ja" class="space-y-8">
+            <p class="opacity-80">当サイトでは、従来の Cookies ではなくブラウザの LocalStorage を主に使用しています。</p>
+            <section class="space-y-4">
+                <h2 class="text-2xl font-semibold">1. 保存の目的</h2>
+                <p class="opacity-80">言語、テーマ、フォントなどのパーソナライズ設定を記憶し、ユーザー体験を最適化するためにのみ使用されます。</p>
+            </section>
+        </div>
 
-        <section class="space-y-4 border-t border-white/10 pt-8 mt-12">
-            <p class="text-sm opacity-50">最後更新日期：2026年2月22日</p>
-        </section>
+        <footer class="border-t border-white/10 pt-8 mt-12 opacity-50 text-sm">
+            Last Updated: 2026-02-22
+        </footer>
     </div>
+
+    <script>
+        const lang = localStorage.getItem('clock_lang') || 'zh-TW';
+        document.querySelectorAll(`[data-i18n="${lang}"]`).forEach(el => el.classList.add('lang-active'));
+        document.body.style.opacity = '1';
+    </script>
 </body>
 
 </html>

@@ -1,48 +1,93 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html>
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>服務條款 | Clockomistry</title>
+    <title>Terms of Service | Clockomistry</title>
     <link rel="stylesheet" href="output.css">
     <style>
         body {
             background: #0a0a1a;
             color: #e2e8f0;
             font-family: ui-sans-serif, system-ui, sans-serif;
+            transition: opacity 0.3s;
+            opacity: 0;
+        }
+
+        [data-i18n] {
+            display: none;
+        }
+
+        .lang-active {
+            display: block;
         }
     </style>
 </head>
 
-<body class="min-h-screen p-8 md:p-24">
+<body class="min-h-screen p-8 md:p-24 line-height-relaxed">
     <div class="max-w-3xl mx-auto space-y-8">
         <a href="index.html"
             class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all mb-8">
-            ← 返回時鐘
+            <span data-i18n="zh-TW">← 返回時鐘</span>
+            <span data-i18n="en">← Back to Clock</span>
+            <span data-i18n="ja">← 時計に戻る</span>
         </a>
 
-        <h1 class="text-4xl font-bold border-b border-white/10 pb-4">服務條款 (Terms of Service)</h1>
+        <h1 class="text-4xl font-bold border-b border-white/10 pb-4">
+            <span data-i18n="zh-TW">服務條款</span>
+            <span data-i18n="en">Terms of Service</span>
+            <span data-i18n="ja">利用規約</span>
+        </h1>
 
-        <section class="space-y-4">
-            <h2 class="text-2xl font-semibold">1. 同意條款</h2>
-            <p class="opacity-80">當您訪問與使用 Clockomistry，即表示您同意遵守本服務條款。如果您不同意這些條款，請停止使用本服務。</p>
-        </section>
+        <div data-i18n="zh-TW" class="space-y-8">
+            <p class="opacity-80">歡迎使用 Clockomistry。透過訪問本網站，即表示您同意以下條款：</p>
+            <section class="space-y-4">
+                <h2 class="text-2xl font-semibold">1. 使用授權</h2>
+                <p class="opacity-80">本軟體僅供個人非商業用途使用。您不得對程式碼進行惡意修改或散佈。</p>
+            </section>
+            <section class="space-y-4">
+                <h2 class="text-2xl font-semibold">2. 責任限制</h2>
+                <p class="opacity-80">本軟體按「原樣」提供。對於因使用本軟體而導致的任何損失，我們不承擔任何責任。</p>
+            </section>
+        </div>
 
-        <section class="space-y-4">
-            <h2 class="text-2xl font-semibold">2. 使用授權</h2>
-            <p class="opacity-80">本應用程式僅供個人、非商業性質使用。您不得對本程式進行違法修改或惡意攻擊。</p>
-        </section>
+        <div data-i18n="en" class="space-y-8">
+            <p class="opacity-80">Welcome to Clockomistry. By accessing this site, you agree to the following terms:</p>
+            <section class="space-y-4">
+                <h2 class="text-2xl font-semibold">1. License</h2>
+                <p class="opacity-80">This software is for personal, non-commercial use only. Malicious modification or
+                    redistribution is prohibited.</p>
+            </section>
+            <section class="space-y-4">
+                <h2 class="text-2xl font-semibold">2. Limitation of Liability</h2>
+                <p class="opacity-80">The software is provided "as is". We are not liable for any damages arising from
+                    its use.</p>
+            </section>
+        </div>
 
-        <section class="space-y-4">
-            <h2 class="text-2xl font-semibold">3. 終止服務</h2>
-            <p class="opacity-80">我們保留隨時修改、暫停或終止應用程式功能的權利，恕不另行通知。</p>
-        </section>
+        <div data-i18n="ja" class="space-y-8">
+            <p class="opacity-80">Clockomistry へようこそ。サイトにアクセスすることで、以下の規約に同意したものとみなされます：</p>
+            <section class="space-y-4">
+                <h2 class="text-2xl font-semibold">1. ライセンス</h2>
+                <p class="opacity-80">このソフトウェアは個人利用および非商用目的に限られます。悪意のある改ざんや再配布は禁止されています。</p>
+            </section>
+            <section class="space-y-4">
+                <h2 class="text-2xl font-semibold">2. 責任の制限</h2>
+                <p class="opacity-80">本ソフトウェアは「現状有姿」で提供されます。使用に伴ういかなる損失についても一切の責任を負いません。</p>
+            </section>
+        </div>
 
-        <section class="space-y-4 border-t border-white/10 pt-8 mt-12">
-            <p class="text-sm opacity-50">最後更新日期：2026年2月22日</p>
-        </section>
+        <footer class="border-t border-white/10 pt-8 mt-12 opacity-50 text-sm">
+            Last Updated: 2026-02-22
+        </footer>
     </div>
+
+    <script>
+        const lang = localStorage.getItem('clock_lang') || 'zh-TW';
+        document.querySelectorAll(`[data-i18n="${lang}"]`).forEach(el => el.classList.add('lang-active'));
+        document.body.style.opacity = '1';
+    </script>
 </body>
 
 </html>

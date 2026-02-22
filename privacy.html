@@ -1,16 +1,26 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html>
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>隱私權條款 | Clockomistry</title>
+    <title>Privacy Policy | Clockomistry</title>
     <link rel="stylesheet" href="output.css">
     <style>
         body {
             background: #0a0a1a;
             color: #e2e8f0;
             font-family: ui-sans-serif, system-ui, sans-serif;
+            transition: opacity 0.3s;
+            opacity: 0;
+        }
+
+        [data-i18n] {
+            display: none;
+        }
+
+        .lang-active {
+            display: block;
         }
     </style>
 </head>
@@ -19,34 +29,76 @@
     <div class="max-w-3xl mx-auto space-y-8">
         <a href="index.html"
             class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all mb-8">
-            ← 返回時鐘
+            <span data-i18n="zh-TW">← 返回時鐘</span>
+            <span data-i18n="en">← Back to Clock</span>
+            <span data-i18n="ja">← 時計に戻る</span>
         </a>
 
-        <h1 class="text-4xl font-bold border-b border-white/10 pb-4">隱私權條款 (Privacy Policy)</h1>
+        <h1 class="text-4xl font-bold border-b border-white/10 pb-4">
+            <span data-i18n="zh-TW">隱私權條款</span>
+            <span data-i18n="en">Privacy Policy</span>
+            <span data-i18n="ja">プライバシーポリシー</span>
+        </h1>
 
-        <section class="space-y-4">
-            <h2 class="text-2xl font-semibold">1. 資料收集</h2>
-            <p class="opacity-80">Clockomistry 是一個純客戶端運行的網頁應用程式。我們不會收集、上傳或儲存任何您的個人資料到遠端伺服器。</p>
-        </section>
+        <div data-i18n="zh-TW" class="space-y-8">
+            <section class="space-y-4">
+                <h2 class="text-2xl font-semibold">1. 資料收集</h2>
+                <p class="opacity-80">Clockomistry 是一個純客戶端運行的網頁應用程式。我們不會收集、上傳或儲存任何您的個人資料到遠端伺服器。</p>
+            </section>
+            <section class="space-y-4">
+                <h2 class="text-2xl font-semibold">2. 本地存儲</h2>
+                <p class="opacity-80">為了提供個人化體驗（如主題選擇、自訂字體、時區設定），我們會將相關設定儲存在您的瀏覽器本地存儲（LocalStorage）及 IndexedDB 中。</p>
+            </section>
+            <section class="space-y-4">
+                <h2 class="text-2xl font-semibold">3. 第三方服務</h2>
+                <p class="opacity-80">本站使用了以下第三方資源： Google Fonts, esm.sh, Lucide Icons。</p>
+            </section>
+        </div>
 
-        <section class="space-y-4">
-            <h2 class="text-2xl font-semibold">2. 地區存儲 (Local Storage)</h2>
-            <p class="opacity-80">為了提供個人化體驗（如主題選擇、自訂字體、時區設定），我們會將相關設定儲存在您的瀏覽器本地存儲（LocalStorage）及 IndexedDB 中。</p>
-        </section>
+        <div data-i18n="en" class="space-y-8">
+            <section class="space-y-4">
+                <h2 class="text-2xl font-semibold">1. Data Collection</h2>
+                <p class="opacity-80">Clockomistry is a client-side only web application. We do not collect, upload, or
+                    store any of your personal data on remote servers.</p>
+            </section>
+            <section class="space-y-4">
+                <h2 class="text-2xl font-semibold">2. Local Storage</h2>
+                <p class="opacity-80">To provide a personalized experience (themes, fonts, timezones), settings are
+                    stored in your browser's LocalStorage and IndexedDB.</p>
+            </section>
+            <section class="space-y-4">
+                <h2 class="text-2xl font-semibold">3. Third-party Services</h2>
+                <p class="opacity-80">This site uses: Google Fonts, esm.sh, and Lucide Icons.</p>
+            </section>
+        </div>
 
-        <section class="space-y-4">
-            <h2 class="text-2xl font-semibold">3. 第三方服務</h2>
-            <p class="opacity-80">本站使用了以下第三方資源：</p>
-            <ul class="list-disc list-inside opacity-80 ps-4">
-                <li>Google Fonts (用於載入字體)</li>
-                <li>esm.sh / unpkg (用於載入 React 框架與圖標庫)</li>
-            </ul>
-        </section>
+        <div data-i18n="ja" class="space-y-8">
+            <section class="space-y-4">
+                <h2 class="text-2xl font-semibold">1. データ収集</h2>
+                <p class="opacity-80">Clockomistry はクライアントサイドのみで動作するアプリです。ユーザーの個人データをリモートサーバーに収集、アップロード、保存することはありません。
+                </p>
+            </section>
+            <section class="space-y-4">
+                <h2 class="text-2xl font-semibold">2. ローカルストレージ</h2>
+                <p class="opacity-80">パーソナライズされた体験（テーマ、フォント、タイムゾーン）を提供するため、設定はブラウザの LocalStorage および IndexedDB に保存されます。
+                </p>
+            </section>
+            <section class="space-y-4">
+                <h2 class="text-2xl font-semibold">3. サードパーティサービス</h2>
+                <p class="opacity-80">当サイトでは Google Fonts、esm.sh、Lucide Icons を使用しています。</p>
+            </section>
+        </div>
 
-        <section class="space-y-4 border-t border-white/10 pt-8 mt-12">
-            <p class="text-sm opacity-50">最後更新日期：2026年2月22日</p>
-        </section>
+        <footer class="border-t border-white/10 pt-8 mt-12 opacity-50 text-sm">
+            Last Updated: 2026-02-22
+        </footer>
     </div>
+
+    <script>
+        const lang = localStorage.getItem('clock_lang') || 'zh-TW';
+        document.querySelectorAll(`[data-i18n="${lang}"]`).forEach(el => el.classList.add('lang-active'));
+        document.body.style.opacity = '1';
+    </script>
 </body>
 
 </html>

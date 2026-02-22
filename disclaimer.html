@@ -1,48 +1,81 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html>
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>免責聲明 | Clockomistry</title>
+    <title>Disclaimer | Clockomistry</title>
     <link rel="stylesheet" href="output.css">
     <style>
         body {
             background: #0a0a1a;
             color: #e2e8f0;
             font-family: ui-sans-serif, system-ui, sans-serif;
+            transition: opacity 0.3s;
+            opacity: 0;
+        }
+
+        [data-i18n] {
+            display: none;
+        }
+
+        .lang-active {
+            display: block;
         }
     </style>
 </head>
 
-<body class="min-h-screen p-8 md:p-24">
+<body class="min-h-screen p-8 md:p-24 line-height-relaxed">
     <div class="max-w-3xl mx-auto space-y-8">
         <a href="index.html"
             class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all mb-8">
-            ← 返回時鐘
+            <span data-i18n="zh-TW">← 返回時鐘</span>
+            <span data-i18n="en">← Back to Clock</span>
+            <span data-i18n="ja">← 時計に戻る</span>
         </a>
 
-        <h1 class="text-4xl font-bold border-b border-white/10 pb-4">免責聲明 (Disclaimer)</h1>
+        <h1 class="text-4xl font-bold border-b border-white/10 pb-4">
+            <span data-i18n="zh-TW">免責聲明</span>
+            <span data-i18n="en">Disclaimer</span>
+            <span data-i18n="ja">免責事項</span>
+        </h1>
 
-        <section class="space-y-4">
-            <h2 class="text-2xl font-semibold">1. 時間精確度</h2>
-            <p class="opacity-80">Clockomistry 的時間顯示依賴於您的設備系統時間及網路環境。我們不保證時間顯示絕對無誤，對於因時間誤差造成的任何損失，我們概不負責。</p>
-        </section>
+        <div data-i18n="zh-TW" class="space-y-8">
+            <p class="opacity-80">Clockomistry 是一個開源且實驗性質的網站，旨在提供美觀的計時工具。</p>
+            <section class="space-y-4">
+                <h2 class="text-2xl font-semibold">1. 資訊準確性</h2>
+                <p class="opacity-80">雖然我們努力確保時間與資料的準確性，但不保證程式在所有環境下都能完全準確無誤地運作。</p>
+            </section>
+        </div>
 
-        <section class="space-y-4">
-            <h2 class="text-2xl font-semibold">2. 使用風險</h2>
-            <p class="opacity-80">本程式是以「現狀 (As-Is)」提供的，不提供任何形式的保證。使用本程式的潛在風險（如數據丟失）由使用者自行承擔。</p>
-        </section>
+        <div data-i18n="en" class="space-y-8">
+            <p class="opacity-80">Clockomistry is an open-source, experimental website built to provide beautiful
+                timekeeping tools.</p>
+            <section class="space-y-4">
+                <h2 class="text-2xl font-semibold">1. Accuracy</h2>
+                <p class="opacity-80">While we strive for accuracy, we do not guarantee that the software will be
+                    error-free or perfectly accurate in all environments.</p>
+            </section>
+        </div>
 
-        <section class="space-y-4">
-            <h2 class="text-2xl font-semibold">3. 硬體要求</h2>
-            <p class="opacity-80">某些動畫與效果（如背景高斯模糊）可能會消耗較高的硬體資源，請確保您的設備性能足以流暢運行。</p>
-        </section>
+        <div data-i18n="ja" class="space-y-8">
+            <p class="opacity-80">Clockomistry は、美しい計時ツールを提供するために構築されたオープンソースの実験用ウェブサイトです。</p>
+            <section class="space-y-4">
+                <h2 class="text-2xl font-semibold">1. 情報の正確性</h2>
+                <p class="opacity-80">正確な時間とデータの提供に努めておりますが、すべての環境において完全に正確であることを保証するものではありません。</p>
+            </section>
+        </div>
 
-        <section class="space-y-4 border-t border-white/10 pt-8 mt-12">
-            <p class="text-sm opacity-50">最後更新日期：2026年2月22日</p>
-        </section>
+        <footer class="border-t border-white/10 pt-8 mt-12 opacity-50 text-sm">
+            Last Updated: 2026-02-22
+        </footer>
     </div>
+
+    <script>
+        const lang = localStorage.getItem('clock_lang') || 'zh-TW';
+        document.querySelectorAll(`[data-i18n="${lang}"]`).forEach(el => el.classList.add('lang-active'));
+        document.body.style.opacity = '1';
+    </script>
 </body>
 
 </html>
