@@ -7,6 +7,30 @@ import {
     Type, Upload, Palette, ArrowLeft, Coffee, Brain
 } from 'lucide-react';
 
+// --- IndexedDB 管理 (用於儲存大體積字型) ---
+const DB_NAME = 'ClockomistryDB';
+const STORE_NAME = 'fonts';
+const openDB = () => {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, 1);
+        request.onupgradeneeded = () => request.result.createObjectStore(STORE_NAME);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+};
+const saveFontToDB = async (data) => {
+    const db = await openDB();
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    tx.objectStore(STORE_NAME).put(data, 'customFont');
+    return new Promise((resolve) => tx.oncomplete = resolve);
+};
+const getFontFromDB = async () => {
+    const db = await openDB();
+    const tx = db.transaction(STORE_NAME, 'readonly');
+    const request = tx.objectStore(STORE_NAME).get('customFont');
+    return new Promise((resolve) => request.onsuccess = () => resolve(request.result));
+};
+
 // --- 配置與常數 ---
 const DEFAULT_THEMES = {
     modern: {
@@ -164,6 +188,17 @@ function App() {
     useEffect(() => { localStorage.setItem('clock_custom_colors', JSON.stringify(customColors)); }, [customColors]);
     useEffect(() => { localStorage.setItem('clock_custom_bg', customBgImage); }, [customBgImage]);
 
+    // 初始化時從 IndexedDB 載入字體
+    useEffect(() => {
+        const initFont = async () => {
+            const savedFont = await getFontFromDB();
+            if (savedFont) {
+                await loadCustomFont(savedFont);
+            }
+        };
+        initFont();
+    }, []);
+
     // --- 字體載入邏輯 ---
     const loadCustomFont = async (base64Data) => {
         try {
@@ -185,8 +220,11 @@ function App() {
         const reader = new FileReader();
         reader.onload = async (e) => {
             const data = e.target.result;
-            await loadCustomFont(data);
-            setFont('custom');
+            const success = await loadCustomFont(data);
+            if (success) {
+                await saveFontToDB(data);
+                setFont('custom');
+            }
         };
         reader.readAsDataURL(file);
     };
