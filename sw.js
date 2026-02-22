@@ -1,4 +1,4 @@
-const CACHE_NAME = 'clockomistry-v1';
+const CACHE_NAME = 'clockomistry-v2';
 const ASSETS = [
     '/clockomistry/',
     '/clockomistry/index.html',
@@ -26,13 +26,18 @@ self.addEventListener('activate', (e) => {
     self.clients.claim();
 });
 
-// Fetch — network first, fallback to cache
+// Fetch — network first, fallback to cache (only http/https)
 self.addEventListener('fetch', (e) => {
+    const url = new URL(e.request.url);
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
+
     e.respondWith(
         fetch(e.request)
             .then(res => {
-                const clone = res.clone();
-                caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
+                if (res.status === 200) {
+                    const clone = res.clone();
+                    caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
+                }
                 return res;
             })
             .catch(() => caches.match(e.request))
