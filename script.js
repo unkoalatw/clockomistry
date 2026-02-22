@@ -36,14 +36,14 @@ const getFontFromDB = async () => {
 // --- 國際化 (i18n) ---
 const I18N = {
     'zh-TW': {
-        lang: '繁體中文',
+        lang: '繁體中文', locale: 'zh-TW',
         settings: '設定', back: '返回', settingsDesc: '自訂你的質感時鐘',
         appearance: '外觀風格', fonts: '顯示字體', importFont: '匯入字體',
         worldClock: '世界時鐘設定', searchCity: '搜尋城市或時區...',
         general: '一般設定', showMillis: '顯示毫秒', legal: '法律與權利',
         privacy: '隱私權條款', terms: '服務條款', cookies: 'Cookie 條款', disclaimer: '免責聲明',
         language: '語言設定', addEditZones: '新增 / 編輯時區',
-        work: 'Work', break: 'Break', long: 'Long',
+        work: '專注', break: '短暫休息', long: '長時間休息',
         lap: '計次', agree: '開始探索',
         splashTitle: 'omistry', splashDesc: '專屬於你的質感時光體驗。',
         splashTerms: '繼續使用即表示您同意我們的使用條款。',
@@ -61,16 +61,27 @@ const I18N = {
         weather: '天氣', temp: '溫度', shareTheme: '分享主題', export: '匯出', import: '導入',
         importPrompt: '請貼上主題代碼', screenSaver: '螢幕保護', ssHint: '移動滑鼠結束',
         daysLeft: '天', daysAgo: '天前',
+        fullscreenError: '全螢幕切換失敗', fontLoadError: '字體載入失敗', imageSizeError: '圖片不能超過 5MB',
+        invalidThemeCode: '主題代碼錯誤',
+        themeModern: '極夜黑', themeLight: '光學白', themeCyber: '霓虹紫', themeForest: '水晶綠', themeCustom: '自訂',
+        fontModern: '現代', fontElegant: '經典', fontTechnical: '工程', fontCyber: '未來', fontCustom: '已匯入',
+        "Taipei": "台北", "Tokyo": "東京", "Seoul": "首爾", "Shanghai": "上海", "Hong Kong": "香港",
+        "Singapore": "新加坡", "Bangkok": "曼谷", "Dubai": "杜拜", "Kolkata": "加爾各答", "Ho Chi Minh": "胡志明市",
+        "London": "倫敦", "Paris": "巴黎", "Berlin": "柏林", "Rome": "羅馬", "Madrid": "馬德里", "Moscow": "莫斯科",
+        "Amsterdam": "阿姆斯特丹", "Zurich": "蘇黎世", "New York": "紐約", "Los Angeles": "洛杉磯",
+        "Chicago": "芝加哥", "Toronto": "多倫多", "Vancouver": "溫哥華", "São Paulo": "聖保羅",
+        "Mexico City": "墨西哥城", "Sydney": "雪梨", "Melbourne": "墨爾本", "Auckland": "奧克蘭",
+        "Cairo": "開羅", "Johannesburg": "約翰尼斯堡"
     },
     'en': {
-        lang: 'English',
+        lang: 'English', locale: 'en-US',
         settings: 'Settings', back: 'Back', settingsDesc: 'Customize your premium clock',
         appearance: 'Appearance', fonts: 'Fonts', importFont: 'Import Font',
         worldClock: 'World Clock', searchCity: 'Search city or timezone...',
         general: 'General', showMillis: 'Show Milliseconds', legal: 'Legal',
         privacy: 'Privacy Policy', terms: 'Terms of Service', cookies: 'Cookie Policy', disclaimer: 'Disclaimer',
         language: 'Language', addEditZones: 'Add / Edit Zones',
-        work: 'Work', break: 'Break', long: 'Long',
+        work: 'Work', break: 'Break', long: 'Long Break',
         lap: 'Lap', agree: 'Get Started',
         splashTitle: 'omistry', splashDesc: 'Your premium time experience.',
         splashTerms: 'By continuing, you agree to our terms of use.',
@@ -88,18 +99,29 @@ const I18N = {
         weather: 'Weather', temp: 'Temp', shareTheme: 'Share Theme', export: 'Export', import: 'Import',
         importPrompt: 'Paste theme code here', screenSaver: 'Screen Saver', ssHint: 'Move mouse to exit',
         daysLeft: 'days left', daysAgo: 'days ago',
+        fullscreenError: 'Fullscreen Change Failed', fontLoadError: 'Font Load Failed', imageSizeError: 'Image too large (>5MB)',
+        invalidThemeCode: 'Invalid Theme Code',
+        themeModern: 'Midnight', themeLight: 'Optical', themeCyber: 'Cyber', themeForest: 'Crystal', themeCustom: 'Custom',
+        fontModern: 'Modern', fontElegant: 'Elegant', fontTechnical: 'Tech', fontCyber: 'Future', fontCustom: 'Imported',
+        "Taipei": "Taipei", "Tokyo": "Tokyo", "Seoul": "Seoul", "Shanghai": "Shanghai", "Hong Kong": "Hong Kong",
+        "Singapore": "Singapore", "Bangkok": "Bangkok", "Dubai": "Dubai", "Kolkata": "Kolkata", "Ho Chi Minh": "Ho Chi Minh",
+        "London": "London", "Paris": "Paris", "Berlin": "Berlin", "Rome": "Rome", "Madrid": "Madrid", "Moscow": "Moscow",
+        "Amsterdam": "Amsterdam", "Zurich": "Zurich", "New York": "New York", "Los Angeles": "Los Angeles",
+        "Chicago": "Chicago", "Toronto": "Toronto", "Vancouver": "Vancouver", "São Paulo": "São Paulo",
+        "Mexico City": "Mexico City", "Sydney": "Sydney", "Melbourne": "Melbourne", "Auckland": "Auckland",
+        "Cairo": "Cairo", "Johannesburg": "Johannesburg"
     },
     'ja': {
-        lang: '日本語',
+        lang: '日本語', locale: 'ja-JP',
         settings: '設定', back: '戻る', settingsDesc: 'プレミアム時計をカスタマイズ',
         appearance: '外観', fonts: 'フォント', importFont: 'フォントを読込',
         worldClock: '世界時計', searchCity: '都市またはタイムゾーンを検索...',
         general: '一般', showMillis: 'ミリ秒を表示', legal: '法的情報',
-        privacy: 'プライバシー', terms: '利用規約', cookies: 'Cookie', disclaimer: '免責事項',
-        language: '言語', addEditZones: 'ゾーンを追加 / 編集',
-        work: '作業', break: '休憩', long: '長休憩',
+        privacy: 'プライバシー', terms: '利用規規約', cookies: 'Cookie', disclaimer: '免責事項',
+        language: '言語', addEditZones: 'ゾーンを追加 / 編輯',
+        work: '作業', break: '休憩', long: '長時間休憩',
         lap: 'ラップ', agree: '始める',
-        splashTitle: 'omistry', splashDesc: 'あなただけの上質な時間体験。',
+        splashTitle: 'omistry', splashDesc: 'あなただけの上質な時間體驗。',
         splashTerms: '続行することで利用規約に同意したものとみなされます。',
         splashBottom: 'Pure Experience · Local Privacy',
         bgGradient: '背景グラデーション', textAccent: 'テキスト / アクセント', bgImage: '背景画像',
@@ -112,16 +134,27 @@ const I18N = {
         today: '今日',
         months: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
         anniversary: 'お祝い', addEvent: 'イベント追加', eventName: '名目', date: '日付',
-        weather: '天気', temp: '温度', shareTheme: 'テーマ共有', export: '書き出し', import: '読み込み',
+        weather: '天氣', temp: '溫度', shareTheme: 'テーマ共有', export: '書き出し', import: '読み込み',
         importPrompt: 'コードを貼り付け', screenSaver: 'スクリーンセーバー', ssHint: 'マウスを動かして終了',
         daysLeft: '日', daysAgo: '日前',
+        fullscreenError: '全畫面切換失敗', fontLoadError: 'フォント読込失敗', imageSizeError: '畫像は 5MB 未満である必要があります',
+        invalidThemeCode: 'テーマコードが無効です',
+        themeModern: '真夜中', themeLight: 'ライト', themeCyber: 'サイバー', themeForest: 'フォレスト', themeCustom: 'カスタム',
+        fontModern: 'モダン', fontElegant: 'エレガント', fontTechnical: 'テック', fontCyber: 'フューチャー', fontCustom: 'カスタム',
+        "Taipei": "台北", "Tokyo": "東京", "Seoul": "ソウル", "Shanghai": "上海", "Hong Kong": "香港",
+        "Singapore": "シンガポール", "Bangkok": "バンコク", "Dubai": "ドバイ", "Kolkata": "コルカタ", "Ho Chi Minh": "ホーチミン",
+        "London": "ロンドン", "Paris": "パリ", "Berlin": "ベルリン", "Rome": "ローマ", "Madrid": "マドリード", "Moscow": "モスクワ",
+        "Amsterdam": "アムステルダム", "Zurich": "チューリッヒ", "New York": "ニューヨーク", "Los Angeles": "ロサンゼルス",
+        "Chicago": "シカゴ", "Toronto": "トロント", "Vancouver": "バンクーバー", "São Paulo": "サンパウロ",
+        "Mexico City": "メキシコシティ", "Sydney": "シドニー", "Melbourne": "メルボルン", "Auckland": "オークランド",
+        "Cairo": "カイロ", "Johannesburg": "ヨハネスブルグ"
     }
 };
 
 // --- 配置與常數 ---
 const DEFAULT_THEMES = {
     modern: {
-        name: '極夜黑',
+        name: 'themeModern',
         bg: 'bg-slate-950',
         text: 'text-slate-100',
         accent: 'text-cyan-400',
@@ -131,7 +164,7 @@ const DEFAULT_THEMES = {
         settingsBg: 'bg-slate-950/90'
     },
     light: {
-        name: '光學白',
+        name: 'themeLight',
         bg: 'bg-gray-50',
         text: 'text-gray-900',
         accent: 'text-blue-600',
@@ -141,7 +174,7 @@ const DEFAULT_THEMES = {
         settingsBg: 'bg-white/90'
     },
     cyber: {
-        name: '霓虹紫',
+        name: 'themeCyber',
         bg: 'bg-indigo-950',
         text: 'text-fuchsia-100',
         accent: 'text-fuchsia-400',
@@ -151,7 +184,7 @@ const DEFAULT_THEMES = {
         settingsBg: 'bg-[#0f0c29]/90'
     },
     forest: {
-        name: '水晶綠',
+        name: 'themeForest',
         bg: 'bg-teal-950',
         text: 'text-teal-50',
         accent: 'text-emerald-400',
@@ -163,48 +196,48 @@ const DEFAULT_THEMES = {
 };
 
 const DEFAULT_FONTS = {
-    modern: { name: '現代 (Modern)', style: { fontFamily: 'ui-sans-serif, system-ui, sans-serif' } },
-    elegant: { name: '經典 (Elegant)', style: { fontFamily: '"Playfair Display", serif' } },
-    technical: { name: '工程 (Tech)', style: { fontFamily: '"JetBrains Mono", monospace' } },
-    cyber: { name: '未來 (Cyber)', style: { fontFamily: '"Orbitron", sans-serif' } },
+    modern: { name: 'fontModern', style: { fontFamily: 'ui-sans-serif, system-ui, sans-serif' } },
+    elegant: { name: 'fontElegant', style: { fontFamily: '"Playfair Display", serif' } },
+    technical: { name: 'fontTechnical', style: { fontFamily: '"JetBrains Mono", monospace' } },
+    cyber: { name: 'fontCyber', style: { fontFamily: '"Orbitron", sans-serif' } },
 };
 
 const ALL_ZONES = [
     // Asia
-    { id: 'Asia/Taipei', label: '台北 (Taipei)', region: 'Asia' },
-    { id: 'Asia/Tokyo', label: '東京 (Tokyo)', region: 'Asia' },
-    { id: 'Asia/Seoul', label: '首爾 (Seoul)', region: 'Asia' },
-    { id: 'Asia/Shanghai', label: '上海 (Shanghai)', region: 'Asia' },
-    { id: 'Asia/Hong_Kong', label: '香港 (Hong Kong)', region: 'Asia' },
-    { id: 'Asia/Singapore', label: '新加坡 (Singapore)', region: 'Asia' },
-    { id: 'Asia/Bangkok', label: '曼谷 (Bangkok)', region: 'Asia' },
-    { id: 'Asia/Dubai', label: '杜拜 (Dubai)', region: 'Asia' },
-    { id: 'Asia/Kolkata', label: '加爾各答 (Kolkata)', region: 'Asia' },
-    { id: 'Asia/Ho_Chi_Minh', label: '胡志明市 (Ho Chi Minh)', region: 'Asia' },
+    { id: 'Asia/Taipei', label: 'Taipei', region: 'Asia' },
+    { id: 'Asia/Tokyo', label: 'Tokyo', region: 'Asia' },
+    { id: 'Asia/Seoul', label: 'Seoul', region: 'Asia' },
+    { id: 'Asia/Shanghai', label: 'Shanghai', region: 'Asia' },
+    { id: 'Asia/Hong_Kong', label: 'Hong Kong', region: 'Asia' },
+    { id: 'Asia/Singapore', label: 'Singapore', region: 'Asia' },
+    { id: 'Asia/Bangkok', label: 'Bangkok', region: 'Asia' },
+    { id: 'Asia/Dubai', label: 'Dubai', region: 'Asia' },
+    { id: 'Asia/Kolkata', label: 'Kolkata', region: 'Asia' },
+    { id: 'Asia/Ho_Chi_Minh', label: 'Ho Chi Minh', region: 'Asia' },
     // Europe
-    { id: 'Europe/London', label: '倫敦 (London)', region: 'Europe' },
-    { id: 'Europe/Paris', label: '巴黎 (Paris)', region: 'Europe' },
-    { id: 'Europe/Berlin', label: '柏林 (Berlin)', region: 'Europe' },
-    { id: 'Europe/Rome', label: '羅馬 (Rome)', region: 'Europe' },
-    { id: 'Europe/Madrid', label: '馬德里 (Madrid)', region: 'Europe' },
-    { id: 'Europe/Moscow', label: '莫斯科 (Moscow)', region: 'Europe' },
-    { id: 'Europe/Amsterdam', label: '阿姆斯特丹 (Amsterdam)', region: 'Europe' },
-    { id: 'Europe/Zurich', label: '蘇黎世 (Zurich)', region: 'Europe' },
+    { id: 'Europe/London', label: 'London', region: 'Europe' },
+    { id: 'Europe/Paris', label: 'Paris', region: 'Europe' },
+    { id: 'Europe/Berlin', label: 'Berlin', region: 'Europe' },
+    { id: 'Europe/Rome', label: 'Rome', region: 'Europe' },
+    { id: 'Europe/Madrid', label: 'Madrid', region: 'Europe' },
+    { id: 'Europe/Moscow', label: 'Moscow', region: 'Europe' },
+    { id: 'Europe/Amsterdam', label: 'Amsterdam', region: 'Europe' },
+    { id: 'Europe/Zurich', label: 'Zurich', region: 'Europe' },
     // America
-    { id: 'America/New_York', label: '紐約 (New York)', region: 'America' },
-    { id: 'America/Los_Angeles', label: '洛杉磯 (Los Angeles)', region: 'America' },
-    { id: 'America/Chicago', label: '芝加哥 (Chicago)', region: 'America' },
-    { id: 'America/Toronto', label: '多倫多 (Toronto)', region: 'America' },
-    { id: 'America/Vancouver', label: '溫哥華 (Vancouver)', region: 'America' },
-    { id: 'America/Sao_Paulo', label: '聖保羅 (São Paulo)', region: 'America' },
-    { id: 'America/Mexico_City', label: '墨西哥城 (Mexico City)', region: 'America' },
+    { id: 'America/New_York', label: 'New York', region: 'America' },
+    { id: 'America/Los_Angeles', label: 'Los Angeles', region: 'America' },
+    { id: 'America/Chicago', label: 'Chicago', region: 'America' },
+    { id: 'America/Toronto', label: 'Toronto', region: 'America' },
+    { id: 'America/Vancouver', label: 'Vancouver', region: 'America' },
+    { id: 'America/Sao_Paulo', label: 'São Paulo', region: 'America' },
+    { id: 'America/Mexico_City', label: 'Mexico City', region: 'America' },
     // Oceania
-    { id: 'Australia/Sydney', label: '雪梨 (Sydney)', region: 'Oceania' },
-    { id: 'Australia/Melbourne', label: '墨爾本 (Melbourne)', region: 'Oceania' },
-    { id: 'Pacific/Auckland', label: '奧克蘭 (Auckland)', region: 'Oceania' },
+    { id: 'Australia/Sydney', label: 'Sydney', region: 'Oceania' },
+    { id: 'Australia/Melbourne', label: 'Melbourne', region: 'Oceania' },
+    { id: 'Pacific/Auckland', label: 'Auckland', region: 'Oceania' },
     // Africa
-    { id: 'Africa/Cairo', label: '開羅 (Cairo)', region: 'Africa' },
-    { id: 'Africa/Johannesburg', label: '約翰尼斯堡 (Johannesburg)', region: 'Africa' },
+    { id: 'Africa/Cairo', label: 'Cairo', region: 'Africa' },
+    { id: 'Africa/Johannesburg', label: 'Johannesburg', region: 'Africa' },
 ];
 
 // --- Memoized Components ---
@@ -464,7 +497,7 @@ function App() {
             if (data.font) setFont(data.font);
             if (data.customColors) setCustomColors(data.customColors);
             if (data.customBgImage !== undefined) setCustomBgImage(data.customBgImage);
-        } catch (e) { setErrorMsg('Invalid Theme Code'); setTimeout(() => setErrorMsg(''), 3000); }
+        } catch (e) { setErrorMsg(t('invalidThemeCode')); setTimeout(() => setErrorMsg(''), 3000); }
     };
 
     // 初始化時從 IndexedDB 載入字體
@@ -487,7 +520,7 @@ function App() {
             setHasCustomFont(true);
             return true;
         } catch (e) {
-            showError('字體載入失敗');
+            showError(t('fontLoadError'));
             return false;
         }
     };
@@ -511,7 +544,7 @@ function App() {
     const handleBgImageUpload = (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
-        if (file.size > 5 * 1024 * 1024) { showError('圖片不能超過 5MB'); return; }
+        if (file.size > 5 * 1024 * 1024) { showError(t('imageSizeError')); return; }
         const reader = new FileReader();
         reader.onload = (ev) => { setCustomBgImage(ev.target.result); setTheme('custom'); };
         reader.readAsDataURL(file);
@@ -607,7 +640,7 @@ function App() {
             if (!document.fullscreenElement) await containerRef.current.requestFullscreen();
             else await document.exitFullscreen();
         } catch (err) {
-            showError("全螢幕切換失敗");
+            showError(t('fullscreenError'));
         }
     };
 
@@ -624,7 +657,7 @@ function App() {
         return { h, m, s, ms };
     };
 
-    const formatDate = (date) => date.toLocaleDateString('zh-TW', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    const formatDate = (date) => date.toLocaleDateString(t('locale'), { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
     const formatDuration = (ms) => {
         const m = Math.floor(ms / 60000).toString().padStart(2, '0');
@@ -644,7 +677,7 @@ function App() {
 
     const filteredZones = useMemo(() => ALL_ZONES.filter(z => z.label.toLowerCase().includes(searchQuery.toLowerCase())), [searchQuery]);
     const currentTheme = theme === 'custom' ? {
-        name: '自訂', bg: '', text: '', accent: 'custom-accent',
+        name: 'themeCustom', bg: '', text: '', accent: 'custom-accent',
         card: 'custom-card backdrop-blur-3xl',
         gradient: '', button: 'hover:bg-white/20', settingsBg: 'custom-settings'
     } : (DEFAULT_THEMES[theme] || DEFAULT_THEMES.modern);
@@ -699,7 +732,7 @@ function App() {
                                     {Object.entries(DEFAULT_THEMES).map(([key, thm]) => (
                                         <button key={key} onClick={() => setTheme(key)} className={`flex flex-col items-center gap-4 p-6 rounded-3xl transition-all border ${theme === key ? `bg-white/10 border-white/50 scale-105` : 'border-white/5 hover:bg-white/5'}`}>
                                             <div className={`w-12 h-12 rounded-full ${thm.bg.includes('gray-50') ? 'bg-gray-300' : thm.bg}`}></div>
-                                            <span className="text-sm">{thm.name}</span>
+                                            <span className="text-sm">{t(thm.name)}</span>
                                         </button>
                                     ))}
                                     <button onClick={() => setTheme('custom')} className={`flex flex-col items-center gap-4 p-6 rounded-3xl transition-all border ${theme === 'custom' ? 'bg-white/10 border-white/50 scale-105' : 'border-white/5 hover:bg-white/5'}`}>
@@ -751,7 +784,7 @@ function App() {
                                     </div>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         {Object.entries(DEFAULT_FONTS).map(([key, f]) => (
-                                            <button key={key} onClick={() => setFont(key)} style={f.style} className={`p-4 rounded-2xl border ${font === key ? `bg-white/10 border-white/30 shadow-lg` : 'border-white/10 hover:bg-white/5'}`}>{f.name}</button>
+                                            <button key={key} onClick={() => setFont(key)} style={f.style} className={`p-4 rounded-2xl border ${font === key ? `bg-white/10 border-white/30 shadow-lg` : 'border-white/10 hover:bg-white/5'}`}>{t(f.name)}</button>
                                         ))}
                                         {hasCustomFont && <button onClick={() => setFont('custom')} className={`p-4 rounded-2xl border col-span-full ${font === 'custom' ? `bg-white/10 border-white/30 shadow-lg` : 'border-white/10 hover:bg-white/5'}`}>{t('imported')}</button>}
                                     </div>
@@ -785,7 +818,7 @@ function App() {
                                                 }}
                                                 className={`p-3 rounded-lg text-left flex justify-between items-center transition-all ${isSelected ? 'bg-blue-500/20 border border-blue-500/50' : 'bg-white/5 hover:bg-white/10 border border-transparent'}`}
                                             >
-                                                <span className="text-sm">{zone.label}</span>
+                                                <span className="text-sm">{t(zone.label)}</span>
                                                 {isSelected && <Check size={16} className="text-blue-400" />}
                                             </button>
                                         )
@@ -962,18 +995,17 @@ function App() {
                     <div className="flex flex-col items-center select-none w-full">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 w-full max-h-[60vh] overflow-y-auto custom-scrollbar p-4">
                             {selectedZones.map(zone => {
-                                const t = getWorldTime(zone.id);
+                                const tWorld = getWorldTime(zone.id);
                                 return (
                                     <div key={zone.id} className="flex flex-col items-center p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                                        <div className="text-3xl font-bold tracking-tighter">{t.h}:{t.m}</div>
-                                        <div className="text-sm opacity-60 mt-2 text-center uppercase tracking-wider">{zone.label.split('(')[0]}</div>
-                                        <div className="text-[10px] opacity-40 uppercase tracking-widest">{zone.label.split('(')[1].replace(')', '')}</div>
+                                        <div className="text-3xl font-bold tracking-tighter">{tWorld.h}:{tWorld.m}</div>
+                                        <div className="text-sm opacity-60 mt-2 text-center uppercase tracking-wider">{t(zone.label)}</div>
                                     </div>
                                 );
                             })}
                         </div>
                         <button onClick={() => setShowSettings(true)} className="mt-8 flex items-center gap-2 text-sm opacity-50 hover:opacity-100 transition-opacity">
-                            <Settings size={14} /> Add / Edit Zones
+                            <Settings size={14} /> {t('addEditZones')}
                         </button>
                     </div>
                 )}
