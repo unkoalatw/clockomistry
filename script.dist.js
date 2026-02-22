@@ -598,7 +598,15 @@ function App() {
     };
   });
   const [customBgImage, setCustomBgImage] = useState(() => localStorage.getItem('clock_custom_bg') || '');
-  const [lang, setLang] = useState(() => localStorage.getItem('clock_lang') || 'zh-TW');
+  const [lang, setLang] = useState(() => {
+    const saved = localStorage.getItem('clock_lang');
+    if (saved) return saved;
+    // 自動偵測瀏覽器語言
+    const browserLang = navigator.language.split('-')[0];
+    if (I18N[browserLang]) return browserLang;
+    if (navigator.language === 'zh-CN' || navigator.language === 'zh-HK') return 'zh-TW';
+    return 'zh-TW';
+  });
 
   // Anniversary 狀態
   const [anniversaries, setAnniversaries] = useState(() => {
@@ -1399,8 +1407,17 @@ function App() {
     className: "text-5xl sm:text-7xl font-black text-white tracking-tight leading-[0.9]"
   }, "Clock", /*#__PURE__*/React.createElement("span", {
     className: "bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500"
-  }, "omistry")), /*#__PURE__*/React.createElement("p", {
-    className: "text-base sm:text-lg text-slate-400 leading-relaxed max-w-md mx-auto font-light"
+  }, "omistry")), /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-2 justify-center mt-6"
+  }, Object.entries(I18N).map(_ref9 => {
+    let [key, val] = _ref9;
+    return /*#__PURE__*/React.createElement("button", {
+      key: key,
+      onClick: () => setLang(key),
+      className: "px-3 py-1 rounded-full text-[10px] uppercase tracking-widest border transition-all ".concat(lang === key ? 'bg-white/10 border-white/40' : 'border-transparent opacity-40 hover:opacity-100')
+    }, val.lang);
+  })), /*#__PURE__*/React.createElement("p", {
+    className: "text-base sm:text-lg text-slate-400 leading-relaxed max-w-md mx-auto font-light mt-6"
   }, t('splashDesc'), /*#__PURE__*/React.createElement("br", {
     className: "hidden sm:block"
   }), t('splashTerms'))), /*#__PURE__*/React.createElement("div", {
