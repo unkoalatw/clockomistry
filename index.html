@@ -5,7 +5,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clockomistry</title>
+    <meta name="description"
+        content="Clockomistry — 專屬於你的質感時光體驗。Premium time experience with world clocks, timers, and more.">
+    <meta name="theme-color" content="#020420">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
+    <!-- Favicon & Icons -->
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="icons/icon-32.png" sizes="32x32" type="image/png">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -37,6 +49,13 @@
 
     <!-- Main Logic -->
     <script type="text/babel" data-type="module" src="script.js"></script>
+
+    <!-- Register Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(() => { });
+        }
+    </script>
 </body>
 
 </html>

@@ -1,0 +1,25 @@
+{
+    "name": "Clockomistry",
+    "short_name": "Clockomistry",
+    "description": "專屬於你的質感時光體驗 — Your premium time experience",
+    "start_url": "/clockomistry/",
+    "scope": "/clockomistry/",
+    "display": "standalone",
+    "orientation": "any",
+    "background_color": "#020420",
+    "theme_color": "#020420",
+    "icons": [
+        {
+            "src": "icons/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}

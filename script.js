@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { createRoot } from 'react-dom/client';
 import {
     Maximize2, Minimize2, Timer, Clock, Monitor,
     Play, Pause, RotateCcw, AlertCircle, Globe,
     StopCircle, Settings, X, Check, Plus, Search,
-    Type, Upload, Palette, ArrowLeft, Coffee, Brain
+    Type, Upload, Palette, ArrowLeft, Coffee, Brain,
+    CalendarDays, Languages, Trash2, ChevronLeft, ChevronRight
 } from 'lucide-react';
 
 // --- IndexedDB 管理 (用於儲存大體積字型) ---
@@ -29,6 +30,79 @@ const getFontFromDB = async () => {
     const tx = db.transaction(STORE_NAME, 'readonly');
     const request = tx.objectStore(STORE_NAME).get('customFont');
     return new Promise((resolve) => request.onsuccess = () => resolve(request.result));
+};
+
+// --- 國際化 (i18n) ---
+const I18N = {
+    'zh-TW': {
+        lang: '繁體中文',
+        settings: '設定', back: '返回', settingsDesc: '自訂你的質感時鐘',
+        appearance: '外觀風格', fonts: '顯示字體', importFont: '匯入字體',
+        worldClock: '世界時鐘設定', searchCity: '搜尋城市或時區...',
+        general: '一般設定', showMillis: '顯示毫秒', legal: '法律與權利',
+        privacy: '隱私權條款', terms: '服務條款', cookies: 'Cookie 條款', disclaimer: '免責聲明',
+        language: '語言設定', addEditZones: '新增 / 編輯時區',
+        work: 'Work', break: 'Break', long: 'Long',
+        lap: '計次', agree: '開始探索',
+        splashTitle: 'omistry', splashDesc: '專屬於你的質感時光體驗。',
+        splashTerms: '繼續使用即表示您同意我們的使用條款。',
+        splashBottom: 'Pure Experience · Local Privacy',
+        bgGradient: '背景漸層色', textAccent: '文字 / 強調色', bgImage: '背景圖片',
+        uploadImage: '上傳圖片', remove: '移除',
+        color1: '色彩1', color2: '色彩2', color3: '色彩3', text: '文字', accent: '強調',
+        custom: '自訂', imported: '已匯入字體',
+        calendar: '日曆', multiTimer: '多計時器',
+        addTimer: '新增計時器', noTimers: '點擊 + 新增計時器',
+        mon: '一', tue: '二', wed: '三', thu: '四', fri: '五', sat: '六', sun: '日',
+        today: '今天',
+        months: ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月']
+    },
+    'en': {
+        lang: 'English',
+        settings: 'Settings', back: 'Back', settingsDesc: 'Customize your premium clock',
+        appearance: 'Appearance', fonts: 'Fonts', importFont: 'Import Font',
+        worldClock: 'World Clock', searchCity: 'Search city or timezone...',
+        general: 'General', showMillis: 'Show Milliseconds', legal: 'Legal',
+        privacy: 'Privacy Policy', terms: 'Terms of Service', cookies: 'Cookie Policy', disclaimer: 'Disclaimer',
+        language: 'Language', addEditZones: 'Add / Edit Zones',
+        work: 'Work', break: 'Break', long: 'Long',
+        lap: 'Lap', agree: 'Get Started',
+        splashTitle: 'omistry', splashDesc: 'Your premium time experience.',
+        splashTerms: 'By continuing, you agree to our terms of use.',
+        splashBottom: 'Pure Experience · Local Privacy',
+        bgGradient: 'Background Gradient', textAccent: 'Text / Accent', bgImage: 'Background Image',
+        uploadImage: 'Upload Image', remove: 'Remove',
+        color1: 'Color 1', color2: 'Color 2', color3: 'Color 3', text: 'Text', accent: 'Accent',
+        custom: 'Custom', imported: 'Imported Font',
+        calendar: 'Calendar', multiTimer: 'Multi Timer',
+        addTimer: 'Add Timer', noTimers: 'Tap + to add a timer',
+        mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun',
+        today: 'Today',
+        months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+    },
+    'ja': {
+        lang: '日本語',
+        settings: '設定', back: '戻る', settingsDesc: 'プレミアム時計をカスタマイズ',
+        appearance: '外観', fonts: 'フォント', importFont: 'フォントを読込',
+        worldClock: '世界時計', searchCity: '都市またはタイムゾーンを検索...',
+        general: '一般', showMillis: 'ミリ秒を表示', legal: '法的情報',
+        privacy: 'プライバシー', terms: '利用規約', cookies: 'Cookie', disclaimer: '免責事項',
+        language: '言語', addEditZones: 'ゾーンを追加 / 編集',
+        work: '作業', break: '休憩', long: '長休憩',
+        lap: 'ラップ', agree: '始める',
+        splashTitle: 'omistry', splashDesc: 'あなただけの上質な時間体験。',
+        splashTerms: '続行することで利用規約に同意したものとみなされます。',
+        splashBottom: 'Pure Experience · Local Privacy',
+        bgGradient: '背景グラデーション', textAccent: 'テキスト / アクセント', bgImage: '背景画像',
+        uploadImage: '画像をアップ', remove: '削除',
+        color1: '色1', color2: '色2', color3: '色3', text: 'テキスト', accent: 'アクセント',
+        custom: 'カスタム', imported: '読込済みフォント',
+        calendar: 'カレンダー', multiTimer: 'マルチタイマー',
+        addTimer: 'タイマーを追加', noTimers: '+ でタイマーを追加',
+        mon: '月', tue: '火', wed: '水', thu: '木', fri: '金', sat: '土', sun: '日',
+        today: '今日',
+        months: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+    }
 };
 
 // --- 配置與常數 ---
@@ -159,6 +233,10 @@ function App() {
         return { bg1: '#0a0a1a', bg2: '#1a1a3e', bg3: '#0a0a1a', text: '#e2e8f0', accent: '#22d3ee' };
     });
     const [customBgImage, setCustomBgImage] = useState(() => localStorage.getItem('clock_custom_bg') || '');
+    const [lang, setLang] = useState(() => localStorage.getItem('clock_lang') || 'zh-TW');
+
+    // i18n helper
+    const t = useCallback((key) => (I18N[lang] || I18N['zh-TW'])[key] || key, [lang]);
 
     // Timer 狀態
     const [timerSeconds, setTimerSeconds] = useState(25 * 60);
@@ -175,6 +253,13 @@ function App() {
     const [isStopwatchRunning, setIsStopwatchRunning] = useState(false);
     const [laps, setLaps] = useState([]);
 
+    // Multi-Timer 狀態
+    const [multiTimers, setMultiTimers] = useState([]);
+    const multiTimerIdRef = useRef(0);
+
+    // Calendar 狀態
+    const [calendarDate, setCalendarDate] = useState(new Date());
+
     const containerRef = useRef(null);
     const requestRef = useRef();
     const previousTimeRef = useRef();
@@ -189,6 +274,30 @@ function App() {
     useEffect(() => { localStorage.setItem('clock_custom_colors', JSON.stringify(customColors)); }, [customColors]);
     useEffect(() => { localStorage.setItem('clock_custom_bg', customBgImage); }, [customBgImage]);
     useEffect(() => { localStorage.setItem('clock_agreed', hasAgreed); }, [hasAgreed]);
+    useEffect(() => { localStorage.setItem('clock_lang', lang); }, [lang]);
+
+    // Multi-Timer 計時邏輯
+    useEffect(() => {
+        const hasRunning = multiTimers.some(t => t.running && t.remaining > 0);
+        if (!hasRunning) return;
+        const interval = setInterval(() => {
+            setMultiTimers(prev => prev.map(t => {
+                if (!t.running || t.remaining <= 0) return t;
+                const next = t.remaining - 1;
+                if (next <= 0) return { ...t, remaining: 0, running: false };
+                return { ...t, remaining: next };
+            }));
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [multiTimers]);
+
+    const addMultiTimer = (minutes = 5) => {
+        multiTimerIdRef.current += 1;
+        setMultiTimers(prev => [...prev, { id: multiTimerIdRef.current, label: `${minutes}:00`, initial: minutes * 60, remaining: minutes * 60, running: false }]);
+    };
+    const toggleMultiTimer = (id) => setMultiTimers(prev => prev.map(t => t.id === id ? { ...t, running: !t.running } : t));
+    const resetMultiTimer = (id) => setMultiTimers(prev => prev.map(t => t.id === id ? { ...t, remaining: t.initial, running: false } : t));
+    const deleteMultiTimer = (id) => setMultiTimers(prev => prev.filter(t => t.id !== id));
 
     // 初始化時從 IndexedDB 載入字體
     useEffect(() => {
@@ -408,34 +517,34 @@ function App() {
                     <div className="md:w-1/3 lg:w-1/4 p-8 md:p-12 border-b md:border-b-0 md:border-r border-white/10">
                         <button onClick={() => setShowSettings(false)} className="mb-8 p-2 -ml-2 hover:bg-white/10 rounded-full flex items-center gap-2 opacity-60 hover:opacity-100 group">
                             <ArrowLeft size={24} className="group-hover:-translate-x-1 transition-transform" />
-                            <span>返回</span>
+                            <span>{t('back')}</span>
                         </button>
-                        <h2 className="text-4xl font-bold tracking-wider mb-2">設定</h2>
-                        <p className="opacity-50 text-lg">自訂你的質感時鐘</p>
+                        <h2 className="text-4xl font-bold tracking-wider mb-2">{t('settings')}</h2>
+                        <p className="opacity-50 text-lg">{t('settingsDesc')}</p>
                     </div>
 
                     <div className="flex-1 overflow-y-auto custom-scrollbar p-8 md:p-12">
                         <div className="max-w-3xl mx-auto space-y-12 pb-20">
                             <section className="space-y-6">
-                                <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><Palette size={24} /> 外觀風格</h3>
+                                <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><Palette size={24} /> {t('appearance')}</h3>
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                                    {Object.entries(DEFAULT_THEMES).map(([key, t]) => (
+                                    {Object.entries(DEFAULT_THEMES).map(([key, thm]) => (
                                         <button key={key} onClick={() => setTheme(key)} className={`flex flex-col items-center gap-4 p-6 rounded-3xl transition-all border ${theme === key ? `bg-white/10 border-white/50 scale-105` : 'border-white/5 hover:bg-white/5'}`}>
-                                            <div className={`w-12 h-12 rounded-full ${t.bg.includes('gray-50') ? 'bg-gray-300' : t.bg}`}></div>
-                                            <span className="text-sm">{t.name}</span>
+                                            <div className={`w-12 h-12 rounded-full ${thm.bg.includes('gray-50') ? 'bg-gray-300' : thm.bg}`}></div>
+                                            <span className="text-sm">{thm.name}</span>
                                         </button>
                                     ))}
                                     <button onClick={() => setTheme('custom')} className={`flex flex-col items-center gap-4 p-6 rounded-3xl transition-all border ${theme === 'custom' ? 'bg-white/10 border-white/50 scale-105' : 'border-white/5 hover:bg-white/5'}`}>
                                         <div className="w-12 h-12 rounded-full border border-white/20" style={{ background: `linear-gradient(135deg, ${customColors.bg1}, ${customColors.bg2}, ${customColors.bg3})` }}></div>
-                                        <span className="text-sm">自訂</span>
+                                        <span className="text-sm">{t('custom')}</span>
                                     </button>
                                 </div>
                                 {theme === 'custom' && (
                                     <div className="mt-6 p-6 rounded-2xl bg-white/5 border border-white/10" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                                         <div>
-                                            <span className="text-sm font-medium opacity-80" style={{ display: 'block', marginBottom: 12 }}>背景漸層色</span>
+                                            <span className="text-sm font-medium opacity-80" style={{ display: 'block', marginBottom: 12 }}>{t('bgGradient')}</span>
                                             <div className="flex gap-4 items-center">
-                                                {[['bg1', '色彩1'], ['bg2', '色彩2'], ['bg3', '色彩3']].map(([k, l]) => (
+                                                {[['bg1', t('color1')], ['bg2', t('color2')], ['bg3', t('color3')]].map(([k, l]) => (
                                                     <label key={k} className="flex flex-col items-center gap-1 cursor-pointer">
                                                         <input type="color" value={customColors[k]} onChange={(e) => updateCustomColor(k, e.target.value)} style={{ width: 40, height: 40, border: 'none', borderRadius: 8, cursor: 'pointer', background: 'transparent' }} />
                                                         <span className="opacity-50" style={{ fontSize: 10 }}>{l}</span>
@@ -445,9 +554,9 @@ function App() {
                                             </div>
                                         </div>
                                         <div>
-                                            <span className="text-sm font-medium opacity-80" style={{ display: 'block', marginBottom: 12 }}>文字 / 強調色</span>
+                                            <span className="text-sm font-medium opacity-80" style={{ display: 'block', marginBottom: 12 }}>{t('textAccent')}</span>
                                             <div className="flex gap-4 items-center">
-                                                {[['text', '文字'], ['accent', '強調']].map(([k, l]) => (
+                                                {[['text', t('text')], ['accent', t('accent')]].map(([k, l]) => (
                                                     <label key={k} className="flex flex-col items-center gap-1 cursor-pointer">
                                                         <input type="color" value={customColors[k]} onChange={(e) => updateCustomColor(k, e.target.value)} style={{ width: 40, height: 40, border: 'none', borderRadius: 8, cursor: 'pointer', background: 'transparent' }} />
                                                         <span className="opacity-50" style={{ fontSize: 10 }}>{l}</span>
@@ -456,10 +565,10 @@ function App() {
                                             </div>
                                         </div>
                                         <div>
-                                            <span className="text-sm font-medium opacity-80" style={{ display: 'block', marginBottom: 12 }}>背景圖片</span>
+                                            <span className="text-sm font-medium opacity-80" style={{ display: 'block', marginBottom: 12 }}>{t('bgImage')}</span>
                                             <div className="flex gap-3 items-center">
-                                                <button onClick={() => bgImageInputRef.current.click()} className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm"><Upload size={14} /> 上傳圖片</button>
-                                                {customBgImage && <button onClick={() => setCustomBgImage('')} className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm opacity-60 hover:opacity-100"><X size={14} /> 移除</button>}
+                                                <button onClick={() => bgImageInputRef.current.click()} className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm"><Upload size={14} /> {t('uploadImage')}</button>
+                                                {customBgImage && <button onClick={() => setCustomBgImage('')} className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm opacity-60 hover:opacity-100"><X size={14} /> {t('remove')}</button>}
                                                 <input type="file" ref={bgImageInputRef} className="hidden" accept="image/*" onChange={handleBgImageUpload} />
                                             </div>
                                             {customBgImage && <div className="w-full rounded-xl overflow-hidden border border-white/10" style={{ height: 96, marginTop: 12 }}><img src={customBgImage} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6 }} /></div>}
@@ -468,26 +577,26 @@ function App() {
                                 )}
                                 <div className="pt-6">
                                     <div className="flex justify-between items-center mb-4">
-                                        <span className="text-lg opacity-80">顯示字體</span>
-                                        <button onClick={() => fileInputRef.current.click()} className="text-sm flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10"><Upload size={14} /> 匯入字體</button>
+                                        <span className="text-lg opacity-80">{t('fonts')}</span>
+                                        <button onClick={() => fileInputRef.current.click()} className="text-sm flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10"><Upload size={14} /> {t('importFont')}</button>
                                         <input type="file" ref={fileInputRef} className="hidden" accept=".ttf,.otf,.woff" onChange={handleFontUpload} />
                                     </div>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         {Object.entries(DEFAULT_FONTS).map(([key, f]) => (
                                             <button key={key} onClick={() => setFont(key)} style={f.style} className={`p-4 rounded-2xl border ${font === key ? `bg-white/10 border-white/30 shadow-lg` : 'border-white/10 hover:bg-white/5'}`}>{f.name}</button>
                                         ))}
-                                        {hasCustomFont && <button onClick={() => setFont('custom')} className={`p-4 rounded-2xl border col-span-full ${font === 'custom' ? `bg-white/10 border-white/30 shadow-lg` : 'border-white/10 hover:bg-white/5'}`}>已匯入字體</button>}
+                                        {hasCustomFont && <button onClick={() => setFont('custom')} className={`p-4 rounded-2xl border col-span-full ${font === 'custom' ? `bg-white/10 border-white/30 shadow-lg` : 'border-white/10 hover:bg-white/5'}`}>{t('imported')}</button>}
                                     </div>
                                 </div>
                             </section>
 
                             <section className="space-y-6">
-                                <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><Globe size={24} /> 世界時鐘設定</h3>
+                                <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><Globe size={24} /> {t('worldClock')}</h3>
                                 <div className="relative">
                                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 opacity-50" size={18} />
                                     <input
                                         type="text"
-                                        placeholder="搜尋城市或時區..."
+                                        placeholder={t('searchCity')}
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                         className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-12 pr-4 outline-none focus:bg-white/10 transition-colors"
@@ -516,9 +625,9 @@ function App() {
                                 </div>
                             </section>
                             <section className="space-y-6">
-                                <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><Settings size={24} /> 一般設定</h3>
+                                <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><Settings size={24} /> {t('general')}</h3>
                                 <label className="flex items-center justify-between p-6 rounded-2xl bg-white/5 cursor-pointer">
-                                    <span>顯示毫秒</span>
+                                    <span>{t('showMillis')}</span>
                                     <div onClick={() => setShowMillis(!showMillis)} className={`w-14 h-8 rounded-full relative transition-colors ${showMillis ? 'bg-blue-500' : 'bg-slate-600'}`}>
                                         <div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all ${showMillis ? 'left-7' : 'left-1'}`} />
                                     </div>
@@ -526,12 +635,21 @@ function App() {
                             </section>
 
                             <section className="space-y-6">
-                                <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><AlertCircle size={24} /> 法律與權利</h3>
+                                <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><Languages size={24} /> {t('language')}</h3>
+                                <div className="grid grid-cols-3 gap-4">
+                                    {Object.entries(I18N).map(([key, val]) => (
+                                        <button key={key} onClick={() => setLang(key)} className={`p-4 rounded-2xl border text-center text-sm transition-all ${lang === key ? 'bg-white/10 border-white/50 scale-105' : 'border-white/5 hover:bg-white/5'}`}>{val.lang}</button>
+                                    ))}
+                                </div>
+                            </section>
+
+                            <section className="space-y-6">
+                                <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><AlertCircle size={24} /> {t('legal')}</h3>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <a href="privacy.html" className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-center text-sm transition-all">隱私權條款</a>
-                                    <a href="terms.html" className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-center text-sm transition-all">服務條款</a>
-                                    <a href="cookies.html" className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-center text-sm transition-all">Cookie 條款</a>
-                                    <a href="disclaimer.html" className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-center text-sm transition-all">免責聲明</a>
+                                    <a href="privacy.html" className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-center text-sm transition-all">{t('privacy')}</a>
+                                    <a href="terms.html" className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-center text-sm transition-all">{t('terms')}</a>
+                                    <a href="cookies.html" className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-center text-sm transition-all">{t('cookies')}</a>
+                                    <a href="disclaimer.html" className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-center text-sm transition-all">{t('disclaimer')}</a>
                                 </div>
                             </section>
                         </div>
@@ -568,17 +686,17 @@ function App() {
                                 Clock<span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500">omistry</span>
                             </h1>
                             <p className="text-base sm:text-lg text-slate-400 leading-relaxed max-w-md mx-auto font-light">
-                                專屬於你的質感時光體驗。<br className="hidden sm:block" />繼續使用即表示您同意我們的使用條款。
+                                {t('splashDesc')}<br className="hidden sm:block" />{t('splashTerms')}
                             </p>
                         </div>
 
                         {/* Legal Links Row */}
                         <div className="flex flex-wrap justify-center gap-3">
                             {[
-                                { label: '隱私權條款', href: 'privacy.html' },
-                                { label: '服務條款', href: 'terms.html' },
-                                { label: 'Cookie 政策', href: 'cookies.html' },
-                                { label: '免責聲明', href: 'disclaimer.html' }
+                                { label: t('privacy'), href: 'privacy.html' },
+                                { label: t('terms'), href: 'terms.html' },
+                                { label: t('cookies'), href: 'cookies.html' },
+                                { label: t('disclaimer'), href: 'disclaimer.html' }
                             ].map((item, i) => (
                                 <a
                                     key={i}
@@ -596,13 +714,13 @@ function App() {
                             className="group relative px-12 py-5 rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold text-base tracking-wide transition-all duration-300 hover:shadow-[0_0_60px_-12px_rgba(59,130,246,0.5)] hover:scale-105 active:scale-95"
                         >
                             <div className="absolute inset-0 rounded-full bg-white/0 group-hover:bg-white/10 transition-colors duration-300" />
-                            <span className="relative">開始探索</span>
+                            <span className="relative">{t('agree')}</span>
                         </button>
                     </div>
 
                     {/* Bottom attribution */}
                     <div className="absolute bottom-8 text-[10px] text-slate-600 tracking-[0.3em] uppercase">
-                        Pure Experience · Local Privacy
+                        {t('splashBottom')}
                     </div>
                 </div>
             )}
@@ -670,9 +788,9 @@ function App() {
                 {mode === 'pomodoro' && (
                     <div className="flex flex-col items-center select-none">
                         <div className="flex gap-4 mb-4">
-                            <button onClick={() => resetPomo('work')} className={`px-4 py-1 rounded-full text-sm border transition-all ${pomoMode === 'work' ? `bg-white/10 border-white/50 ${currentTheme.accent}` : 'border-transparent opacity-50'}`}>Work</button>
-                            <button onClick={() => resetPomo('short')} className={`px-4 py-1 rounded-full text-sm border transition-all ${pomoMode === 'short' ? `bg-white/10 border-white/50 ${currentTheme.accent}` : 'border-transparent opacity-50'}`}>Break</button>
-                            <button onClick={() => resetPomo('long')} className={`px-4 py-1 rounded-full text-sm border transition-all ${pomoMode === 'long' ? `bg-white/10 border-white/50 ${currentTheme.accent}` : 'border-transparent opacity-50'}`}>Long</button>
+                            <button onClick={() => resetPomo('work')} className={`px-4 py-1 rounded-full text-sm border transition-all ${pomoMode === 'work' ? `bg-white/10 border-white/50 ${currentTheme.accent}` : 'border-transparent opacity-50'}`}>{t('work')}</button>
+                            <button onClick={() => resetPomo('short')} className={`px-4 py-1 rounded-full text-sm border transition-all ${pomoMode === 'short' ? `bg-white/10 border-white/50 ${currentTheme.accent}` : 'border-transparent opacity-50'}`}>{t('break')}</button>
+                            <button onClick={() => resetPomo('long')} className={`px-4 py-1 rounded-full text-sm border transition-all ${pomoMode === 'long' ? `bg-white/10 border-white/50 ${currentTheme.accent}` : 'border-transparent opacity-50'}`}>{t('long')}</button>
                         </div>
                         <div className="text-[12vw] sm:text-[150px] font-bold tracking-tighter tabular-nums drop-shadow-2xl">
                             {Math.floor(pomoSeconds / 60).toString().padStart(2, '0')}:{(pomoSeconds % 60).toString().padStart(2, '0')}
@@ -705,8 +823,82 @@ function App() {
                         <div className="mt-6 w-full max-h-32 overflow-y-auto custom-scrollbar">
                             {laps.map((lap, i) => {
                                 const d = formatDuration(lap);
-                                return <div key={i} className="flex justify-between px-6 py-2 border-b border-white/5 opacity-80"><span>計次 {laps.length - i}</span><span>{d.m}:{d.s}.{d.cs}</span></div>
+                                return <div key={i} className="flex justify-between px-6 py-2 border-b border-white/5 opacity-80"><span>{t('lap')} {laps.length - i}</span><span>{d.m}:{d.s}.{d.cs}</span></div>
                             })}
+                        </div>
+                    </div>
+                )}
+
+                {mode === 'calendar' && (() => {
+                    const year = calendarDate.getFullYear();
+                    const month = calendarDate.getMonth();
+                    const firstDay = new Date(year, month, 1).getDay();
+                    const daysInMonth = new Date(year, month + 1, 0).getDate();
+                    const today = new Date();
+                    const isToday = (d) => d === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+                    const days = [];
+                    for (let i = 0; i < (firstDay === 0 ? 6 : firstDay - 1); i++) days.push(null);
+                    for (let i = 1; i <= daysInMonth; i++) days.push(i);
+                    const dayLabels = [t('mon'), t('tue'), t('wed'), t('thu'), t('fri'), t('sat'), t('sun')];
+                    const monthNames = (I18N[lang] || I18N['zh-TW']).months;
+                    return (
+                        <div className="flex flex-col items-center select-none w-full max-w-md">
+                            <div className="flex items-center justify-between w-full mb-6">
+                                <button onClick={() => setCalendarDate(new Date(year, month - 1, 1))} className="p-3 rounded-full bg-white/10 hover:bg-white/20 transition-all"><ChevronLeft size={20} /></button>
+                                <div className="text-center">
+                                    <div className="text-2xl font-bold">{monthNames[month]}</div>
+                                    <div className="text-sm opacity-50">{year}</div>
+                                </div>
+                                <button onClick={() => setCalendarDate(new Date(year, month + 1, 1))} className="p-3 rounded-full bg-white/10 hover:bg-white/20 transition-all"><ChevronRight size={20} /></button>
+                            </div>
+                            <div className="grid grid-cols-7 gap-1 w-full text-center text-xs opacity-50 mb-2">
+                                {dayLabels.map(d => <div key={d} className="py-1">{d}</div>)}
+                            </div>
+                            <div className="grid grid-cols-7 gap-1 w-full text-center">
+                                {days.map((d, i) => (
+                                    <div key={i} className={`py-2.5 rounded-xl text-sm transition-all ${d ? (isToday(d) ? `bg-blue-500 text-white font-bold shadow-lg shadow-blue-500/30` : 'hover:bg-white/10 cursor-default') : ''}`}>
+                                        {d || ''}
+                                    </div>
+                                ))}
+                            </div>
+                            {(() => { const td = today; return month === td.getMonth() && year === td.getFullYear() ? <div className={`mt-6 text-sm opacity-60 ${currentTheme.accent}`}>{t('today')}: {td.getFullYear()}/{(td.getMonth() + 1).toString().padStart(2, '0')}/{td.getDate().toString().padStart(2, '0')}</div> : null; })()}
+                        </div>
+                    );
+                })()}
+
+                {mode === 'multitimer' && (
+                    <div className="flex flex-col items-center select-none w-full max-w-lg">
+                        <div className="w-full max-h-[55vh] overflow-y-auto custom-scrollbar space-y-3 p-2">
+                            {multiTimers.length === 0 && (
+                                <div className="text-center opacity-40 py-12 text-lg">{t('noTimers')}</div>
+                            )}
+                            {multiTimers.map(timer => {
+                                const mins = Math.floor(timer.remaining / 60).toString().padStart(2, '0');
+                                const secs = (timer.remaining % 60).toString().padStart(2, '0');
+                                const pct = timer.initial > 0 ? (timer.remaining / timer.initial) * 100 : 0;
+                                return (
+                                    <div key={timer.id} className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10">
+                                        <div className="flex-1">
+                                            <div className="text-3xl font-bold tabular-nums tracking-tighter">{mins}:{secs}</div>
+                                            <div className="w-full h-1.5 rounded-full bg-white/10 mt-2 overflow-hidden">
+                                                <div className={`h-full rounded-full transition-all duration-1000 ${pct > 20 ? 'bg-blue-500' : 'bg-red-500'}`} style={{ width: `${pct}%` }} />
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <button onClick={() => toggleMultiTimer(timer.id)} className="p-2.5 rounded-full bg-white/10 hover:bg-white/20 transition-all">
+                                                {timer.running ? <Pause size={18} /> : <Play size={18} className={currentTheme.accent} />}
+                                            </button>
+                                            <button onClick={() => resetMultiTimer(timer.id)} className="p-2.5 rounded-full bg-white/10 hover:bg-white/20 transition-all"><RotateCcw size={18} /></button>
+                                            <button onClick={() => deleteMultiTimer(timer.id)} className="p-2.5 rounded-full bg-white/10 hover:bg-red-500/30 transition-all"><Trash2 size={18} /></button>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        <div className={`mt-6 flex gap-3 ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+                            {[1, 3, 5, 10, 15, 30].map(m => (
+                                <button key={m} onClick={() => addMultiTimer(m)} className="px-4 py-2 rounded-full bg-white/10 border border-white/10 hover:bg-white/20 text-sm transition-all">{m}m</button>
+                            ))}
                         </div>
                     </div>
                 )}
@@ -714,10 +906,12 @@ function App() {
 
             {/* Bottom Control */}
             <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-3 p-3 rounded-full backdrop-blur-xl bg-white/5 border border-white/20 shadow-2xl transition-all duration-500 z-50 ${showControls ? 'translate-y-0 opacity-100' : 'translate-y-32 opacity-0'}`}>
-                <div className="flex bg-white/5 rounded-full p-1 gap-1 overflow-x-auto max-w-[80vw]">
+                <div className="flex bg-white/5 rounded-full p-1 gap-1 overflow-x-auto max-w-[90vw]">
                     <button onClick={() => setMode('clock')} className={`p-3 rounded-full transition-all ${mode === 'clock' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><Clock size={20} /></button>
                     <button onClick={() => setMode('world')} className={`p-3 rounded-full transition-all ${mode === 'world' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><Globe size={20} /></button>
+                    <button onClick={() => setMode('calendar')} className={`p-3 rounded-full transition-all ${mode === 'calendar' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><CalendarDays size={20} /></button>
                     <button onClick={() => setMode('timer')} className={`p-3 rounded-full transition-all ${mode === 'timer' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><Timer size={20} /></button>
+                    <button onClick={() => setMode('multitimer')} className={`p-3 rounded-full transition-all ${mode === 'multitimer' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><Plus size={20} /></button>
                     <button onClick={() => setMode('pomodoro')} className={`p-3 rounded-full transition-all ${mode === 'pomodoro' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><Brain size={20} /></button>
                     <button onClick={() => setMode('stopwatch')} className={`p-3 rounded-full transition-all ${mode === 'stopwatch' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><StopCircle size={20} /></button>
                 </div>
