@@ -770,17 +770,50 @@ function App() {
                 )}
 
                 {mode === 'timer' && (
-                    <div className="flex flex-col items-center select-none">
-                        <div className="text-[12vw] sm:text-[150px] font-bold tracking-tighter tabular-nums drop-shadow-2xl">
-                            {Math.floor(timerSeconds / 60).toString().padStart(2, '0')}:{(timerSeconds % 60).toString().padStart(2, '0')}
+                    <div className="flex flex-col items-center select-none w-full max-w-lg">
+                        <div className="flex flex-col items-center mb-12">
+                            <div className="text-[12vw] sm:text-[150px] font-bold tracking-tighter tabular-nums drop-shadow-2xl">
+                                {Math.floor(timerSeconds / 60).toString().padStart(2, '0')}:{(timerSeconds % 60).toString().padStart(2, '0')}
+                            </div>
+                            <div className={`mt-8 flex gap-6 z-50 ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+                                <button onClick={() => setIsTimerRunning(!isTimerRunning)} className={`p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all`}>
+                                    {isTimerRunning ? <Pause size={32} /> : <Play size={32} className={currentTheme.accent} />}
+                                </button>
+                                <button onClick={() => { setIsTimerRunning(false); setTimerSeconds(timerInitial); }} className="p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all">
+                                    <RotateCcw size={32} />
+                                </button>
+                            </div>
                         </div>
-                        <div className={`mt-8 flex gap-6 z-50 ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-                            <button onClick={() => setIsTimerRunning(!isTimerRunning)} className={`p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all`}>
-                                {isTimerRunning ? <Pause size={32} /> : <Play size={32} className={currentTheme.accent} />}
-                            </button>
-                            <button onClick={() => { setIsTimerRunning(false); setTimerSeconds(timerInitial); }} className="p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all">
-                                <RotateCcw size={32} />
-                            </button>
+
+                        {/* Integrated Multi-Timers */}
+                        <div className="w-full max-h-[40vh] overflow-y-auto custom-scrollbar space-y-3 p-2 border-t border-white/10 pt-8">
+                            {multiTimers.map(timer => {
+                                const mins = Math.floor(timer.remaining / 60).toString().padStart(2, '0');
+                                const secs = (timer.remaining % 60).toString().padStart(2, '0');
+                                const pct = timer.initial > 0 ? (timer.remaining / timer.initial) * 100 : 0;
+                                return (
+                                    <div key={timer.id} className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10">
+                                        <div className="flex-1">
+                                            <div className="text-3xl font-bold tabular-nums tracking-tighter">{mins}:{secs}</div>
+                                            <div className="w-full h-1.5 rounded-full bg-white/10 mt-2 overflow-hidden">
+                                                <div className={`h-full rounded-full transition-all duration-1000 ${pct > 20 ? 'bg-blue-500' : 'bg-red-500'}`} style={{ width: `${pct}%` }} />
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <button onClick={() => toggleMultiTimer(timer.id)} className="p-2.5 rounded-full bg-white/10 hover:bg-white/20 transition-all">
+                                                {timer.running ? <Pause size={18} /> : <Play size={18} className={currentTheme.accent} />}
+                                            </button>
+                                            <button onClick={() => resetMultiTimer(timer.id)} className="p-2.5 rounded-full bg-white/10 hover:bg-white/20 transition-all"><RotateCcw size={18} /></button>
+                                            <button onClick={() => deleteMultiTimer(timer.id)} className="p-2.5 rounded-full bg-white/10 hover:bg-red-500/30 transition-all"><Trash2 size={18} /></button>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                            <div className={`flex flex-wrap justify-center gap-3 pt-4 ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+                                {[1, 3, 5, 10, 15, 30].map(m => (
+                                    <button key={m} onClick={() => addMultiTimer(m)} className="px-4 py-2 rounded-full bg-white/10 border border-white/10 hover:bg-white/20 text-sm transition-all">+{m}m</button>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 )}
@@ -933,42 +966,7 @@ function App() {
                     );
                 })()}
 
-                {mode === 'multitimer' && (
-                    <div className="flex flex-col items-center select-none w-full max-w-lg">
-                        <div className="w-full max-h-[55vh] overflow-y-auto custom-scrollbar space-y-3 p-2">
-                            {multiTimers.length === 0 && (
-                                <div className="text-center opacity-40 py-12 text-lg">{t('noTimers')}</div>
-                            )}
-                            {multiTimers.map(timer => {
-                                const mins = Math.floor(timer.remaining / 60).toString().padStart(2, '0');
-                                const secs = (timer.remaining % 60).toString().padStart(2, '0');
-                                const pct = timer.initial > 0 ? (timer.remaining / timer.initial) * 100 : 0;
-                                return (
-                                    <div key={timer.id} className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10">
-                                        <div className="flex-1">
-                                            <div className="text-3xl font-bold tabular-nums tracking-tighter">{mins}:{secs}</div>
-                                            <div className="w-full h-1.5 rounded-full bg-white/10 mt-2 overflow-hidden">
-                                                <div className={`h-full rounded-full transition-all duration-1000 ${pct > 20 ? 'bg-blue-500' : 'bg-red-500'}`} style={{ width: `${pct}%` }} />
-                                            </div>
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <button onClick={() => toggleMultiTimer(timer.id)} className="p-2.5 rounded-full bg-white/10 hover:bg-white/20 transition-all">
-                                                {timer.running ? <Pause size={18} /> : <Play size={18} className={currentTheme.accent} />}
-                                            </button>
-                                            <button onClick={() => resetMultiTimer(timer.id)} className="p-2.5 rounded-full bg-white/10 hover:bg-white/20 transition-all"><RotateCcw size={18} /></button>
-                                            <button onClick={() => deleteMultiTimer(timer.id)} className="p-2.5 rounded-full bg-white/10 hover:bg-red-500/30 transition-all"><Trash2 size={18} /></button>
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                        <div className={`mt-6 flex gap-3 ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-                            {[1, 3, 5, 10, 15, 30].map(m => (
-                                <button key={m} onClick={() => addMultiTimer(m)} className="px-4 py-2 rounded-full bg-white/10 border border-white/10 hover:bg-white/20 text-sm transition-all">{m}m</button>
-                            ))}
-                        </div>
-                    </div>
-                )}
+
             </div>
 
             {/* Bottom Control */}
@@ -978,7 +976,6 @@ function App() {
                     <button onClick={() => setMode('world')} className={`p-3 rounded-full transition-all ${mode === 'world' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><Globe size={20} /></button>
                     <button onClick={() => setMode('calendar')} className={`p-3 rounded-full transition-all ${mode === 'calendar' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><CalendarDays size={20} /></button>
                     <button onClick={() => setMode('timer')} className={`p-3 rounded-full transition-all ${mode === 'timer' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><Timer size={20} /></button>
-                    <button onClick={() => setMode('multitimer')} className={`p-3 rounded-full transition-all ${mode === 'multitimer' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><Plus size={20} /></button>
                     <button onClick={() => setMode('pomodoro')} className={`p-3 rounded-full transition-all ${mode === 'pomodoro' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><Brain size={20} /></button>
                     <button onClick={() => setMode('stopwatch')} className={`p-3 rounded-full transition-all ${mode === 'stopwatch' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><StopCircle size={20} /></button>
                 </div>
