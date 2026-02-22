@@ -539,38 +539,70 @@ function App() {
                 </div>
             )}
 
-            {/* First Visit Modal (Minimalist Compact Design) */}
+            {/* Full-Screen Welcome Splash */}
             {!hasAgreed && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm" />
-                    <div className="relative w-full max-w-[380px] bg-slate-900/90 border border-white/10 backdrop-blur-2xl rounded-[2.5rem] p-8 shadow-2xl flex flex-col items-center text-center space-y-6">
+                <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden select-none" style={{ background: 'linear-gradient(160deg, #020420 0%, #0a1628 30%, #111d3a 50%, #0d1a2f 70%, #040812 100%)' }}>
+                    {/* Animated gradient orbs */}
+                    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                        <div className="absolute w-[80vw] h-[80vw] rounded-full bg-blue-600/8 blur-[120px] -top-[20%] -left-[20%] animate-pulse" />
+                        <div className="absolute w-[60vw] h-[60vw] rounded-full bg-indigo-500/8 blur-[100px] -bottom-[10%] -right-[10%] animate-pulse" style={{ animationDelay: '2s' }} />
+                        <div className="absolute w-[40vw] h-[40vw] rounded-full bg-cyan-500/5 blur-[80px] top-[40%] left-[50%] -translate-x-1/2 animate-pulse" style={{ animationDelay: '4s' }} />
+                    </div>
 
-                        <div className="w-12 h-12 rounded-2xl bg-blue-500/20 flex items-center justify-center text-blue-400">
-                            <Check size={24} />
+                    {/* Subtle grid pattern overlay */}
+                    <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+
+                    {/* Main Content */}
+                    <div className="relative flex flex-col items-center text-center px-8 max-w-xl space-y-10">
+
+                        {/* Logo / Brand Mark */}
+                        <div className="relative mb-2">
+                            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-500/20 to-cyan-400/10 border border-white/10 flex items-center justify-center backdrop-blur-sm shadow-2xl shadow-blue-500/10">
+                                <Clock size={36} className="text-blue-400 drop-shadow-[0_0_20px_rgba(96,165,250,0.4)]" />
+                            </div>
                         </div>
 
-                        <div className="space-y-1">
-                            <h2 className="text-xl font-bold text-white tracking-tight">Clockomistry</h2>
-                            <p className="text-xs text-slate-400 px-4">在使用前請確認您已閱讀並同意條款。</p>
+                        {/* Title */}
+                        <div className="space-y-4">
+                            <h1 className="text-5xl sm:text-7xl font-black text-white tracking-tight leading-[0.9]">
+                                Clock<span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500">omistry</span>
+                            </h1>
+                            <p className="text-base sm:text-lg text-slate-400 leading-relaxed max-w-md mx-auto font-light">
+                                專屬於你的質感時光體驗。<br className="hidden sm:block" />繼續使用即表示您同意我們的使用條款。
+                            </p>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-2 w-full">
+                        {/* Legal Links Row */}
+                        <div className="flex flex-wrap justify-center gap-3">
                             {[
-                                { l: '隱私權', h: 'privacy.html' },
-                                { l: '服務條款', h: 'terms.html' },
-                                { l: 'Cookies', h: 'cookies.html' },
-                                { l: '免責聲明', h: 'disclaimer.html' }
-                            ].map((v, i) => (
-                                <a key={i} href={v.h} className="px-3 py-2 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 text-[10px] font-medium text-slate-400 hover:text-white transition-all text-center">{v.l}</a>
+                                { label: '隱私權條款', href: 'privacy.html' },
+                                { label: '服務條款', href: 'terms.html' },
+                                { label: 'Cookie 政策', href: 'cookies.html' },
+                                { label: '免責聲明', href: 'disclaimer.html' }
+                            ].map((item, i) => (
+                                <a
+                                    key={i}
+                                    href={item.href}
+                                    className="px-5 py-2.5 rounded-full bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.08] hover:border-white/[0.15] text-xs font-medium text-slate-500 hover:text-slate-300 transition-all duration-300"
+                                >
+                                    {item.label}
+                                </a>
                             ))}
                         </div>
 
+                        {/* CTA Button */}
                         <button
                             onClick={() => setHasAgreed(true)}
-                            className="w-full py-4 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm transition-all active:scale-[0.98] shadow-lg shadow-blue-500/20"
+                            className="group relative px-12 py-5 rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold text-base tracking-wide transition-all duration-300 hover:shadow-[0_0_60px_-12px_rgba(59,130,246,0.5)] hover:scale-105 active:scale-95"
                         >
-                            我已閱讀並同意
+                            <div className="absolute inset-0 rounded-full bg-white/0 group-hover:bg-white/10 transition-colors duration-300" />
+                            <span className="relative">開始探索</span>
                         </button>
+                    </div>
+
+                    {/* Bottom attribution */}
+                    <div className="absolute bottom-8 text-[10px] text-slate-600 tracking-[0.3em] uppercase">
+                        Pure Experience · Local Privacy
                     </div>
                 </div>
             )}
