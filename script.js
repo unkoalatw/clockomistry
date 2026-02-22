@@ -5,7 +5,8 @@ import {
     Play, Pause, RotateCcw, AlertCircle, Globe,
     StopCircle, Settings, X, Check, Plus, Search,
     Type, Upload, Palette, ArrowLeft, Coffee, Brain,
-    CalendarDays, Languages, Trash2, ChevronLeft, ChevronRight
+    CalendarDays, Languages, Trash2, ChevronLeft, ChevronRight,
+    Calendar, CloudSun, Share2, Download, LayoutTemplate, Sparkles
 } from 'lucide-react';
 
 // --- IndexedDB 管理 (用於儲存大體積字型) ---
@@ -55,7 +56,11 @@ const I18N = {
         addTimer: '新增計時器', noTimers: '點擊 + 新增計時器',
         mon: '一', tue: '二', wed: '三', thu: '四', fri: '五', sat: '六', sun: '日',
         today: '今天',
-        months: ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月']
+        months: ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'],
+        anniversary: '倒數日', addEvent: '新增事件', eventName: '事件名稱', date: '日期',
+        weather: '天氣', temp: '溫度', shareTheme: '分享主題', export: '匯出', import: '導入',
+        importPrompt: '請貼上主題代碼', screenSaver: '螢幕保護', ssHint: '移動滑鼠結束',
+        daysLeft: '天', daysAgo: '天前',
     },
     'en': {
         lang: 'English',
@@ -78,7 +83,11 @@ const I18N = {
         addTimer: 'Add Timer', noTimers: 'Tap + to add a timer',
         mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun',
         today: 'Today',
-        months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+        months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+        anniversary: 'Anniversary', addEvent: 'Add Event', eventName: 'Event Name', date: 'Date',
+        weather: 'Weather', temp: 'Temp', shareTheme: 'Share Theme', export: 'Export', import: 'Import',
+        importPrompt: 'Paste theme code here', screenSaver: 'Screen Saver', ssHint: 'Move mouse to exit',
+        daysLeft: 'days left', daysAgo: 'days ago',
     },
     'ja': {
         lang: '日本語',
@@ -101,7 +110,11 @@ const I18N = {
         addTimer: 'タイマーを追加', noTimers: '+ でタイマーを追加',
         mon: '月', tue: '火', wed: '水', thu: '木', fri: '金', sat: '土', sun: '日',
         today: '今日',
-        months: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+        months: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+        anniversary: 'お祝い', addEvent: 'イベント追加', eventName: '名目', date: '日付',
+        weather: '天気', temp: '温度', shareTheme: 'テーマ共有', export: '書き出し', import: '読み込み',
+        importPrompt: 'コードを貼り付け', screenSaver: 'スクリーンセーバー', ssHint: 'マウスを動かして終了',
+        daysLeft: '日', daysAgo: '日前',
     }
 };
 
@@ -235,6 +248,21 @@ function App() {
     const [customBgImage, setCustomBgImage] = useState(() => localStorage.getItem('clock_custom_bg') || '');
     const [lang, setLang] = useState(() => localStorage.getItem('clock_lang') || 'zh-TW');
 
+    // Anniversary 狀態
+    const [anniversaries, setAnniversaries] = useState(() => {
+        try { const s = localStorage.getItem('clock_anniversaries'); if (s) return JSON.parse(s); } catch (e) { }
+        return [];
+    });
+
+    // Weather 狀態
+    const [weather, setWeather] = useState({ temp: '--', condition: '', city: '--' });
+
+    // Screen Saver 狀態
+    const [isScreenSaverActive, setIsScreenSaverActive] = useState(false);
+    const [lastActivity, setLastActivity] = useState(Date.now());
+    const [ssPos, setSsPos] = useState({ x: 40, y: 40 });
+    const ssVelocity = useRef({ x: 0.15, y: 0.12 });
+
     // i18n helper
     const t = useCallback((key) => (I18N[lang] || I18N['zh-TW'])[key] || key, [lang]);
 
@@ -275,6 +303,83 @@ function App() {
     useEffect(() => { localStorage.setItem('clock_custom_bg', customBgImage); }, [customBgImage]);
     useEffect(() => { localStorage.setItem('clock_agreed', hasAgreed); }, [hasAgreed]);
     useEffect(() => { localStorage.setItem('clock_lang', lang); }, [lang]);
+    useEffect(() => { localStorage.setItem('clock_anniversaries', JSON.stringify(anniversaries)); }, [anniversaries]);
+
+    // 螢幕保護自動偵測
+    useEffect(() => {
+        const updateActivity = () => {
+            setLastActivity(Date.now());
+            if (isScreenSaverActive) setIsScreenSaverActive(false);
+        };
+        window.addEventListener('mousemove', updateActivity);
+        window.addEventListener('keydown', updateActivity);
+        window.addEventListener('touchstart', updateActivity);
+        return () => {
+            window.removeEventListener('mousemove', updateActivity);
+            window.removeEventListener('keydown', updateActivity);
+            window.removeEventListener('touchstart', updateActivity);
+        };
+    }, [isScreenSaverActive]);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            if (!isScreenSaverActive && Date.now() - lastActivity > 5 * 60 * 1000) { // 5分鐘
+                setIsScreenSaverActive(true);
+            }
+        }, 10000);
+        return () => clearInterval(interval);
+    }, [lastActivity, isScreenSaverActive]);
+
+    // 螢幕保護位移邏輯
+    useEffect(() => {
+        if (!isScreenSaverActive) return;
+        const move = () => {
+            setSsPos(prev => {
+                let nextX = prev.x + ssVelocity.current.x;
+                let nextY = prev.y + ssVelocity.current.y;
+                if (nextX < 5 || nextX > 75) ssVelocity.current.x *= -1;
+                if (nextY < 5 || nextY > 85) ssVelocity.current.y *= -1;
+                return { x: nextX, y: nextY };
+            });
+            requestRef.current = requestAnimationFrame(move);
+        };
+        requestRef.current = requestAnimationFrame(move);
+        return () => cancelAnimationFrame(requestRef.current);
+    }, [isScreenSaverActive]);
+
+    // 天氣抓取
+    const fetchWeather = async () => {
+        try {
+            // 使用 IP-API 獲取大致位置
+            const locRes = await fetch('https://ipapi.co/json/');
+            const loc = await locRes.json();
+            const { latitude, longitude, city } = loc;
+
+            // 使用 Open-Meteo 獲取天氣
+            const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`);
+            const wData = await wRes.json();
+            const code = wData.current_weather.weathercode;
+
+            // 簡易天氣代碼轉中文/英文
+            const conditionMap = {
+                0: 'Clear', 1: 'Cloudy', 2: 'Cloudy', 3: 'Overcast',
+                45: 'Fog', 48: 'Fog', 51: 'Drizzle', 61: 'Rain',
+                71: 'Snow', 95: 'Storm'
+            };
+
+            setWeather({
+                temp: Math.round(wData.current_weather.temperature),
+                condition: conditionMap[code] || 'Cloudy',
+                city: city
+            });
+        } catch (e) { console.error('Weather fetch error:', e); }
+    };
+
+    useEffect(() => {
+        fetchWeather();
+        const interval = setInterval(fetchWeather, 30 * 60 * 1000); // 30分鐘更新一次
+        return () => clearInterval(interval);
+    }, []);
 
     // Multi-Timer 計時邏輯
     useEffect(() => {
@@ -298,6 +403,24 @@ function App() {
     const toggleMultiTimer = (id) => setMultiTimers(prev => prev.map(t => t.id === id ? { ...t, running: !t.running } : t));
     const resetMultiTimer = (id) => setMultiTimers(prev => prev.map(t => t.id === id ? { ...t, remaining: t.initial, running: false } : t));
     const deleteMultiTimer = (id) => setMultiTimers(prev => prev.filter(t => t.id !== id));
+
+    // --- 主題匯出導入 ---
+    const exportTheme = () => {
+        const data = { theme, font, customColors, customBgImage };
+        const code = btoa(JSON.stringify(data));
+        navigator.clipboard.writeText(code);
+    };
+
+    const importTheme = (code) => {
+        if (!code) return;
+        try {
+            const data = JSON.parse(atob(code));
+            if (data.theme) setTheme(data.theme);
+            if (data.font) setFont(data.font);
+            if (data.customColors) setCustomColors(data.customColors);
+            if (data.customBgImage !== undefined) setCustomBgImage(data.customBgImage);
+        } catch (e) { setErrorMsg('Invalid Theme Code'); setTimeout(() => setErrorMsg(''), 3000); }
+    };
 
     // 初始化時從 IndexedDB 載入字體
     useEffect(() => {
@@ -644,6 +767,26 @@ function App() {
                             </section>
 
                             <section className="space-y-6">
+                                <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><Share2 size={24} /> {t('shareTheme')}</h3>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <button onClick={exportTheme} className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 flex flex-col items-center gap-2 transition-all">
+                                        <Download size={20} />
+                                        <span>{t('export')}</span>
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            const code = prompt(t('importPrompt'));
+                                            importTheme(code);
+                                        }}
+                                        className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 flex flex-col items-center gap-2 transition-all"
+                                    >
+                                        <LayoutTemplate size={20} />
+                                        <span>{t('import')}</span>
+                                    </button>
+                                </div>
+                            </section>
+
+                            <section className="space-y-6">
                                 <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><AlertCircle size={24} /> {t('legal')}</h3>
                                 <div className="grid grid-cols-2 gap-4">
                                     <a href="privacy.html" className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-center text-sm transition-all">{t('privacy')}</a>
@@ -725,6 +868,21 @@ function App() {
                 </div>
             )}
 
+            {/* Screen Saver Overaly */}
+            {isScreenSaverActive && (
+                <div className="fixed inset-0 z-[200] bg-black select-none cursor-none flex items-center justify-center">
+                    <div
+                        className="absolute flex flex-col items-center transition-all duration-1000 ease-linear"
+                        style={{ left: `${ssPos.x}%`, top: `${ssPos.y}%` }}
+                    >
+                        <div className="text-8xl sm:text-[120px] font-bold tracking-tighter opacity-80">
+                            {h}<span className="animate-pulse">:</span>{m}
+                        </div>
+                        <div className="mt-4 text-sm opacity-20 tracking-[1em] uppercase">{t('ssHint')}</div>
+                    </div>
+                </div>
+            )}
+
             {/* Decor */}
             <div className={`absolute inset-0 overflow-hidden pointer-events-none transition-opacity duration-1000 ${isZenMode ? 'opacity-30' : 'opacity-100'}`}>
                 <div className="absolute top-[10%] left-[10%] w-[50vw] h-[50vw] rounded-full blur-[120px] opacity-20 bg-blue-500/40 animate-pulse"></div>
@@ -736,6 +894,14 @@ function App() {
 
                 {mode === 'clock' && (
                     <div className="flex flex-col items-center select-none">
+                        {/* Weather Widget */}
+                        <div className="mb-8 flex items-center gap-4 px-6 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm animate-fade-in opacity-60 hover:opacity-100 transition-opacity">
+                            <CloudSun size={18} className={currentTheme.accent} />
+                            <div className="text-sm font-medium">
+                                {weather.city} · {weather.temp}°C · {weather.condition}
+                            </div>
+                        </div>
+
                         <div className="flex items-baseline font-bold tracking-tighter tabular-nums drop-shadow-2xl">
                             <span className="text-[12vw] sm:text-[150px] leading-none">{h}</span>
                             <span className={`text-[12vw] sm:text-[150px] leading-none animate-pulse ${currentTheme.accent}`}>:</span>
@@ -967,6 +1133,56 @@ function App() {
                 })()}
 
 
+                {mode === 'anniversary' && (
+                    <div className="flex flex-col items-center select-none w-full max-w-lg">
+                        <div className="w-full max-h-[50vh] overflow-y-auto custom-scrollbar space-y-4 p-2">
+                            {anniversaries.length === 0 && (
+                                <div className="text-center opacity-40 py-12">
+                                    <Sparkles size={48} className="mx-auto mb-4 opacity-20" />
+                                    <p className="text-lg">{t('addEvent')}</p>
+                                </div>
+                            )}
+                            {anniversaries.map(ev => {
+                                const target = new Date(ev.date);
+                                const diff = target - new Date();
+                                const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+                                const isFuture = days >= 0;
+
+                                return (
+                                    <div key={ev.id} className="flex items-center justify-between p-6 rounded-[2rem] bg-white/5 border border-white/10 group hover:bg-white/10 transition-all">
+                                        <div>
+                                            <div className="text-xl font-bold">{ev.label}</div>
+                                            <div className="text-xs opacity-40 mt-1 uppercase tracking-widest">{ev.date}</div>
+                                        </div>
+                                        <div className="flex items-center gap-6">
+                                            <div className="text-right">
+                                                <div className={`text-3xl font-black ${isFuture ? currentTheme.accent : 'opacity-40'}`}>
+                                                    {Math.abs(days)}
+                                                </div>
+                                                <div className="text-[10px] opacity-40 uppercase tracking-tighter">
+                                                    {isFuture ? t('daysLeft') : t('daysAgo')}
+                                                </div>
+                                            </div>
+                                            <button onClick={() => setAnniversaries(prev => prev.filter(a => a.id !== ev.id))} className="p-2 rounded-full opacity-0 group-hover:opacity-100 hover:bg-red-500/20 transition-all">
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        <button
+                            onClick={() => {
+                                const label = prompt(t('eventName'));
+                                const date = prompt(t('date'), '2026-01-01');
+                                if (label && date) setAnniversaries([...anniversaries, { id: Date.now(), label, date }]);
+                            }}
+                            className="mt-8 px-8 py-3 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 flex items-center gap-2 transition-all"
+                        >
+                            <Plus size={20} /> {t('addEvent')}
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* Bottom Control */}
@@ -975,6 +1191,7 @@ function App() {
                     <button onClick={() => setMode('clock')} className={`p-3 rounded-full transition-all ${mode === 'clock' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><Clock size={20} /></button>
                     <button onClick={() => setMode('world')} className={`p-3 rounded-full transition-all ${mode === 'world' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><Globe size={20} /></button>
                     <button onClick={() => setMode('calendar')} className={`p-3 rounded-full transition-all ${mode === 'calendar' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><CalendarDays size={20} /></button>
+                    <button onClick={() => setMode('anniversary')} className={`p-3 rounded-full transition-all ${mode === 'anniversary' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><Calendar size={20} /></button>
                     <button onClick={() => setMode('timer')} className={`p-3 rounded-full transition-all ${mode === 'timer' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><Timer size={20} /></button>
                     <button onClick={() => setMode('pomodoro')} className={`p-3 rounded-full transition-all ${mode === 'pomodoro' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><Brain size={20} /></button>
                     <button onClick={() => setMode('stopwatch')} className={`p-3 rounded-full transition-all ${mode === 'stopwatch' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><StopCircle size={20} /></button>
