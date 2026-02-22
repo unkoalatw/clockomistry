@@ -51,7 +51,7 @@ const I18N = {
         uploadImage: '上傳圖片', remove: '移除',
         color1: '色彩1', color2: '色彩2', color3: '色彩3', text: '文字', accent: '強調',
         custom: '自訂', imported: '已匯入字體',
-        calendar: '日曆', multiTimer: '多計時器',
+        calendar: '月曆', multiTimer: '多計時器',
         addTimer: '新增計時器', noTimers: '點擊 + 新增計時器',
         mon: '一', tue: '二', wed: '三', thu: '四', fri: '五', sat: '六', sun: '日',
         today: '今天',
