@@ -837,80 +837,92 @@ function App() {
                     const isCurrentMonth = month === today.getMonth() && year === today.getFullYear();
                     const isTodayDate = (d) => d === today.getDate() && isCurrentMonth;
 
-                    // Google Calendar uses Sunday-start
-                    const firstDayOfWeek = new Date(year, month, 1).getDay(); // 0=Sun
+                    // Sunday-start like Google Calendar
+                    const firstDayOfWeek = new Date(year, month, 1).getDay();
                     const prevMonthDays = new Date(year, month, 0).getDate();
 
-                    // Build 6 rows × 7 cols = 42 cells (like Google Calendar)
+                    // Build 6 rows × 7 cols = 42 cells
                     const cells = [];
-                    // Previous month trailing days
-                    for (let i = firstDayOfWeek - 1; i >= 0; i--) {
-                        cells.push({ day: prevMonthDays - i, type: 'prev' });
-                    }
-                    // Current month
-                    for (let i = 1; i <= daysInMonth; i++) {
-                        cells.push({ day: i, type: 'current' });
-                    }
-                    // Next month leading days
+                    for (let i = firstDayOfWeek - 1; i >= 0; i--) cells.push({ day: prevMonthDays - i, type: 'prev' });
+                    for (let i = 1; i <= daysInMonth; i++) cells.push({ day: i, type: 'current' });
                     let nextDay = 1;
-                    while (cells.length < 42) {
-                        cells.push({ day: nextDay++, type: 'next' });
-                    }
+                    while (cells.length < 42) cells.push({ day: nextDay++, type: 'next' });
 
                     const dayLabels = [t('sun'), t('mon'), t('tue'), t('wed'), t('thu'), t('fri'), t('sat')];
                     const monthNames = (I18N[lang] || I18N['zh-TW']).months;
+                    const grid7 = { display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' };
 
                     return (
-                        <div className="flex flex-col select-none w-full" style={{ maxWidth: 520 }}>
-                            {/* Google Calendar-style Top Bar */}
-                            <div className="flex items-center gap-4 mb-6">
+                        <div style={{ display: 'flex', flexDirection: 'column', width: '100%', maxWidth: 540, userSelect: 'none' }}>
+                            {/* Top Bar — Google Calendar style */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
                                 <button
                                     onClick={() => setCalendarDate(new Date())}
-                                    className="px-5 py-2 rounded-full border border-white/20 text-sm font-medium hover:bg-white/10 transition-all"
+                                    style={{ padding: '8px 20px', borderRadius: 9999, border: '1px solid rgba(255,255,255,0.2)', fontSize: 14, fontWeight: 500, background: 'transparent', color: 'inherit', cursor: 'pointer' }}
+                                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                                 >
                                     {t('today')}
                                 </button>
-                                <div className="flex items-center gap-1">
-                                    <button onClick={() => setCalendarDate(new Date(year, month - 1, 1))} className="p-2 rounded-full hover:bg-white/10 transition-all"><ChevronLeft size={20} /></button>
-                                    <button onClick={() => setCalendarDate(new Date(year, month + 1, 1))} className="p-2 rounded-full hover:bg-white/10 transition-all"><ChevronRight size={20} /></button>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                    <button onClick={() => setCalendarDate(new Date(year, month - 1, 1))} style={{ padding: 6, borderRadius: '50%', background: 'transparent', border: 'none', color: 'inherit', cursor: 'pointer' }}><ChevronLeft size={22} /></button>
+                                    <button onClick={() => setCalendarDate(new Date(year, month + 1, 1))} style={{ padding: 6, borderRadius: '50%', background: 'transparent', border: 'none', color: 'inherit', cursor: 'pointer' }}><ChevronRight size={22} /></button>
                                 </div>
-                                <h2 className="text-xl font-medium tracking-tight">
+                                <span style={{ fontSize: 20, fontWeight: 500, letterSpacing: '-0.02em' }}>
                                     {monthNames[month]} {year}
-                                </h2>
+                                </span>
                             </div>
 
-                            {/* Weekday Header Row */}
-                            <div className="grid grid-cols-7 border-b border-white/10">
+                            {/* Weekday Headers */}
+                            <div style={{ ...grid7, borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
                                 {dayLabels.map((d, i) => (
-                                    <div key={d} className={`text-center text-[11px] font-medium py-2 ${i === 0 ? 'text-red-400/70' : i === 6 ? 'text-blue-400/60' : 'opacity-40'}`}>
+                                    <div key={d} style={{ textAlign: 'center', fontSize: 11, fontWeight: 500, padding: '8px 0', color: i === 0 ? 'rgba(248,113,113,0.7)' : i === 6 ? 'rgba(96,165,250,0.6)' : 'rgba(255,255,255,0.4)' }}>
                                         {d}
                                     </div>
                                 ))}
                             </div>
 
-                            {/* Date Grid — 6 rows */}
-                            <div className="grid grid-cols-7">
+                            {/* Date Grid */}
+                            <div style={grid7}>
                                 {cells.map((cell, i) => {
                                     const colIndex = i % 7;
-                                    const rowIndex = Math.floor(i / 7);
                                     const isToday = cell.type === 'current' && isTodayDate(cell.day);
-                                    const isSunday = colIndex === 0;
-                                    const isSaturday = colIndex === 6;
+                                    const isSun = colIndex === 0;
+                                    const isSat = colIndex === 6;
+                                    const borderStyle = '1px solid rgba(255,255,255,0.05)';
 
                                     return (
                                         <div
                                             key={i}
-                                            className={`relative border-b border-r border-white/[0.06] ${colIndex === 0 ? 'border-l border-white/[0.06]' : ''}`}
-                                            style={{ minHeight: 52 }}
+                                            style={{
+                                                position: 'relative',
+                                                minHeight: 56,
+                                                borderBottom: borderStyle,
+                                                borderRight: borderStyle,
+                                                borderLeft: colIndex === 0 ? borderStyle : 'none'
+                                            }}
                                         >
-                                            <div className={`absolute top-1.5 left-1/2 -translate-x-1/2 w-7 h-7 flex items-center justify-center text-[13px] rounded-full transition-all
-                                                ${isToday
-                                                    ? 'bg-blue-500 text-white font-bold'
-                                                    : cell.type !== 'current'
-                                                        ? 'opacity-25'
-                                                        : isSunday ? 'text-red-400/80' : isSaturday ? 'text-blue-400/70' : ''
-                                                }`}
-                                            >
+                                            <div style={{
+                                                position: 'absolute',
+                                                top: 6,
+                                                left: '50%',
+                                                transform: 'translateX(-50%)',
+                                                width: 28,
+                                                height: 28,
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                fontSize: 13,
+                                                borderRadius: '50%',
+                                                fontWeight: isToday ? 700 : 400,
+                                                background: isToday ? '#3b82f6' : 'transparent',
+                                                color: isToday ? '#fff'
+                                                    : cell.type !== 'current' ? 'rgba(255,255,255,0.2)'
+                                                        : isSun ? 'rgba(248,113,113,0.8)'
+                                                            : isSat ? 'rgba(96,165,250,0.7)'
+                                                                : 'inherit',
+                                                transition: 'all 0.15s'
+                                            }}>
                                                 {cell.day}
                                             </div>
                                         </div>
