@@ -835,70 +835,87 @@ function App() {
                     const daysInMonth = new Date(year, month + 1, 0).getDate();
                     const today = new Date();
                     const isCurrentMonth = month === today.getMonth() && year === today.getFullYear();
-                    const isToday = (d) => d === today.getDate() && isCurrentMonth;
+                    const isTodayDate = (d) => d === today.getDate() && isCurrentMonth;
 
-                    // getDay(): 0=Sun, need Monday-start: Mon=0, Tue=1, ..., Sun=6
-                    const rawFirstDay = new Date(year, month, 1).getDay();
-                    const offset = rawFirstDay === 0 ? 6 : rawFirstDay - 1;
+                    // Google Calendar uses Sunday-start
+                    const firstDayOfWeek = new Date(year, month, 1).getDay(); // 0=Sun
+                    const prevMonthDays = new Date(year, month, 0).getDate();
+
+                    // Build 6 rows × 7 cols = 42 cells (like Google Calendar)
                     const cells = [];
-                    for (let i = 0; i < offset; i++) cells.push(null);
-                    for (let i = 1; i <= daysInMonth; i++) cells.push(i);
-                    // Pad to fill last row
-                    while (cells.length % 7 !== 0) cells.push(null);
+                    // Previous month trailing days
+                    for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+                        cells.push({ day: prevMonthDays - i, type: 'prev' });
+                    }
+                    // Current month
+                    for (let i = 1; i <= daysInMonth; i++) {
+                        cells.push({ day: i, type: 'current' });
+                    }
+                    // Next month leading days
+                    let nextDay = 1;
+                    while (cells.length < 42) {
+                        cells.push({ day: nextDay++, type: 'next' });
+                    }
 
-                    const dayLabels = [t('mon'), t('tue'), t('wed'), t('thu'), t('fri'), t('sat'), t('sun')];
+                    const dayLabels = [t('sun'), t('mon'), t('tue'), t('wed'), t('thu'), t('fri'), t('sat')];
                     const monthNames = (I18N[lang] || I18N['zh-TW']).months;
 
                     return (
-                        <div className="flex flex-col items-center select-none w-full max-w-sm px-2">
-                            {/* Month Navigation */}
-                            <div className="flex items-center justify-between w-full mb-8">
-                                <button onClick={() => setCalendarDate(new Date(year, month - 1, 1))} className="p-3 rounded-full bg-white/5 hover:bg-white/15 border border-white/10 transition-all"><ChevronLeft size={18} /></button>
-                                <div className="text-center">
-                                    <div className="text-2xl font-bold tracking-tight">{monthNames[month]}</div>
-                                    <div className="text-xs opacity-40 mt-0.5">{year}</div>
+                        <div className="flex flex-col select-none w-full" style={{ maxWidth: 520 }}>
+                            {/* Google Calendar-style Top Bar */}
+                            <div className="flex items-center gap-4 mb-6">
+                                <button
+                                    onClick={() => setCalendarDate(new Date())}
+                                    className="px-5 py-2 rounded-full border border-white/20 text-sm font-medium hover:bg-white/10 transition-all"
+                                >
+                                    {t('today')}
+                                </button>
+                                <div className="flex items-center gap-1">
+                                    <button onClick={() => setCalendarDate(new Date(year, month - 1, 1))} className="p-2 rounded-full hover:bg-white/10 transition-all"><ChevronLeft size={20} /></button>
+                                    <button onClick={() => setCalendarDate(new Date(year, month + 1, 1))} className="p-2 rounded-full hover:bg-white/10 transition-all"><ChevronRight size={20} /></button>
                                 </div>
-                                <button onClick={() => setCalendarDate(new Date(year, month + 1, 1))} className="p-3 rounded-full bg-white/5 hover:bg-white/15 border border-white/10 transition-all"><ChevronRight size={18} /></button>
+                                <h2 className="text-xl font-medium tracking-tight">
+                                    {monthNames[month]} {year}
+                                </h2>
                             </div>
 
-                            {/* Weekday Headers */}
-                            <div className="grid grid-cols-7 gap-1.5 w-full text-center mb-2">
+                            {/* Weekday Header Row */}
+                            <div className="grid grid-cols-7 border-b border-white/10">
                                 {dayLabels.map((d, i) => (
-                                    <div key={d} className={`text-[11px] font-medium py-1 ${i >= 5 ? 'text-blue-400/60' : 'opacity-40'}`}>{d}</div>
+                                    <div key={d} className={`text-center text-[11px] font-medium py-2 ${i === 0 ? 'text-red-400/70' : i === 6 ? 'text-blue-400/60' : 'opacity-40'}`}>
+                                        {d}
+                                    </div>
                                 ))}
                             </div>
 
-                            {/* Date Grid */}
-                            <div className="grid grid-cols-7 gap-1.5 w-full text-center">
-                                {cells.map((d, i) => {
+                            {/* Date Grid — 6 rows */}
+                            <div className="grid grid-cols-7">
+                                {cells.map((cell, i) => {
                                     const colIndex = i % 7;
-                                    const isWeekend = colIndex >= 5;
+                                    const rowIndex = Math.floor(i / 7);
+                                    const isToday = cell.type === 'current' && isTodayDate(cell.day);
+                                    const isSunday = colIndex === 0;
+                                    const isSaturday = colIndex === 6;
+
                                     return (
                                         <div
                                             key={i}
-                                            className={`aspect-square flex items-center justify-center rounded-2xl text-sm transition-all
-                                                ${!d ? '' : isToday(d)
-                                                    ? 'bg-blue-500 text-white font-bold shadow-lg shadow-blue-500/25 scale-105'
-                                                    : `hover:bg-white/10 ${isWeekend ? 'text-blue-400/70' : ''}`
-                                                }`}
+                                            className={`relative border-b border-r border-white/[0.06] ${colIndex === 0 ? 'border-l border-white/[0.06]' : ''}`}
+                                            style={{ minHeight: 52 }}
                                         >
-                                            {d || ''}
+                                            <div className={`absolute top-1.5 left-1/2 -translate-x-1/2 w-7 h-7 flex items-center justify-center text-[13px] rounded-full transition-all
+                                                ${isToday
+                                                    ? 'bg-blue-500 text-white font-bold'
+                                                    : cell.type !== 'current'
+                                                        ? 'opacity-25'
+                                                        : isSunday ? 'text-red-400/80' : isSaturday ? 'text-blue-400/70' : ''
+                                                }`}
+                                            >
+                                                {cell.day}
+                                            </div>
                                         </div>
                                     );
                                 })}
-                            </div>
-
-                            {/* Today indicator / Back to today button */}
-                            <div className="mt-6">
-                                {isCurrentMonth ? (
-                                    <div className={`text-sm opacity-50`}>
-                                        {t('today')}: {today.getFullYear()}/{(today.getMonth() + 1).toString().padStart(2, '0')}/{today.getDate().toString().padStart(2, '0')}
-                                    </div>
-                                ) : (
-                                    <button onClick={() => setCalendarDate(new Date())} className={`text-sm px-4 py-2 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all ${currentTheme.accent}`}>
-                                        ← {t('today')}
-                                    </button>
-                                )}
                             </div>
                         </div>
                     );
