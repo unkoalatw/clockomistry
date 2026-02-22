@@ -4,8 +4,12 @@
   "description": "",
   "main": "script.js",
   "scripts": {
-    "build": "tailwindcss -i ./input.css -o ./output.css --minify",
-    "watch": "tailwindcss -i ./input.css -o ./output.css --watch",
+    "build:css": "tailwindcss -i ./input.css -o ./output.css --minify",
+    "build:js": "babel script.js --out-file script.dist.js",
+    "build": "npm run build:css && npm run build:js",
+    "watch:css": "tailwindcss -i ./input.css -o ./output.css --watch",
+    "watch:js": "babel script.js --out-file script.dist.js --watch",
+    "watch": "concurrently \"npm run watch:css\" \"npm run watch:js\"",
     "start": "python index.py"
   },
   "keywords": [],
@@ -13,6 +17,11 @@
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
+    "@babel/cli": "^7.28.6",
+    "@babel/core": "^7.29.0",
+    "@babel/preset-env": "^7.29.0",
+    "@babel/preset-react": "^7.28.5",
+    "concurrently": "^9.2.1",
     "tailwindcss": "^4.1.18"
   },
   "dependencies": {
