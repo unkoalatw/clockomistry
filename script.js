@@ -129,6 +129,11 @@ function App() {
     const [showSettings, setShowSettings] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [hasCustomFont, setHasCustomFont] = useState(false);
+    const [customColors, setCustomColors] = useState(() => {
+        try { const s = localStorage.getItem('clock_custom_colors'); if (s) return JSON.parse(s); } catch (e) { }
+        return { bg1: '#0a0a1a', bg2: '#1a1a3e', bg3: '#0a0a1a', text: '#e2e8f0', accent: '#22d3ee' };
+    });
+    const [customBgImage, setCustomBgImage] = useState(() => localStorage.getItem('clock_custom_bg') || '');
 
     // Timer 狀態
     const [timerSeconds, setTimerSeconds] = useState(25 * 60);
@@ -149,12 +154,15 @@ function App() {
     const requestRef = useRef();
     const previousTimeRef = useRef();
     const fileInputRef = useRef(null);
+    const bgImageInputRef = useRef(null);
 
     // --- 持久化設定 ---
     useEffect(() => { localStorage.setItem('clock_theme', theme); }, [theme]);
     useEffect(() => { localStorage.setItem('clock_font', font); }, [font]);
     useEffect(() => { localStorage.setItem('clock_millis', showMillis); }, [showMillis]);
     useEffect(() => { localStorage.setItem('clock_zones', JSON.stringify(selectedZones)); }, [selectedZones]);
+    useEffect(() => { localStorage.setItem('clock_custom_colors', JSON.stringify(customColors)); }, [customColors]);
+    useEffect(() => { localStorage.setItem('clock_custom_bg', customBgImage); }, [customBgImage]);
 
     // --- 字體載入邏輯 ---
     const loadCustomFont = async (base64Data) => {
@@ -182,6 +190,17 @@ function App() {
         };
         reader.readAsDataURL(file);
     };
+
+    const handleBgImageUpload = (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        if (file.size > 5 * 1024 * 1024) { showError('圖片不能超過 5MB'); return; }
+        const reader = new FileReader();
+        reader.onload = (ev) => { setCustomBgImage(ev.target.result); setTheme('custom'); };
+        reader.readAsDataURL(file);
+    };
+
+    const updateCustomColor = (key, value) => setCustomColors(prev => ({ ...prev, [key]: value }));
 
     // --- Pomodoro 邏輯 ---
     useEffect(() => {
@@ -307,18 +326,34 @@ function App() {
     };
 
     const filteredZones = useMemo(() => ALL_ZONES.filter(z => z.label.toLowerCase().includes(searchQuery.toLowerCase())), [searchQuery]);
-    const currentTheme = DEFAULT_THEMES[theme] || DEFAULT_THEMES.modern;
+    const currentTheme = theme === 'custom' ? {
+        name: '自訂', bg: '', text: '', accent: 'custom-accent',
+        card: 'custom-card backdrop-blur-3xl',
+        gradient: '', button: 'hover:bg-white/20', settingsBg: 'custom-settings'
+    } : (DEFAULT_THEMES[theme] || DEFAULT_THEMES.modern);
     const { h, m, s, ms } = formatTime(time);
     const stopwatch = formatDuration(stopwatchTime);
     const currentFontStyle = useMemo(() => (font === 'custom' && hasCustomFont) ? { fontFamily: 'CustomFont' } : (DEFAULT_FONTS[font]?.style || {}), [font, hasCustomFont]);
+    const containerStyle = theme === 'custom' ? {
+        ...currentFontStyle,
+        background: customBgImage
+            ? `linear-gradient(${customColors.bg1}cc, ${customColors.bg1}cc), url(${customBgImage}) center/cover no-repeat fixed`
+            : `linear-gradient(135deg, ${customColors.bg1}, ${customColors.bg2}, ${customColors.bg3})`,
+        color: customColors.text
+    } : currentFontStyle;
 
     return (
         <div
             ref={containerRef}
             onMouseMove={handleMouseMove}
-            style={currentFontStyle}
-            className={`h-screen w-full flex flex-col items-center justify-center transition-all duration-1000 bg-gradient-to-br ${currentTheme.gradient} ${currentTheme.text} overflow-hidden relative selection:bg-pink-500 selection:text-white`}
+            style={containerStyle}
+            className={`h-screen w-full flex flex-col items-center justify-center transition-all duration-1000 ${theme !== 'custom' ? `bg-gradient-to-br ${currentTheme.gradient} ${currentTheme.text}` : ''} overflow-hidden relative selection:bg-pink-500 selection:text-white`}
         >
+            {theme === 'custom' && <style>{`
+                .custom-accent { color: ${customColors.accent}; }
+                .custom-card { background: ${customColors.bg1}33; border-color: ${customColors.text}1a; box-shadow: 0 8px 32px 0 rgba(0,0,0,0.36); }
+                .custom-settings { background: ${customColors.bg1}e6; backdrop-filter: blur(64px); }
+            `}</style>}
             {/* Toast */}
             <div className={`fixed top-8 left-1/2 -translate-x-1/2 z-[100] transition-all duration-300 ${errorMsg ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}>
                 <div className={`px-6 py-3 rounded-full shadow-lg backdrop-blur-md flex items-center gap-2 bg-slate-800/90 text-white`}>
@@ -350,7 +385,47 @@ function App() {
                                             <span className="text-sm">{t.name}</span>
                                         </button>
                                     ))}
+                                    <button onClick={() => setTheme('custom')} className={`flex flex-col items-center gap-4 p-6 rounded-3xl transition-all border ${theme === 'custom' ? 'bg-white/10 border-white/50 scale-105' : 'border-white/5 hover:bg-white/5'}`}>
+                                        <div className="w-12 h-12 rounded-full border border-white/20" style={{ background: `linear-gradient(135deg, ${customColors.bg1}, ${customColors.bg2}, ${customColors.bg3})` }}></div>
+                                        <span className="text-sm">自訂</span>
+                                    </button>
                                 </div>
+                                {theme === 'custom' && (
+                                    <div className="mt-6 p-6 rounded-2xl bg-white/5 border border-white/10" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                                        <div>
+                                            <span className="text-sm font-medium opacity-80" style={{ display: 'block', marginBottom: 12 }}>背景漸層色</span>
+                                            <div className="flex gap-4 items-center">
+                                                {[['bg1', '色彩1'], ['bg2', '色彩2'], ['bg3', '色彩3']].map(([k, l]) => (
+                                                    <label key={k} className="flex flex-col items-center gap-1 cursor-pointer">
+                                                        <input type="color" value={customColors[k]} onChange={(e) => updateCustomColor(k, e.target.value)} style={{ width: 40, height: 40, border: 'none', borderRadius: 8, cursor: 'pointer', background: 'transparent' }} />
+                                                        <span className="opacity-50" style={{ fontSize: 10 }}>{l}</span>
+                                                    </label>
+                                                ))}
+                                                <div className="flex-1 rounded-lg border border-white/10" style={{ height: 40, background: `linear-gradient(135deg, ${customColors.bg1}, ${customColors.bg2}, ${customColors.bg3})` }}></div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <span className="text-sm font-medium opacity-80" style={{ display: 'block', marginBottom: 12 }}>文字 / 強調色</span>
+                                            <div className="flex gap-4 items-center">
+                                                {[['text', '文字'], ['accent', '強調']].map(([k, l]) => (
+                                                    <label key={k} className="flex flex-col items-center gap-1 cursor-pointer">
+                                                        <input type="color" value={customColors[k]} onChange={(e) => updateCustomColor(k, e.target.value)} style={{ width: 40, height: 40, border: 'none', borderRadius: 8, cursor: 'pointer', background: 'transparent' }} />
+                                                        <span className="opacity-50" style={{ fontSize: 10 }}>{l}</span>
+                                                    </label>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <span className="text-sm font-medium opacity-80" style={{ display: 'block', marginBottom: 12 }}>背景圖片</span>
+                                            <div className="flex gap-3 items-center">
+                                                <button onClick={() => bgImageInputRef.current.click()} className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm"><Upload size={14} /> 上傳圖片</button>
+                                                {customBgImage && <button onClick={() => setCustomBgImage('')} className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm opacity-60 hover:opacity-100"><X size={14} /> 移除</button>}
+                                                <input type="file" ref={bgImageInputRef} className="hidden" accept="image/*" onChange={handleBgImageUpload} />
+                                            </div>
+                                            {customBgImage && <div className="w-full rounded-xl overflow-hidden border border-white/10" style={{ height: 96, marginTop: 12 }}><img src={customBgImage} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6 }} /></div>}
+                                        </div>
+                                    </div>
+                                )}
                                 <div className="pt-6">
                                     <div className="flex justify-between items-center mb-4">
                                         <span className="text-lg opacity-80">顯示字體</span>
