@@ -1,8 +1,8 @@
-# 質感時鐘 (Aesthetic Clock)
+# Clockomistry
 
 一個現代感十足、具備多種主題風格的網頁時鐘應用程式。結合了時鐘、計時器與碼表功能，並支援全螢幕與專注模式 (Zen Mode)。
 
-![專案預覽](https://via.placeholder.com/800x450?text=Aesthetic+Clock+Preview)
+![專案預覽](https://via.placeholder.com/800x450?text=Clockomistry+Preview)
 *(建議上傳實際截圖後替換此連結)*
 
 ## ✨ 特色功能
