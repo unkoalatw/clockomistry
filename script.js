@@ -539,29 +539,66 @@ function App() {
                 </div>
             )}
 
-            {/* First Visit Modal */}
+            {/* First Visit Modal (Premium Redesign) */}
             {!hasAgreed && (
-                <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-6 animate-in fade-in duration-700">
-                    <div className="max-w-lg w-full p-8 rounded-[3rem] bg-slate-900 border border-white/10 shadow-2xl flex flex-col items-center text-center space-y-8 animate-in zoom-in-95 duration-500">
-                        <div className="w-20 h-20 rounded-full bg-blue-500/20 flex items-center justify-center">
-                            <Check size={40} className="text-blue-400" />
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 overflow-hidden">
+                    {/* Animated Background Underlay */}
+                    <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-2xl animate-in fade-in duration-1000">
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-500 via-purple-600 to-transparent animate-[spin_20s_linear_infinite]" />
+                    </div>
+
+                    <div className="relative max-w-xl w-full p-10 sm:p-14 rounded-[4rem] bg-white/5 border border-white/20 backdrop-blur-xl shadow-[0_32px_128px_-12px_rgba(0,0,0,0.8)] flex flex-col items-center text-center space-y-10 animate-in zoom-in-95 slide-in-from-bottom-10 duration-700 ease-out">
+
+                        {/* Status Icon Orb */}
+                        <div className="relative group">
+                            <div className="absolute inset-0 bg-blue-500 blur-3xl opacity-20 group-hover:opacity-40 transition-opacity duration-1000 animate-pulse" />
+                            <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-blue-500/30 to-purple-600/30 border border-white/20 flex items-center justify-center shadow-inner overflow-hidden">
+                                <div className="absolute inset-0 bg-gradient-to-t from-white/10 to-transparent" />
+                                <Check size={44} className="text-white drop-shadow-[0_0_12px_rgba(255,255,255,0.5)] animate-in zoom-in-50 duration-1000 delay-300" />
+                            </div>
                         </div>
-                        <div className="space-y-2">
-                            <h2 className="text-3xl font-bold tracking-tight text-white">歡迎使用 Clockomistry</h2>
-                            <p className="opacity-60 text-white">在使用我們的時鐘之前，請確認您已閱讀並同意相關條款與隱私聲明。</p>
+
+                        <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-200">
+                            <h2 className="text-4xl sm:text-5xl font-black tracking-tight text-white leading-tight">
+                                歡迎來到 <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">Clockomistry</span>
+                            </h2>
+                            <p className="text-lg text-slate-300/80 leading-relaxed max-w-sm mx-auto">
+                                探索專屬於您的質感時光。在使用前請先確認您已瞭解我們的使用規範。
+                            </p>
                         </div>
-                        <div className="flex flex-wrap justify-center gap-3 text-xs opacity-50">
-                            <a href="privacy.html" className="text-white hover:text-blue-400 underline decoration-blue-400/30">隱私權</a>
-                            <a href="terms.html" className="text-white hover:text-blue-400 underline decoration-blue-400/30">服務條款</a>
-                            <a href="cookies.html" className="text-white hover:text-blue-400 underline decoration-blue-400/30">Cookies</a>
-                            <a href="disclaimer.html" className="text-white hover:text-blue-400 underline decoration-blue-400/30">免責聲明</a>
+
+                        {/* Legal Chips */}
+                        <div className="flex flex-wrap justify-center gap-2 animate-in fade-in duration-1000 delay-500">
+                            {[
+                                { label: '隱私權條款', href: 'privacy.html' },
+                                { label: '服務條款', href: 'terms.html' },
+                                { label: 'Cookie 政策', href: 'cookies.html' },
+                                { label: '免責聲明', href: 'disclaimer.html' }
+                            ].map((item, i) => (
+                                <a
+                                    key={i}
+                                    href={item.href}
+                                    className="px-4 py-2 rounded-full bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/20 text-xs font-medium text-slate-400 hover:text-white transition-all backdrop-blur-sm"
+                                >
+                                    {item.label}
+                                </a>
+                            ))}
                         </div>
+
                         <button
                             onClick={() => setHasAgreed(true)}
-                            className="w-full py-4 rounded-full bg-blue-500 hover:bg-blue-400 text-white font-bold transition-all shadow-lg shadow-blue-500/25 active:scale-95"
+                            className="group relative w-full sm:w-auto sm:min-w-[240px] px-8 py-5 rounded-full overflow-hidden transition-all active:scale-95 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-700"
                         >
-                            我已閱讀並同意
+                            <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 transition-transform duration-500 group-hover:scale-110" />
+                            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                            <span className="relative text-white font-bold text-lg tracking-wide uppercase">
+                                開始探索時光
+                            </span>
                         </button>
+
+                        <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] animate-in fade-in duration-1000 delay-1000">
+                            PURE EXPERIENCE • NO DATA TRACKING • LOCAL PRIVACY
+                        </p>
                     </div>
                 </div>
             )}
