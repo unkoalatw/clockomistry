@@ -207,6 +207,51 @@ const ALL_ZONES = [
     { id: 'Africa/Johannesburg', label: '約翰尼斯堡 (Johannesburg)', region: 'Africa' },
 ];
 
+// --- Memoized Components ---
+const WeatherWidget = React.memo(({ weather, accent }) => (
+    <div className="mb-8 flex items-center gap-4 px-6 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm animate-fade-in opacity-60 hover:opacity-100 transition-opacity">
+        <CloudSun size={18} className={accent} />
+        <div className="text-sm font-medium">
+            {weather.city} · {weather.temp}°C · {weather.condition}
+        </div>
+    </div>
+));
+
+const ClockDisplay = React.memo(({ h, m, s, ms, showMillis, accent, dateLabel }) => (
+    <div className="flex flex-col items-center select-none">
+        <div className="flex items-baseline font-bold tracking-tighter tabular-nums drop-shadow-2xl">
+            <span className="text-[12vw] sm:text-[150px] leading-none">{h}</span>
+            <span className={`text-[12vw] sm:text-[150px] leading-none animate-pulse ${accent}`}>:</span>
+            <span className="text-[12vw] sm:text-[150px] leading-none">{m}</span>
+            <div className="flex flex-col ml-4 justify-end pb-[2vw] sm:pb-8">
+                <span className="text-[4vw] sm:text-[40px] opacity-50 font-medium">{s}</span>
+                {showMillis && <span className={`text-[2vw] sm:text-[20px] ${accent} opacity-80`}>{ms}</span>}
+            </div>
+        </div>
+        <div className="mt-4 text-xl sm:text-2xl font-light tracking-[0.3em] opacity-80 uppercase text-center">{dateLabel}</div>
+    </div>
+));
+
+const NavigationBar = React.memo(({ mode, setMode, isZenMode, accent, showControls, toggleFullscreen, setShowSettings, setIsZenMode }) => (
+    <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-3 p-3 rounded-full backdrop-blur-xl bg-white/5 border border-white/20 shadow-2xl transition-all duration-500 z-50 ${showControls ? 'translate-y-0 opacity-100' : 'translate-y-32 opacity-0'}`}>
+        <div className="flex bg-white/5 rounded-full p-1 gap-1 overflow-x-auto max-w-[90vw]">
+            <button onClick={() => setMode('clock')} className={`p-3 rounded-full transition-all ${mode === 'clock' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><Clock size={20} /></button>
+            <button onClick={() => setMode('world')} className={`p-3 rounded-full transition-all ${mode === 'world' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><Globe size={20} /></button>
+            <button onClick={() => setMode('calendar')} className={`p-3 rounded-full transition-all ${mode === 'calendar' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><CalendarDays size={20} /></button>
+            <button onClick={() => setMode('anniversary')} className={`p-3 rounded-full transition-all ${mode === 'anniversary' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><Calendar size={20} /></button>
+            <button onClick={() => setMode('timer')} className={`p-3 rounded-full transition-all ${mode === 'timer' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><Timer size={20} /></button>
+            <button onClick={() => setMode('pomodoro')} className={`p-3 rounded-full transition-all ${mode === 'pomodoro' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><Brain size={20} /></button>
+            <button onClick={() => setMode('stopwatch')} className={`p-3 rounded-full transition-all ${mode === 'stopwatch' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><StopCircle size={20} /></button>
+        </div>
+        <div className="w-px h-8 bg-white/20"></div>
+        <div className="flex gap-1">
+            <button onClick={() => setShowSettings(true)} className="p-3 rounded-full opacity-80 hover:opacity-100 hover:rotate-90 transition-all"><Settings size={20} /></button>
+            <button onClick={() => setIsZenMode(!isZenMode)} className={`p-3 rounded-full ${isZenMode ? accent : 'opacity-80'}`}><Monitor size={20} /></button>
+            <button onClick={toggleFullscreen} className="p-3 rounded-full opacity-80 hover:opacity-100"><Maximize2 size={20} /></button>
+        </div>
+    </div>
+));
+
 function App() {
     const [time, setTime] = useState(new Date());
     const [theme, setTheme] = useState(() => localStorage.getItem('clock_theme') || 'modern');
@@ -311,40 +356,32 @@ function App() {
             setLastActivity(Date.now());
             if (isScreenSaverActive) setIsScreenSaverActive(false);
         };
-        window.addEventListener('mousemove', updateActivity);
-        window.addEventListener('keydown', updateActivity);
-        window.addEventListener('touchstart', updateActivity);
-        return () => {
-            window.removeEventListener('mousemove', updateActivity);
-            window.removeEventListener('keydown', updateActivity);
-            window.removeEventListener('touchstart', updateActivity);
-        };
+        const events = ['mousemove', 'keydown', 'touchstart', 'scroll'];
+        events.forEach(e => window.addEventListener(e, updateActivity, { passive: true }));
+        return () => events.forEach(e => window.removeEventListener(e, updateActivity));
     }, [isScreenSaverActive]);
 
     useEffect(() => {
         const interval = setInterval(() => {
-            if (!isScreenSaverActive && Date.now() - lastActivity > 5 * 60 * 1000) { // 5分鐘
+            if (!isScreenSaverActive && Date.now() - lastActivity > 5 * 60 * 1000) {
                 setIsScreenSaverActive(true);
             }
-        }, 10000);
+        }, 30000); // 降低檢測頻率
         return () => clearInterval(interval);
     }, [lastActivity, isScreenSaverActive]);
 
-    // 螢幕保護位移邏輯
+    // 螢幕保護位移邏輯 - 優化版 (使用 CSS Transition 代替每幀更新)
     useEffect(() => {
         if (!isScreenSaverActive) return;
         const move = () => {
-            setSsPos(prev => {
-                let nextX = prev.x + ssVelocity.current.x;
-                let nextY = prev.y + ssVelocity.current.y;
-                if (nextX < 5 || nextX > 75) ssVelocity.current.x *= -1;
-                if (nextY < 5 || nextY > 85) ssVelocity.current.y *= -1;
-                return { x: nextX, y: nextY };
+            setSsPos({
+                x: Math.random() * 70 + 5,
+                y: Math.random() * 80 + 5
             });
-            requestRef.current = requestAnimationFrame(move);
         };
-        requestRef.current = requestAnimationFrame(move);
-        return () => cancelAnimationFrame(requestRef.current);
+        move();
+        const interval = setInterval(move, 4000); // 每 4 秒更換目標
+        return () => clearInterval(interval);
     }, [isScreenSaverActive]);
 
     // 天氣抓取
@@ -872,7 +909,7 @@ function App() {
             {isScreenSaverActive && (
                 <div className="fixed inset-0 z-[200] bg-black select-none cursor-none flex items-center justify-center">
                     <div
-                        className="absolute flex flex-col items-center transition-all duration-1000 ease-linear"
+                        className="absolute flex flex-col items-center transition-all duration-[4000ms] ease-linear"
                         style={{ left: `${ssPos.x}%`, top: `${ssPos.y}%` }}
                     >
                         <div className="text-8xl sm:text-[120px] font-bold tracking-tighter opacity-80">
@@ -883,10 +920,10 @@ function App() {
                 </div>
             )}
 
-            {/* Decor */}
-            <div className={`absolute inset-0 overflow-hidden pointer-events-none transition-opacity duration-1000 ${isZenMode ? 'opacity-30' : 'opacity-100'}`}>
-                <div className="absolute top-[10%] left-[10%] w-[50vw] h-[50vw] rounded-full blur-[120px] opacity-20 bg-blue-500/40 animate-pulse"></div>
-                <div className="absolute bottom-[10%] right-[10%] w-[50vw] h-[50vw] rounded-full blur-[120px] opacity-20 bg-purple-500/40 animate-pulse"></div>
+            {/* Decor - Optimized blurs for performance */}
+            <div className={`absolute inset-0 overflow-hidden pointer-events-none transition-opacity duration-1000 ${isZenMode ? 'opacity-20' : 'opacity-100'}`}>
+                <div className="absolute top-[10%] left-[10%] w-[50vw] h-[50vw] rounded-full blur-[80px] opacity-10 bg-blue-500/30"></div>
+                <div className="absolute bottom-[10%] right-[10%] w-[50vw] h-[50vw] rounded-full blur-[80px] opacity-10 bg-purple-500/30"></div>
             </div>
 
             {/* Main Card */}
@@ -894,24 +931,8 @@ function App() {
 
                 {mode === 'clock' && (
                     <div className="flex flex-col items-center select-none">
-                        {/* Weather Widget */}
-                        <div className="mb-8 flex items-center gap-4 px-6 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm animate-fade-in opacity-60 hover:opacity-100 transition-opacity">
-                            <CloudSun size={18} className={currentTheme.accent} />
-                            <div className="text-sm font-medium">
-                                {weather.city} · {weather.temp}°C · {weather.condition}
-                            </div>
-                        </div>
-
-                        <div className="flex items-baseline font-bold tracking-tighter tabular-nums drop-shadow-2xl">
-                            <span className="text-[12vw] sm:text-[150px] leading-none">{h}</span>
-                            <span className={`text-[12vw] sm:text-[150px] leading-none animate-pulse ${currentTheme.accent}`}>:</span>
-                            <span className="text-[12vw] sm:text-[150px] leading-none">{m}</span>
-                            <div className="flex flex-col ml-4 justify-end pb-[2vw] sm:pb-8">
-                                <span className="text-[4vw] sm:text-[40px] opacity-50 font-medium">{s}</span>
-                                {showMillis && <span className={`text-[2vw] sm:text-[20px] ${currentTheme.accent} opacity-80`}>{ms}</span>}
-                            </div>
-                        </div>
-                        <div className="mt-4 text-xl sm:text-2xl font-light tracking-[0.3em] opacity-80 uppercase text-center">{formatDate(time)}</div>
+                        <WeatherWidget weather={weather} accent={currentTheme.accent} />
+                        <ClockDisplay h={h} m={m} s={s} ms={ms} showMillis={showMillis} accent={currentTheme.accent} dateLabel={formatDate(time)} />
                     </div>
                 )}
 
@@ -1186,23 +1207,16 @@ function App() {
             </div>
 
             {/* Bottom Control */}
-            <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-3 p-3 rounded-full backdrop-blur-xl bg-white/5 border border-white/20 shadow-2xl transition-all duration-500 z-50 ${showControls ? 'translate-y-0 opacity-100' : 'translate-y-32 opacity-0'}`}>
-                <div className="flex bg-white/5 rounded-full p-1 gap-1 overflow-x-auto max-w-[90vw]">
-                    <button onClick={() => setMode('clock')} className={`p-3 rounded-full transition-all ${mode === 'clock' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><Clock size={20} /></button>
-                    <button onClick={() => setMode('world')} className={`p-3 rounded-full transition-all ${mode === 'world' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><Globe size={20} /></button>
-                    <button onClick={() => setMode('calendar')} className={`p-3 rounded-full transition-all ${mode === 'calendar' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><CalendarDays size={20} /></button>
-                    <button onClick={() => setMode('anniversary')} className={`p-3 rounded-full transition-all ${mode === 'anniversary' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><Calendar size={20} /></button>
-                    <button onClick={() => setMode('timer')} className={`p-3 rounded-full transition-all ${mode === 'timer' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><Timer size={20} /></button>
-                    <button onClick={() => setMode('pomodoro')} className={`p-3 rounded-full transition-all ${mode === 'pomodoro' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><Brain size={20} /></button>
-                    <button onClick={() => setMode('stopwatch')} className={`p-3 rounded-full transition-all ${mode === 'stopwatch' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><StopCircle size={20} /></button>
-                </div>
-                <div className="w-px h-8 bg-white/20"></div>
-                <div className="flex gap-1">
-                    <button onClick={() => setShowSettings(true)} className="p-3 rounded-full opacity-80 hover:opacity-100 hover:rotate-90 transition-all"><Settings size={20} /></button>
-                    <button onClick={() => setIsZenMode(!isZenMode)} className={`p-3 rounded-full ${isZenMode ? currentTheme.accent : 'opacity-80'}`}><Monitor size={20} /></button>
-                    <button onClick={toggleFullscreen} className="p-3 rounded-full opacity-80 hover:opacity-100"><Maximize2 size={20} /></button>
-                </div>
-            </div>
+            <NavigationBar
+                mode={mode}
+                setMode={setMode}
+                isZenMode={isZenMode}
+                accent={currentTheme.accent}
+                showControls={showControls}
+                toggleFullscreen={toggleFullscreen}
+                setShowSettings={setShowSettings}
+                setIsZenMode={setIsZenMode}
+            />
         </div>
     );
 }
