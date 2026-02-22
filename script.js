@@ -153,6 +153,7 @@ function App() {
     const [showSettings, setShowSettings] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [hasCustomFont, setHasCustomFont] = useState(false);
+    const [hasAgreed, setHasAgreed] = useState(() => localStorage.getItem('clock_agreed') === 'true');
     const [customColors, setCustomColors] = useState(() => {
         try { const s = localStorage.getItem('clock_custom_colors'); if (s) return JSON.parse(s); } catch (e) { }
         return { bg1: '#0a0a1a', bg2: '#1a1a3e', bg3: '#0a0a1a', text: '#e2e8f0', accent: '#22d3ee' };
@@ -187,6 +188,7 @@ function App() {
     useEffect(() => { localStorage.setItem('clock_zones', JSON.stringify(selectedZones)); }, [selectedZones]);
     useEffect(() => { localStorage.setItem('clock_custom_colors', JSON.stringify(customColors)); }, [customColors]);
     useEffect(() => { localStorage.setItem('clock_custom_bg', customBgImage); }, [customBgImage]);
+    useEffect(() => { localStorage.setItem('clock_agreed', hasAgreed); }, [hasAgreed]);
 
     // 初始化時從 IndexedDB 載入字體
     useEffect(() => {
@@ -522,7 +524,44 @@ function App() {
                                     </div>
                                 </label>
                             </section>
+
+                            <section className="space-y-6">
+                                <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><AlertCircle size={24} /> 法律與權利</h3>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <a href="privacy.html" className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-center text-sm transition-all">隱私權條款</a>
+                                    <a href="terms.html" className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-center text-sm transition-all">服務條款</a>
+                                    <a href="cookies.html" className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-center text-sm transition-all">Cookie 條款</a>
+                                    <a href="disclaimer.html" className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-center text-sm transition-all">免責聲明</a>
+                                </div>
+                            </section>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* First Visit Modal */}
+            {!hasAgreed && (
+                <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-6 animate-in fade-in duration-700">
+                    <div className="max-w-lg w-full p-8 rounded-[3rem] bg-slate-900 border border-white/10 shadow-2xl flex flex-col items-center text-center space-y-8 animate-in zoom-in-95 duration-500">
+                        <div className="w-20 h-20 rounded-full bg-blue-500/20 flex items-center justify-center">
+                            <Check size={40} className="text-blue-400" />
+                        </div>
+                        <div className="space-y-2">
+                            <h2 className="text-3xl font-bold tracking-tight text-white">歡迎使用 Clockomistry</h2>
+                            <p className="opacity-60 text-white">在使用我們的時鐘之前，請確認您已閱讀並同意相關條款與隱私聲明。</p>
+                        </div>
+                        <div className="flex flex-wrap justify-center gap-3 text-xs opacity-50">
+                            <a href="privacy.html" className="text-white hover:text-blue-400 underline decoration-blue-400/30">隱私權</a>
+                            <a href="terms.html" className="text-white hover:text-blue-400 underline decoration-blue-400/30">服務條款</a>
+                            <a href="cookies.html" className="text-white hover:text-blue-400 underline decoration-blue-400/30">Cookies</a>
+                            <a href="disclaimer.html" className="text-white hover:text-blue-400 underline decoration-blue-400/30">免責聲明</a>
+                        </div>
+                        <button
+                            onClick={() => setHasAgreed(true)}
+                            className="w-full py-4 rounded-full bg-blue-500 hover:bg-blue-400 text-white font-bold transition-all shadow-lg shadow-blue-500/25 active:scale-95"
+                        >
+                            我已閱讀並同意
+                        </button>
                     </div>
                 </div>
             )}
