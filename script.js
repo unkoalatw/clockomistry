@@ -832,36 +832,74 @@ function App() {
                 {mode === 'calendar' && (() => {
                     const year = calendarDate.getFullYear();
                     const month = calendarDate.getMonth();
-                    const firstDay = new Date(year, month, 1).getDay();
                     const daysInMonth = new Date(year, month + 1, 0).getDate();
                     const today = new Date();
-                    const isToday = (d) => d === today.getDate() && month === today.getMonth() && year === today.getFullYear();
-                    const days = [];
-                    for (let i = 0; i < (firstDay === 0 ? 6 : firstDay - 1); i++) days.push(null);
-                    for (let i = 1; i <= daysInMonth; i++) days.push(i);
+                    const isCurrentMonth = month === today.getMonth() && year === today.getFullYear();
+                    const isToday = (d) => d === today.getDate() && isCurrentMonth;
+
+                    // getDay(): 0=Sun, need Monday-start: Mon=0, Tue=1, ..., Sun=6
+                    const rawFirstDay = new Date(year, month, 1).getDay();
+                    const offset = rawFirstDay === 0 ? 6 : rawFirstDay - 1;
+                    const cells = [];
+                    for (let i = 0; i < offset; i++) cells.push(null);
+                    for (let i = 1; i <= daysInMonth; i++) cells.push(i);
+                    // Pad to fill last row
+                    while (cells.length % 7 !== 0) cells.push(null);
+
                     const dayLabels = [t('mon'), t('tue'), t('wed'), t('thu'), t('fri'), t('sat'), t('sun')];
                     const monthNames = (I18N[lang] || I18N['zh-TW']).months;
+
                     return (
-                        <div className="flex flex-col items-center select-none w-full max-w-md">
-                            <div className="flex items-center justify-between w-full mb-6">
-                                <button onClick={() => setCalendarDate(new Date(year, month - 1, 1))} className="p-3 rounded-full bg-white/10 hover:bg-white/20 transition-all"><ChevronLeft size={20} /></button>
+                        <div className="flex flex-col items-center select-none w-full max-w-sm px-2">
+                            {/* Month Navigation */}
+                            <div className="flex items-center justify-between w-full mb-8">
+                                <button onClick={() => setCalendarDate(new Date(year, month - 1, 1))} className="p-3 rounded-full bg-white/5 hover:bg-white/15 border border-white/10 transition-all"><ChevronLeft size={18} /></button>
                                 <div className="text-center">
-                                    <div className="text-2xl font-bold">{monthNames[month]}</div>
-                                    <div className="text-sm opacity-50">{year}</div>
+                                    <div className="text-2xl font-bold tracking-tight">{monthNames[month]}</div>
+                                    <div className="text-xs opacity-40 mt-0.5">{year}</div>
                                 </div>
-                                <button onClick={() => setCalendarDate(new Date(year, month + 1, 1))} className="p-3 rounded-full bg-white/10 hover:bg-white/20 transition-all"><ChevronRight size={20} /></button>
+                                <button onClick={() => setCalendarDate(new Date(year, month + 1, 1))} className="p-3 rounded-full bg-white/5 hover:bg-white/15 border border-white/10 transition-all"><ChevronRight size={18} /></button>
                             </div>
-                            <div className="grid grid-cols-7 gap-1 w-full text-center text-xs opacity-50 mb-2">
-                                {dayLabels.map(d => <div key={d} className="py-1">{d}</div>)}
-                            </div>
-                            <div className="grid grid-cols-7 gap-1 w-full text-center">
-                                {days.map((d, i) => (
-                                    <div key={i} className={`py-2.5 rounded-xl text-sm transition-all ${d ? (isToday(d) ? `bg-blue-500 text-white font-bold shadow-lg shadow-blue-500/30` : 'hover:bg-white/10 cursor-default') : ''}`}>
-                                        {d || ''}
-                                    </div>
+
+                            {/* Weekday Headers */}
+                            <div className="grid grid-cols-7 gap-1.5 w-full text-center mb-2">
+                                {dayLabels.map((d, i) => (
+                                    <div key={d} className={`text-[11px] font-medium py-1 ${i >= 5 ? 'text-blue-400/60' : 'opacity-40'}`}>{d}</div>
                                 ))}
                             </div>
-                            {(() => { const td = today; return month === td.getMonth() && year === td.getFullYear() ? <div className={`mt-6 text-sm opacity-60 ${currentTheme.accent}`}>{t('today')}: {td.getFullYear()}/{(td.getMonth() + 1).toString().padStart(2, '0')}/{td.getDate().toString().padStart(2, '0')}</div> : null; })()}
+
+                            {/* Date Grid */}
+                            <div className="grid grid-cols-7 gap-1.5 w-full text-center">
+                                {cells.map((d, i) => {
+                                    const colIndex = i % 7;
+                                    const isWeekend = colIndex >= 5;
+                                    return (
+                                        <div
+                                            key={i}
+                                            className={`aspect-square flex items-center justify-center rounded-2xl text-sm transition-all
+                                                ${!d ? '' : isToday(d)
+                                                    ? 'bg-blue-500 text-white font-bold shadow-lg shadow-blue-500/25 scale-105'
+                                                    : `hover:bg-white/10 ${isWeekend ? 'text-blue-400/70' : ''}`
+                                                }`}
+                                        >
+                                            {d || ''}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Today indicator / Back to today button */}
+                            <div className="mt-6">
+                                {isCurrentMonth ? (
+                                    <div className={`text-sm opacity-50`}>
+                                        {t('today')}: {today.getFullYear()}/{(today.getMonth() + 1).toString().padStart(2, '0')}/{today.getDate().toString().padStart(2, '0')}
+                                    </div>
+                                ) : (
+                                    <button onClick={() => setCalendarDate(new Date())} className={`text-sm px-4 py-2 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all ${currentTheme.accent}`}>
+                                        ← {t('today')}
+                                    </button>
+                                )}
+                            </div>
                         </div>
                     );
                 })()}
