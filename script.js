@@ -250,14 +250,15 @@ const ALL_ZONES = [
 
 // --- Memoized Components ---
 const ProgressRing = React.memo(({ progress, accent }) => {
+    const clampedProgress = Math.min(100, Math.max(0, progress || 0));
     const radius = 46;
-    const stroke = 2.5;
+    const stroke = 1.5;
     const circumference = radius * 2 * Math.PI;
-    const strokeDashoffset = circumference - ((progress / 100) * circumference);
+    const strokeDashoffset = Math.max(0, circumference - ((clampedProgress / 100) * circumference));
 
     return (
-        <div className="absolute inset-0 pointer-events-none drop-shadow-2xl opacity-50 flex items-center justify-center scale-[1.3] sm:scale-[1.4] transition-transform duration-500 z-0">
-            <svg viewBox="0 0 100 100" className="w-[85%] h-[85%] max-w-[400px] max-h-[400px]">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none drop-shadow-2xl opacity-50 z-0 flex justify-center items-center w-[90vw] h-[90vw] max-w-[500px] max-h-[500px]">
+            <svg viewBox="0 0 100 100" className="w-full h-full pointer-events-none" preserveAspectRatio="xMidYMid meet">
                 <circle stroke="currentColor" fill="transparent" strokeWidth={stroke} className="opacity-[0.05]" r={radius} cx="50" cy="50" />
                 <circle stroke="currentColor" fill="transparent" strokeWidth={stroke} strokeDasharray={circumference + ' ' + circumference} style={{ strokeDashoffset, transition: 'stroke-dashoffset 1s linear' }} className={`opacity-80 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] ${accent}`} strokeLinecap="round" r={radius} cx="50" cy="50" transform="rotate(-90 50 50)" />
             </svg>
@@ -1259,11 +1260,22 @@ function App() {
                             )}
                         </div>
 
-                        <div className={`mt-8 flex gap-6 z-50 ${isEditingTimer && 'hidden'} ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-                            <button onClick={() => setIsTimerRunning(!isTimerRunning)} className={`p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all`}>
+                        <div className={`mt-8 flex gap-6 z-50 ${isEditingTimer ? 'hidden' : ''} ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+                            <button onClick={() => {
+                                if (!isTimerRunning && timerSeconds <= 0) {
+                                    if (timerInitial > 0) {
+                                        setTimerSeconds(timerInitial);
+                                    } else {
+                                        setIsEditingTimer(true);
+                                        setTimerInput('000000');
+                                        return;
+                                    }
+                                }
+                                setIsTimerRunning(!isTimerRunning);
+                            }} className={`p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all`}>
                                 {isTimerRunning ? <Pause size={32} /> : <Play size={32} className={currentTheme.accent} />}
                             </button>
-                            <button onClick={() => { setIsTimerRunning(false); setTimerSeconds(timerInitial); }} className="p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all">
+                            <button onClick={() => { setIsTimerRunning(false); setTimerSeconds(timerInitial > 0 ? timerInitial : 0); }} className="p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all">
                                 <RotateCcw size={32} />
                             </button>
                         </div>
@@ -1315,7 +1327,10 @@ function App() {
                             </div>
                         </div>
                         <div className={`mt-8 flex gap-6 z-50 ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-                            <button onClick={() => setIsPomoRunning(!isPomoRunning)} className={`p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all`}>
+                            <button onClick={() => {
+                                if (!isPomoRunning && pomoSeconds <= 0) resetPomo(pomoMode);
+                                setIsPomoRunning(!isPomoRunning);
+                            }} className={`p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all`}>
                                 {isPomoRunning ? <Pause size={32} /> : <Play size={32} className={currentTheme.accent} />}
                             </button>
                             <button onClick={() => resetPomo(pomoMode)} className="p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all">

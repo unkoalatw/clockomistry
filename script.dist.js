@@ -627,15 +627,17 @@ const ProgressRing = /*#__PURE__*/React.memo(_ref => {
     progress,
     accent
   } = _ref;
+  const clampedProgress = Math.min(100, Math.max(0, progress || 0));
   const radius = 46;
-  const stroke = 2.5;
+  const stroke = 1.5;
   const circumference = radius * 2 * Math.PI;
-  const strokeDashoffset = circumference - progress / 100 * circumference;
+  const strokeDashoffset = Math.max(0, circumference - clampedProgress / 100 * circumference);
   return /*#__PURE__*/React.createElement("div", {
-    className: "absolute inset-0 pointer-events-none drop-shadow-2xl opacity-50 flex items-center justify-center scale-[1.3] sm:scale-[1.4] transition-transform duration-500 z-0"
+    className: "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none drop-shadow-2xl opacity-50 z-0 flex justify-center items-center w-[90vw] h-[90vw] max-w-[500px] max-h-[500px]"
   }, /*#__PURE__*/React.createElement("svg", {
     viewBox: "0 0 100 100",
-    className: "w-[85%] h-[85%] max-w-[400px] max-h-[400px]"
+    className: "w-full h-full pointer-events-none",
+    preserveAspectRatio: "xMidYMid meet"
   }, /*#__PURE__*/React.createElement("circle", {
     stroke: "currentColor",
     fill: "transparent",
@@ -1980,9 +1982,20 @@ function App() {
   }, "m")), /*#__PURE__*/React.createElement("span", null, (timerSeconds % 60).toString().padStart(2, '0'), /*#__PURE__*/React.createElement("span", {
     className: "text-[6vw] md:text-[40px] opacity-50 ml-1"
   }, "s"))))), /*#__PURE__*/React.createElement("div", {
-    className: "mt-8 flex gap-6 z-50 ".concat(isEditingTimer && 'hidden', " ").concat(isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100')
+    className: "mt-8 flex gap-6 z-50 ".concat(isEditingTimer ? 'hidden' : '', " ").concat(isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100')
   }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => setIsTimerRunning(!isTimerRunning),
+    onClick: () => {
+      if (!isTimerRunning && timerSeconds <= 0) {
+        if (timerInitial > 0) {
+          setTimerSeconds(timerInitial);
+        } else {
+          setIsEditingTimer(true);
+          setTimerInput('000000');
+          return;
+        }
+      }
+      setIsTimerRunning(!isTimerRunning);
+    },
     className: "p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all"
   }, isTimerRunning ? /*#__PURE__*/React.createElement(Pause, {
     size: 32
@@ -1992,7 +2005,7 @@ function App() {
   })), /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       setIsTimerRunning(false);
-      setTimerSeconds(timerInitial);
+      setTimerSeconds(timerInitial > 0 ? timerInitial : 0);
     },
     className: "p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all"
   }, /*#__PURE__*/React.createElement(RotateCcw, {
@@ -2067,7 +2080,10 @@ function App() {
   }, Math.floor(pomoSeconds / 60).toString().padStart(2, '0'), ":", (pomoSeconds % 60).toString().padStart(2, '0'))), /*#__PURE__*/React.createElement("div", {
     className: "mt-8 flex gap-6 z-50 ".concat(isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100')
   }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => setIsPomoRunning(!isPomoRunning),
+    onClick: () => {
+      if (!isPomoRunning && pomoSeconds <= 0) resetPomo(pomoMode);
+      setIsPomoRunning(!isPomoRunning);
+    },
     className: "p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all"
   }, isPomoRunning ? /*#__PURE__*/React.createElement(Pause, {
     size: 32
