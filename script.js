@@ -70,6 +70,7 @@ const I18N = {
         alarmSound: '計時鈴聲', notifications: '系統通知', soundNone: '無', soundBeep: '嗶嗶聲', soundDigital: '電子錶', soundBell: '清脆鈴聲', testSound: '測試鈴聲',
         showProgressRing: '動態進度環', enableMiniTask: '微型任務管理', enableFocusAnalytics: '專注數據統計', enableMeetingPlanner: '智慧時區規劃器', focusGoal: '當前專注目標', focusStats: '專注時長統計', exportImage: '輸出為主題照片', exporting: '正在生成...',
         ringPosition: '進度環位置', ringLeft: '數字左側', ringRight: '數字右側', ringBackground: '背景置中',
+        autoZenMode: '計時自動進入專注模式', autoFullscreen: '計時自動全螢幕',
         "Taipei": "台北", "Tokyo": "東京", "Seoul": "首爾", "Shanghai": "上海", "Hong Kong": "香港",
         "Singapore": "新加坡", "Bangkok": "曼谷", "Dubai": "杜拜", "Kolkata": "加爾各答", "Ho Chi Minh": "胡志明市",
         "London": "倫敦", "Paris": "巴黎", "Berlin": "柏林", "Rome": "羅馬", "Madrid": "馬德里", "Moscow": "莫斯科",
@@ -111,6 +112,7 @@ const I18N = {
         alarmSound: 'Alarm Sound', notifications: 'Notifications', soundNone: 'None', soundBeep: 'Beep', soundDigital: 'Digital', soundBell: 'Bell', testSound: 'Test Sound',
         showProgressRing: 'Progress Ring', enableMiniTask: 'Mini Task List', enableFocusAnalytics: 'Focus Analytics', enableMeetingPlanner: 'Meeting Planner', focusGoal: 'Current Goal', focusStats: 'Focus Stats', exportImage: 'Export as Image', exporting: 'Exporting...',
         ringPosition: 'Ring Position', ringLeft: 'Left of Number', ringRight: 'Right of Number', ringBackground: 'Background Centered',
+        autoZenMode: 'Auto Zen Mode on Start', autoFullscreen: 'Auto Fullscreen on Start',
         "Taipei": "Taipei", "Tokyo": "Tokyo", "Seoul": "Seoul", "Shanghai": "Shanghai", "Hong Kong": "Hong Kong",
         "Singapore": "Singapore", "Bangkok": "Bangkok", "Dubai": "Dubai", "Kolkata": "Kolkata", "Ho Chi Minh": "Ho Chi Minh",
         "London": "London", "Paris": "Paris", "Berlin": "Berlin", "Rome": "Rome", "Madrid": "Madrid", "Moscow": "Moscow",
@@ -152,6 +154,7 @@ const I18N = {
         alarmSound: 'アラーム音', notifications: '通知', soundNone: '無し', soundBeep: 'ビープ', soundDigital: 'デジタル', soundBell: 'ベル', testSound: 'テスト音',
         showProgressRing: 'プログレスリング', enableMiniTask: 'ミニタスク管理', enableFocusAnalytics: '集中時間統計', enableMeetingPlanner: 'MTGプランナー', focusGoal: '現在の目標', focusStats: '集中時間統計', exportImage: '画像として書き出し', exporting: '書き出し中...',
         ringPosition: 'リングの位置', ringLeft: '数字の左側', ringRight: '数字の右側', ringBackground: '背景の中心',
+        autoZenMode: '開始時に集中モード', autoFullscreen: '開始時に全画面表示',
         "Taipei": "台北", "Tokyo": "東京", "Seoul": "ソウル", "Shanghai": "上海", "Hong Kong": "香港",
         "Singapore": "シンガポール", "Bangkok": "バンコク", "Dubai": "ドバイ", "Kolkata": "コルカタ", "Ho Chi Minh": "ホーチミン",
         "London": "ロンドン", "Paris": "パリ", "Berlin": "ベルリン", "Rome": "ローマ", "Madrid": "マドリード", "Moscow": "モスクワ",
@@ -333,6 +336,11 @@ function App() {
     const [enableMiniTask, setEnableMiniTask] = useState(() => localStorage.getItem('clock_miniTask') === 'true');
     const [enableFocusAnalytics, setEnableFocusAnalytics] = useState(() => localStorage.getItem('clock_focusAnalytics') === 'true');
     const [enableMeetingPlanner, setEnableMeetingPlanner] = useState(() => localStorage.getItem('clock_meetingPlanner') === 'true');
+
+    // New Automation Settings
+    const [autoZenMode, setAutoZenMode] = useState(() => localStorage.getItem('clock_autoZenMode') === 'true');
+    const [autoFullscreen, setAutoFullscreen] = useState(() => localStorage.getItem('clock_autoFullscreen') !== 'false');
+
     const [selectedZones, setSelectedZones] = useState(() => {
         try {
             const saved = localStorage.getItem('clock_zones');
@@ -992,6 +1000,8 @@ function App() {
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     {[['showMillis', showMillis, setShowMillis],
                                     ['notifications', notificationsEnabled, handleToggleNotifications],
+                                    ['autoZenMode', autoZenMode, setAutoZenMode],
+                                    ['autoFullscreen', autoFullscreen, setAutoFullscreen],
                                     ['showProgressRing', showProgressRing, setShowProgressRing],
                                     ['enableMiniTask', enableMiniTask, setEnableMiniTask],
                                     ['enableFocusAnalytics', enableFocusAnalytics, setEnableFocusAnalytics],
@@ -1258,6 +1268,7 @@ function App() {
                                                 setTimerSeconds(sec);
                                                 setIsEditingTimer(false);
                                                 setIsTimerRunning(true);
+                                                handleStartFocus();
                                             } else {
                                                 setIsEditingTimer(false);
                                             }
@@ -1297,6 +1308,7 @@ function App() {
                                         return;
                                     }
                                 }
+                                if (!isTimerRunning) handleStartFocus();
                                 setIsTimerRunning(!isTimerRunning);
                             }} className={`p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all`}>
                                 {isTimerRunning ? <Pause size={32} /> : <Play size={32} className={currentTheme.accent} />}
@@ -1355,6 +1367,7 @@ function App() {
                         <div className={`mt-8 flex gap-6 z-50 ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
                             <button onClick={() => {
                                 if (!isPomoRunning && pomoSeconds <= 0) resetPomo(pomoMode);
+                                if (!isPomoRunning) handleStartFocus();
                                 setIsPomoRunning(!isPomoRunning);
                             }} className={`p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all`}>
                                 {isPomoRunning ? <Pause size={32} /> : <Play size={32} className={currentTheme.accent} />}
