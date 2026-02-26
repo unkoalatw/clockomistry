@@ -5,7 +5,7 @@ function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" 
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Maximize2, Minimize2, Timer, Clock, Monitor, Play, Pause, RotateCcw, AlertCircle, Globe, StopCircle, Settings, X, Check, Plus, Search, Type, Upload, Palette, ArrowLeft, Coffee, Brain, CalendarDays, Languages, Trash2, ChevronLeft, ChevronRight, Calendar, CloudSun, Share2, Download, LayoutTemplate, Sparkles } from 'lucide-react';
+import { Maximize2, Minimize2, Timer, Clock, Monitor, Play, Pause, RotateCcw, AlertCircle, Globe, StopCircle, Settings, X, Check, Plus, Search, Type, Upload, Palette, ArrowLeft, Coffee, Brain, CalendarDays, Languages, Trash2, ChevronLeft, ChevronRight, Calendar, CloudSun, Share2, Download, LayoutTemplate, Sparkles, Delete } from 'lucide-react';
 
 // --- IndexedDB 管理 (用於儲存大體積字型) ---
 const DB_NAME = 'ClockomistryDB';
@@ -778,6 +778,23 @@ function App() {
   const [timerSeconds, setTimerSeconds] = useState(25 * 60);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [timerInitial, setTimerInitial] = useState(25 * 60);
+  const [isEditingTimer, setIsEditingTimer] = useState(false);
+  const [timerInput, setTimerInput] = useState('000000');
+  const handleTimerInput = val => {
+    if (val === 'del') {
+      setTimerInput(prev => '0' + prev.slice(0, 5));
+    } else if (val === '00') {
+      setTimerInput(prev => (prev + '00').slice(-6));
+    } else {
+      setTimerInput(prev => (prev + val).slice(-6));
+    }
+  };
+  const getTimerInputSeconds = () => {
+    const h = parseInt(timerInput.slice(0, 2), 10);
+    const m = parseInt(timerInput.slice(2, 4), 10);
+    const s = parseInt(timerInput.slice(4, 6), 10);
+    return h * 3600 + m * 60 + s;
+  };
 
   // Pomodoro 狀態
   const [pomoMode, setPomoMode] = useState('work'); // 'work', 'short', 'long'
@@ -1639,10 +1656,69 @@ function App() {
   }), " ", t('addEditZones'))), mode === 'timer' && /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col items-center select-none w-full max-w-lg"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-col items-center mb-12"
+    className: "flex flex-col items-center mb-12 w-full"
+  }, isEditingTimer ? /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-col items-center w-full animate-fade-in"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "text-[12vw] sm:text-[150px] font-bold tracking-tighter tabular-nums drop-shadow-2xl"
-  }, Math.floor(timerSeconds / 60).toString().padStart(2, '0'), ":", (timerSeconds % 60).toString().padStart(2, '0')), /*#__PURE__*/React.createElement("div", {
+    className: "text-[8vw] sm:text-[80px] font-bold tracking-tighter tabular-nums drop-shadow-2xl flex items-baseline gap-2 mb-6"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: timerInput.slice(0, 2) === '00' ? 'opacity-30' : ''
+  }, timerInput.slice(0, 2), /*#__PURE__*/React.createElement("span", {
+    className: "text-2xl opacity-50 ml-1"
+  }, "h")), /*#__PURE__*/React.createElement("span", {
+    className: timerInput.slice(0, 4) === '0000' ? 'opacity-30' : ''
+  }, timerInput.slice(2, 4), /*#__PURE__*/React.createElement("span", {
+    className: "text-2xl opacity-50 ml-1"
+  }, "m")), /*#__PURE__*/React.createElement("span", {
+    className: timerInput === '000000' ? 'opacity-30' : ''
+  }, timerInput.slice(4, 6), /*#__PURE__*/React.createElement("span", {
+    className: "text-2xl opacity-50 ml-1"
+  }, "s"))), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-3 gap-3 sm:gap-4 w-full max-w-[280px]"
+  }, ['1', '2', '3', '4', '5', '6', '7', '8', '9', '00', '0', 'del'].map(btn => /*#__PURE__*/React.createElement("button", {
+    key: btn,
+    onClick: () => handleTimerInput(btn),
+    className: "h-16 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 flex items-center justify-center text-2xl font-medium transition-all active:scale-95"
+  }, btn === 'del' ? /*#__PURE__*/React.createElement(Delete, {
+    size: 24
+  }) : btn))), /*#__PURE__*/React.createElement("div", {
+    className: "mt-8 flex gap-6 z-50"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setIsEditingTimer(false),
+    className: "p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all"
+  }, /*#__PURE__*/React.createElement(X, {
+    size: 32
+  })), /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      const sec = getTimerInputSeconds();
+      if (sec > 0) {
+        setTimerInitial(sec);
+        setTimerSeconds(sec);
+        setIsEditingTimer(false);
+        setIsTimerRunning(true);
+      } else {
+        setIsEditingTimer(false);
+      }
+    },
+    className: "p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all"
+  }, /*#__PURE__*/React.createElement(Play, {
+    size: 32,
+    className: currentTheme.accent
+  })))) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "text-[10vw] sm:text-[120px] font-bold tracking-tighter tabular-nums drop-shadow-2xl cursor-pointer hover:opacity-80 transition-opacity flex items-baseline gap-2",
+    onClick: () => {
+      if (!isTimerRunning) {
+        setIsEditingTimer(true);
+        setTimerInput('000000');
+      }
+    }
+  }, timerSeconds >= 3600 && /*#__PURE__*/React.createElement("span", null, Math.floor(timerSeconds / 3600).toString().padStart(2, '0'), /*#__PURE__*/React.createElement("span", {
+    className: "text-[4vw] sm:text-[40px] opacity-50 ml-1"
+  }, "h")), /*#__PURE__*/React.createElement("span", null, Math.floor(timerSeconds % 3600 / 60).toString().padStart(2, '0'), /*#__PURE__*/React.createElement("span", {
+    className: "text-[4vw] sm:text-[40px] opacity-50 ml-1"
+  }, "m")), /*#__PURE__*/React.createElement("span", null, (timerSeconds % 60).toString().padStart(2, '0'), /*#__PURE__*/React.createElement("span", {
+    className: "text-[4vw] sm:text-[40px] opacity-50 ml-1"
+  }, "s"))), /*#__PURE__*/React.createElement("div", {
     className: "mt-8 flex gap-6 z-50 ".concat(isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100')
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => setIsTimerRunning(!isTimerRunning),
@@ -1660,7 +1736,7 @@ function App() {
     className: "p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all"
   }, /*#__PURE__*/React.createElement(RotateCcw, {
     size: 32
-  })))), /*#__PURE__*/React.createElement("div", {
+  }))))), /*#__PURE__*/React.createElement("div", {
     className: "w-full max-h-[40vh] overflow-y-auto custom-scrollbar space-y-3 p-2 border-t border-white/10 pt-8"
   }, multiTimers.map(timer => {
     const mins = Math.floor(timer.remaining / 60).toString().padStart(2, '0');

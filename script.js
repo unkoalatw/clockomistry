@@ -6,7 +6,7 @@ import {
     StopCircle, Settings, X, Check, Plus, Search,
     Type, Upload, Palette, ArrowLeft, Coffee, Brain,
     CalendarDays, Languages, Trash2, ChevronLeft, ChevronRight,
-    Calendar, CloudSun, Share2, Download, LayoutTemplate, Sparkles
+    Calendar, CloudSun, Share2, Download, LayoutTemplate, Sparkles, Delete
 } from 'lucide-react';
 
 // --- IndexedDB 管理 (用於儲存大體積字型) ---
@@ -356,6 +356,24 @@ function App() {
     const [timerSeconds, setTimerSeconds] = useState(25 * 60);
     const [isTimerRunning, setIsTimerRunning] = useState(false);
     const [timerInitial, setTimerInitial] = useState(25 * 60);
+    const [isEditingTimer, setIsEditingTimer] = useState(false);
+    const [timerInput, setTimerInput] = useState('000000');
+
+    const handleTimerInput = (val) => {
+        if (val === 'del') {
+            setTimerInput(prev => '0' + prev.slice(0, 5));
+        } else if (val === '00') {
+            setTimerInput(prev => (prev + '00').slice(-6));
+        } else {
+            setTimerInput(prev => (prev + val).slice(-6));
+        }
+    };
+    const getTimerInputSeconds = () => {
+        const h = parseInt(timerInput.slice(0, 2), 10);
+        const m = parseInt(timerInput.slice(2, 4), 10);
+        const s = parseInt(timerInput.slice(4, 6), 10);
+        return h * 3600 + m * 60 + s;
+    };
 
     // Pomodoro 狀態
     const [pomoMode, setPomoMode] = useState('work'); // 'work', 'short', 'long'
@@ -1012,18 +1030,65 @@ function App() {
 
                 {mode === 'timer' && (
                     <div className="flex flex-col items-center select-none w-full max-w-lg">
-                        <div className="flex flex-col items-center mb-12">
-                            <div className="text-[12vw] sm:text-[150px] font-bold tracking-tighter tabular-nums drop-shadow-2xl">
-                                {Math.floor(timerSeconds / 60).toString().padStart(2, '0')}:{(timerSeconds % 60).toString().padStart(2, '0')}
-                            </div>
-                            <div className={`mt-8 flex gap-6 z-50 ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-                                <button onClick={() => setIsTimerRunning(!isTimerRunning)} className={`p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all`}>
-                                    {isTimerRunning ? <Pause size={32} /> : <Play size={32} className={currentTheme.accent} />}
-                                </button>
-                                <button onClick={() => { setIsTimerRunning(false); setTimerSeconds(timerInitial); }} className="p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all">
-                                    <RotateCcw size={32} />
-                                </button>
-                            </div>
+                        <div className="flex flex-col items-center mb-12 w-full">
+                            {isEditingTimer ? (
+                                <div className="flex flex-col items-center w-full animate-fade-in">
+                                    <div className="text-[8vw] sm:text-[80px] font-bold tracking-tighter tabular-nums drop-shadow-2xl flex items-baseline gap-2 mb-6">
+                                        <span className={timerInput.slice(0, 2) === '00' ? 'opacity-30' : ''}>{timerInput.slice(0, 2)}<span className="text-2xl opacity-50 ml-1">h</span></span>
+                                        <span className={timerInput.slice(0, 4) === '0000' ? 'opacity-30' : ''}>{timerInput.slice(2, 4)}<span className="text-2xl opacity-50 ml-1">m</span></span>
+                                        <span className={timerInput === '000000' ? 'opacity-30' : ''}>{timerInput.slice(4, 6)}<span className="text-2xl opacity-50 ml-1">s</span></span>
+                                    </div>
+                                    <div className="grid grid-cols-3 gap-3 sm:gap-4 w-full max-w-[280px]">
+                                        {['1', '2', '3', '4', '5', '6', '7', '8', '9', '00', '0', 'del'].map(btn => (
+                                            <button key={btn} onClick={() => handleTimerInput(btn)} className="h-16 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 flex items-center justify-center text-2xl font-medium transition-all active:scale-95">
+                                                {btn === 'del' ? <Delete size={24} /> : btn}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    <div className="mt-8 flex gap-6 z-50">
+                                        <button onClick={() => setIsEditingTimer(false)} className="p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all">
+                                            <X size={32} />
+                                        </button>
+                                        <button onClick={() => {
+                                            const sec = getTimerInputSeconds();
+                                            if (sec > 0) {
+                                                setTimerInitial(sec);
+                                                setTimerSeconds(sec);
+                                                setIsEditingTimer(false);
+                                                setIsTimerRunning(true);
+                                            } else {
+                                                setIsEditingTimer(false);
+                                            }
+                                        }} className={`p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all`}>
+                                            <Play size={32} className={currentTheme.accent} />
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <>
+                                    <div
+                                        className="text-[10vw] sm:text-[120px] font-bold tracking-tighter tabular-nums drop-shadow-2xl cursor-pointer hover:opacity-80 transition-opacity flex items-baseline gap-2"
+                                        onClick={() => {
+                                            if (!isTimerRunning) {
+                                                setIsEditingTimer(true);
+                                                setTimerInput('000000');
+                                            }
+                                        }}
+                                    >
+                                        {timerSeconds >= 3600 && <span>{Math.floor(timerSeconds / 3600).toString().padStart(2, '0')}<span className="text-[4vw] sm:text-[40px] opacity-50 ml-1">h</span></span>}
+                                        <span>{Math.floor((timerSeconds % 3600) / 60).toString().padStart(2, '0')}<span className="text-[4vw] sm:text-[40px] opacity-50 ml-1">m</span></span>
+                                        <span>{(timerSeconds % 60).toString().padStart(2, '0')}<span className="text-[4vw] sm:text-[40px] opacity-50 ml-1">s</span></span>
+                                    </div>
+                                    <div className={`mt-8 flex gap-6 z-50 ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+                                        <button onClick={() => setIsTimerRunning(!isTimerRunning)} className={`p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all`}>
+                                            {isTimerRunning ? <Pause size={32} /> : <Play size={32} className={currentTheme.accent} />}
+                                        </button>
+                                        <button onClick={() => { setIsTimerRunning(false); setTimerSeconds(timerInitial); }} className="p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all">
+                                            <RotateCcw size={32} />
+                                        </button>
+                                    </div>
+                                </>
+                            )}
                         </div>
 
                         {/* Integrated Multi-Timers */}
