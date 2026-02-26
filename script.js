@@ -256,37 +256,43 @@ const WeatherWidget = React.memo(({ weather, accent }) => (
 const ClockDisplay = React.memo(({ h, m, s, ms, showMillis, accent, dateLabel }) => (
     <div className="flex flex-col items-center select-none">
         <div className="flex items-baseline font-bold tracking-tighter tabular-nums drop-shadow-2xl">
-            <span className="text-[12vw] sm:text-[150px] leading-none">{h}</span>
-            <span className={`text-[12vw] sm:text-[150px] leading-none animate-pulse ${accent}`}>:</span>
-            <span className="text-[12vw] sm:text-[150px] leading-none">{m}</span>
-            <div className="flex flex-col ml-4 justify-end pb-[2vw] sm:pb-8">
-                <span className="text-[4vw] sm:text-[40px] opacity-50 font-medium">{s}</span>
-                {showMillis && <span className={`text-[2vw] sm:text-[20px] ${accent} opacity-80`}>{ms}</span>}
+            <span className="text-[22vw] md:text-[150px] leading-none">{h}</span>
+            <span className={`text-[22vw] md:text-[150px] leading-none animate-pulse ${accent}`}>:</span>
+            <span className="text-[22vw] md:text-[150px] leading-none">{m}</span>
+            <div className="flex flex-col ml-2 md:ml-4 justify-end pb-[1vw] md:pb-8">
+                <span className="text-[8vw] md:text-[40px] opacity-50 font-medium">{s}</span>
+                {showMillis && <span className={`text-[4vw] md:text-[20px] ${accent} opacity-80`}>{ms}</span>}
             </div>
         </div>
-        <div className="mt-4 text-xl sm:text-2xl font-light tracking-[0.3em] opacity-80 uppercase text-center">{dateLabel}</div>
+        <div className="mt-2 md:mt-4 text-sm md:text-2xl font-light tracking-[0.3em] opacity-80 uppercase text-center">{dateLabel}</div>
     </div>
 ));
 
-const NavigationBar = React.memo(({ mode, setMode, isZenMode, accent, showControls, toggleFullscreen, setShowSettings, setIsZenMode }) => (
-    <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-3 p-3 rounded-full backdrop-blur-xl bg-white/5 border border-white/20 shadow-2xl transition-all duration-500 z-50 ${showControls ? 'translate-y-0 opacity-100' : 'translate-y-32 opacity-0'}`}>
-        <div className="flex bg-white/5 rounded-full p-1 gap-1 overflow-x-auto max-w-[90vw]">
-            <button onClick={() => setMode('clock')} className={`p-3 rounded-full transition-all ${mode === 'clock' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><Clock size={20} /></button>
-            <button onClick={() => setMode('world')} className={`p-3 rounded-full transition-all ${mode === 'world' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><Globe size={20} /></button>
-            <button onClick={() => setMode('calendar')} className={`p-3 rounded-full transition-all ${mode === 'calendar' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><CalendarDays size={20} /></button>
-            <button onClick={() => setMode('anniversary')} className={`p-3 rounded-full transition-all ${mode === 'anniversary' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><Calendar size={20} /></button>
-            <button onClick={() => setMode('timer')} className={`p-3 rounded-full transition-all ${mode === 'timer' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><Timer size={20} /></button>
-            <button onClick={() => setMode('pomodoro')} className={`p-3 rounded-full transition-all ${mode === 'pomodoro' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><Brain size={20} /></button>
-            <button onClick={() => setMode('stopwatch')} className={`p-3 rounded-full transition-all ${mode === 'stopwatch' ? 'bg-white/20 scale-105' : 'opacity-60'}`}><StopCircle size={20} /></button>
+const NavigationBar = React.memo(({ mode, setMode, isZenMode, accent, showControls, toggleFullscreen, setShowSettings, setIsZenMode }) => {
+    return (
+        <div className={`fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 flex items-center justify-between sm:justify-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-[2rem] sm:rounded-full backdrop-blur-xl bg-white/5 border border-white/20 shadow-2xl transition-all duration-500 z-50 w-[92vw] max-w-2xl sm:w-auto ${showControls ? 'translate-y-0 opacity-100' : 'translate-y-32 opacity-0'}`}>
+            <style>{`.hide-scroll::-webkit-scrollbar { display: none; }`}</style>
+            <div className="flex bg-white/5 rounded-full p-1 gap-1 flex-1 sm:flex-none overflow-x-auto overflow-y-hidden snap-x snap-mandatory hide-scroll" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
+                {[
+                    { m: 'clock', icon: Clock }, { m: 'world', icon: Globe },
+                    { m: 'calendar', icon: CalendarDays }, { m: 'anniversary', icon: Calendar },
+                    { m: 'timer', icon: Timer }, { m: 'pomodoro', icon: Brain },
+                    { m: 'stopwatch', icon: StopCircle }
+                ].map(({ m, icon: Icon }) => (
+                    <button key={m} onClick={() => setMode(m)} className={`p-3 rounded-full transition-all snap-center flex-shrink-0 ${mode === m ? 'bg-white/20 scale-105 shadow-sm' : 'opacity-60 hover:bg-white/10'}`}>
+                        <Icon size={20} className={mode === m ? accent : ''} />
+                    </button>
+                ))}
+            </div>
+            <div className="w-px h-8 bg-white/20 hidden sm:block"></div>
+            <div className="flex gap-1 pr-1 sm:pr-0">
+                <button onClick={() => setShowSettings(true)} className="p-3 rounded-full opacity-80 hover:opacity-100 hover:rotate-90 transition-all"><Settings size={20} /></button>
+                <button onClick={() => setIsZenMode(!isZenMode)} className={`p-3 rounded-full ${isZenMode ? accent : 'opacity-80'}`}><Monitor size={20} /></button>
+                <button onClick={toggleFullscreen} className="p-3 rounded-full opacity-80 hover:opacity-100 hidden sm:block"><Maximize2 size={20} /></button>
+            </div>
         </div>
-        <div className="w-px h-8 bg-white/20"></div>
-        <div className="flex gap-1">
-            <button onClick={() => setShowSettings(true)} className="p-3 rounded-full opacity-80 hover:opacity-100 hover:rotate-90 transition-all"><Settings size={20} /></button>
-            <button onClick={() => setIsZenMode(!isZenMode)} className={`p-3 rounded-full ${isZenMode ? accent : 'opacity-80'}`}><Monitor size={20} /></button>
-            <button onClick={toggleFullscreen} className="p-3 rounded-full opacity-80 hover:opacity-100"><Maximize2 size={20} /></button>
-        </div>
-    </div>
-));
+    )
+});
 
 function App() {
     const [time, setTime] = useState(new Date());
@@ -1117,10 +1123,10 @@ function App() {
                         <div className="flex flex-col items-center mb-12 w-full">
                             {isEditingTimer ? (
                                 <div className="flex flex-col items-center w-full animate-fade-in">
-                                    <div className="text-[8vw] sm:text-[80px] font-bold tracking-tighter tabular-nums drop-shadow-2xl flex items-baseline gap-2 mb-6">
-                                        <span className={timerInput.slice(0, 2) === '00' ? 'opacity-30' : ''}>{timerInput.slice(0, 2)}<span className="text-2xl opacity-50 ml-1">h</span></span>
-                                        <span className={timerInput.slice(0, 4) === '0000' ? 'opacity-30' : ''}>{timerInput.slice(2, 4)}<span className="text-2xl opacity-50 ml-1">m</span></span>
-                                        <span className={timerInput === '000000' ? 'opacity-30' : ''}>{timerInput.slice(4, 6)}<span className="text-2xl opacity-50 ml-1">s</span></span>
+                                    <div className="text-[14vw] md:text-[80px] font-bold tracking-tighter tabular-nums drop-shadow-2xl flex items-baseline gap-1 md:gap-2 mb-6">
+                                        <span className={timerInput.slice(0, 2) === '00' ? 'opacity-30' : ''}>{timerInput.slice(0, 2)}<span className="text-xl md:text-2xl opacity-50 ml-1">h</span></span>
+                                        <span className={timerInput.slice(0, 4) === '0000' ? 'opacity-30' : ''}>{timerInput.slice(2, 4)}<span className="text-xl md:text-2xl opacity-50 ml-1">m</span></span>
+                                        <span className={timerInput === '000000' ? 'opacity-30' : ''}>{timerInput.slice(4, 6)}<span className="text-xl md:text-2xl opacity-50 ml-1">s</span></span>
                                     </div>
                                     <div className="grid grid-cols-3 gap-3 sm:gap-4 w-full max-w-[280px]">
                                         {['1', '2', '3', '4', '5', '6', '7', '8', '9', '00', '0', 'del'].map(btn => (
@@ -1151,7 +1157,7 @@ function App() {
                             ) : (
                                 <>
                                     <div
-                                        className="text-[10vw] sm:text-[120px] font-bold tracking-tighter tabular-nums drop-shadow-2xl cursor-pointer hover:opacity-80 transition-opacity flex items-baseline gap-2"
+                                        className="text-[18vw] md:text-[120px] font-bold tracking-tighter tabular-nums drop-shadow-2xl cursor-pointer hover:opacity-80 transition-opacity flex items-baseline gap-1 md:gap-2"
                                         onClick={() => {
                                             if (!isTimerRunning) {
                                                 setIsEditingTimer(true);
@@ -1159,9 +1165,9 @@ function App() {
                                             }
                                         }}
                                     >
-                                        {timerSeconds >= 3600 && <span>{Math.floor(timerSeconds / 3600).toString().padStart(2, '0')}<span className="text-[4vw] sm:text-[40px] opacity-50 ml-1">h</span></span>}
-                                        <span>{Math.floor((timerSeconds % 3600) / 60).toString().padStart(2, '0')}<span className="text-[4vw] sm:text-[40px] opacity-50 ml-1">m</span></span>
-                                        <span>{(timerSeconds % 60).toString().padStart(2, '0')}<span className="text-[4vw] sm:text-[40px] opacity-50 ml-1">s</span></span>
+                                        {timerSeconds >= 3600 && <span>{Math.floor(timerSeconds / 3600).toString().padStart(2, '0')}<span className="text-[6vw] md:text-[40px] opacity-50 ml-1">h</span></span>}
+                                        <span>{Math.floor((timerSeconds % 3600) / 60).toString().padStart(2, '0')}<span className="text-[6vw] md:text-[40px] opacity-50 ml-1">m</span></span>
+                                        <span>{(timerSeconds % 60).toString().padStart(2, '0')}<span className="text-[6vw] md:text-[40px] opacity-50 ml-1">s</span></span>
                                     </div>
                                     <div className={`mt-8 flex gap-6 z-50 ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
                                         <button onClick={() => setIsTimerRunning(!isTimerRunning)} className={`p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all`}>
@@ -1215,7 +1221,7 @@ function App() {
                             <button onClick={() => resetPomo('short')} className={`px-4 py-1 rounded-full text-sm border transition-all ${pomoMode === 'short' ? `bg-white/10 border-white/50 ${currentTheme.accent}` : 'border-transparent opacity-50'}`}>{t('break')}</button>
                             <button onClick={() => resetPomo('long')} className={`px-4 py-1 rounded-full text-sm border transition-all ${pomoMode === 'long' ? `bg-white/10 border-white/50 ${currentTheme.accent}` : 'border-transparent opacity-50'}`}>{t('long')}</button>
                         </div>
-                        <div className="text-[12vw] sm:text-[150px] font-bold tracking-tighter tabular-nums drop-shadow-2xl">
+                        <div className="text-[24vw] md:text-[150px] font-bold tracking-tighter tabular-nums drop-shadow-2xl">
                             {Math.floor(pomoSeconds / 60).toString().padStart(2, '0')}:{(pomoSeconds % 60).toString().padStart(2, '0')}
                         </div>
                         <div className={`mt-8 flex gap-6 z-50 ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
@@ -1231,9 +1237,9 @@ function App() {
 
                 {mode === 'stopwatch' && (
                     <div className="flex flex-col items-center select-none w-full min-w-[300px]">
-                        <div className="text-[10vw] sm:text-[120px] font-bold tracking-tighter tabular-nums flex items-baseline">
+                        <div className="text-[18vw] md:text-[120px] font-bold tracking-tighter tabular-nums flex items-baseline">
                             <span>{stopwatch.m}</span><span className="opacity-50 mx-1">:</span><span>{stopwatch.s}</span>
-                            <span className={`text-[5vw] sm:text-[60px] ml-2 ${currentTheme.accent}`}>.{stopwatch.cs}</span>
+                            <span className={`text-[8vw] md:text-[60px] ml-1 md:ml-2 ${currentTheme.accent}`}>.{stopwatch.cs}</span>
                         </div>
                         <div className={`mt-8 flex gap-6 z-50 ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
                             <button onClick={() => setIsStopwatchRunning(!isStopwatchRunning)} className="p-4 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition-all">
