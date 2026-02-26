@@ -69,6 +69,7 @@ const I18N = {
         fontModern: '現代', fontElegant: '經典', fontTechnical: '工程', fontCyber: '未來', fontCustom: '已匯入',
         alarmSound: '計時鈴聲', notifications: '系統通知', soundNone: '無', soundBeep: '嗶嗶聲', soundDigital: '電子錶', soundBell: '清脆鈴聲', testSound: '測試鈴聲',
         showProgressRing: '動態進度環', enableMiniTask: '微型任務管理', enableFocusAnalytics: '專注數據統計', enableMeetingPlanner: '智慧時區規劃器', focusGoal: '當前專注目標', focusStats: '專注時長統計', exportImage: '輸出為主題照片', exporting: '正在生成...',
+        ringPosition: '進度環位置', ringLeft: '數字左側', ringRight: '數字右側', ringBackground: '背景置中',
         "Taipei": "台北", "Tokyo": "東京", "Seoul": "首爾", "Shanghai": "上海", "Hong Kong": "香港",
         "Singapore": "新加坡", "Bangkok": "曼谷", "Dubai": "杜拜", "Kolkata": "加爾各答", "Ho Chi Minh": "胡志明市",
         "London": "倫敦", "Paris": "巴黎", "Berlin": "柏林", "Rome": "羅馬", "Madrid": "馬德里", "Moscow": "莫斯科",
@@ -109,6 +110,7 @@ const I18N = {
         fontModern: 'Modern', fontElegant: 'Elegant', fontTechnical: 'Tech', fontCyber: 'Future', fontCustom: 'Imported',
         alarmSound: 'Alarm Sound', notifications: 'Notifications', soundNone: 'None', soundBeep: 'Beep', soundDigital: 'Digital', soundBell: 'Bell', testSound: 'Test Sound',
         showProgressRing: 'Progress Ring', enableMiniTask: 'Mini Task List', enableFocusAnalytics: 'Focus Analytics', enableMeetingPlanner: 'Meeting Planner', focusGoal: 'Current Goal', focusStats: 'Focus Stats', exportImage: 'Export as Image', exporting: 'Exporting...',
+        ringPosition: 'Ring Position', ringLeft: 'Left of Number', ringRight: 'Right of Number', ringBackground: 'Background Centered',
         "Taipei": "Taipei", "Tokyo": "Tokyo", "Seoul": "Seoul", "Shanghai": "Shanghai", "Hong Kong": "Hong Kong",
         "Singapore": "Singapore", "Bangkok": "Bangkok", "Dubai": "Dubai", "Kolkata": "Kolkata", "Ho Chi Minh": "Ho Chi Minh",
         "London": "London", "Paris": "Paris", "Berlin": "Berlin", "Rome": "Rome", "Madrid": "Madrid", "Moscow": "Moscow",
@@ -149,6 +151,7 @@ const I18N = {
         fontModern: 'モダン', fontElegant: 'エレガント', fontTechnical: 'テック', fontCyber: 'フューチャー', fontCustom: 'カスタム',
         alarmSound: 'アラーム音', notifications: '通知', soundNone: '無し', soundBeep: 'ビープ', soundDigital: 'デジタル', soundBell: 'ベル', testSound: 'テスト音',
         showProgressRing: 'プログレスリング', enableMiniTask: 'ミニタスク管理', enableFocusAnalytics: '集中時間統計', enableMeetingPlanner: 'MTGプランナー', focusGoal: '現在の目標', focusStats: '集中時間統計', exportImage: '画像として書き出し', exporting: '書き出し中...',
+        ringPosition: 'リングの位置', ringLeft: '数字の左側', ringRight: '数字の右側', ringBackground: '背景の中心',
         "Taipei": "台北", "Tokyo": "東京", "Seoul": "ソウル", "Shanghai": "上海", "Hong Kong": "香港",
         "Singapore": "シンガポール", "Bangkok": "バンコク", "Dubai": "ドバイ", "Kolkata": "コルカタ", "Ho Chi Minh": "ホーチミン",
         "London": "ロンドン", "Paris": "パリ", "Berlin": "ベルリン", "Rome": "ローマ", "Madrid": "マドリード", "Moscow": "モスクワ",
@@ -249,18 +252,22 @@ const ALL_ZONES = [
 ];
 
 // --- Memoized Components ---
-const ProgressRing = React.memo(({ progress, accent }) => {
+const ProgressRing = React.memo(({ progress, accent, position }) => {
     const clampedProgress = Math.min(100, Math.max(0, progress || 0));
     const radius = 46;
-    const stroke = 1.5;
+    const stroke = position === 'background' ? 1.5 : 4;
     const circumference = radius * 2 * Math.PI;
     const strokeDashoffset = Math.max(0, circumference - ((clampedProgress / 100) * circumference));
 
+    const baseClass = position === 'background'
+        ? "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none drop-shadow-2xl opacity-50 z-0 flex justify-center items-center w-[90vw] h-[90vw] max-w-[500px] max-h-[500px]"
+        : "pointer-events-none drop-shadow-2xl opacity-80 flex flex-shrink-0 justify-center items-center w-[12vw] h-[12vw] min-w-[50px] min-h-[50px] max-w-[100px] max-h-[100px] mx-4";
+
     return (
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none drop-shadow-2xl opacity-50 z-0 flex justify-center items-center w-[90vw] h-[90vw] max-w-[500px] max-h-[500px]">
+        <div className={baseClass}>
             <svg viewBox="0 0 100 100" className="w-full h-full pointer-events-none" preserveAspectRatio="xMidYMid meet">
-                <circle stroke="currentColor" fill="transparent" strokeWidth={stroke} className="opacity-[0.05]" r={radius} cx="50" cy="50" />
-                <circle stroke="currentColor" fill="transparent" strokeWidth={stroke} strokeDasharray={circumference + ' ' + circumference} style={{ strokeDashoffset, transition: 'stroke-dashoffset 1s linear' }} className={`opacity-80 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] ${accent}`} strokeLinecap="round" r={radius} cx="50" cy="50" transform="rotate(-90 50 50)" />
+                <circle stroke="currentColor" fill="transparent" strokeWidth={stroke} className="opacity-[0.1]" r={radius} cx="50" cy="50" />
+                <circle stroke="currentColor" fill="transparent" strokeWidth={stroke} strokeDasharray={circumference + ' ' + circumference} style={{ strokeDashoffset, transition: 'stroke-dashoffset 1s linear' }} className={`opacity-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] ${accent}`} strokeLinecap="round" r={radius} cx="50" cy="50" transform="rotate(-90 50 50)" />
             </svg>
         </div>
     );
@@ -322,6 +329,7 @@ function App() {
     const [font, setFont] = useState(() => localStorage.getItem('clock_font') || 'modern');
     const [showMillis, setShowMillis] = useState(() => localStorage.getItem('clock_millis') === 'true');
     const [showProgressRing, setShowProgressRing] = useState(() => localStorage.getItem('clock_progressRing') !== 'false');
+    const [ringPosition, setRingPosition] = useState(() => localStorage.getItem('clock_ringPosition') || 'left');
     const [enableMiniTask, setEnableMiniTask] = useState(() => localStorage.getItem('clock_miniTask') === 'true');
     const [enableFocusAnalytics, setEnableFocusAnalytics] = useState(() => localStorage.getItem('clock_focusAnalytics') === 'true');
     const [enableMeetingPlanner, setEnableMeetingPlanner] = useState(() => localStorage.getItem('clock_meetingPlanner') === 'true');
@@ -498,6 +506,7 @@ function App() {
     useEffect(() => { localStorage.setItem('clock_alarmSound', alarmSound); }, [alarmSound]);
     useEffect(() => { localStorage.setItem('clock_notifications', notificationsEnabled); }, [notificationsEnabled]);
     useEffect(() => { localStorage.setItem('clock_progressRing', showProgressRing); }, [showProgressRing]);
+    useEffect(() => { localStorage.setItem('clock_ringPosition', ringPosition); }, [ringPosition]);
     useEffect(() => { localStorage.setItem('clock_miniTask', enableMiniTask); }, [enableMiniTask]);
     useEffect(() => { localStorage.setItem('clock_focusAnalytics', enableFocusAnalytics); }, [enableFocusAnalytics]);
     useEffect(() => { localStorage.setItem('clock_meetingPlanner', enableMeetingPlanner); }, [enableMeetingPlanner]);
@@ -998,6 +1007,23 @@ function App() {
 
                                 <div className="pt-2">
                                     <div className="flex justify-between items-center mb-4">
+                                        <span className="text-sm font-medium opacity-80">{t('ringPosition')}</span>
+                                    </div>
+                                    <div className="grid grid-cols-3 gap-3">
+                                        {['left', 'right', 'background'].map(sk => (
+                                            <button
+                                                key={sk}
+                                                onClick={() => setRingPosition(sk)}
+                                                className={`p-4 rounded-xl text-center text-sm transition-all border ${ringPosition === sk ? 'bg-white/10 border-white/50 shadow-lg scale-105' : 'bg-white/5 border-transparent hover:bg-white/10'}`}
+                                            >
+                                                {t(`ring${sk.charAt(0).toUpperCase() + sk.slice(1)}`)}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="pt-2">
+                                    <div className="flex justify-between items-center mb-4">
                                         <span className="text-sm font-medium opacity-80">{t('alarmSound')}</span>
                                         <button onClick={playAlarm} className="text-xs px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 transition-colors">{t('testSound')}</button>
                                     </div>
@@ -1241,8 +1267,8 @@ function App() {
                                     </div>
                                 </div>
                             ) : (
-                                <div className="relative flex justify-center items-center w-full mt-4 p-8">
-                                    {showProgressRing && <ProgressRing progress={timerInitial > 0 ? (timerSeconds / timerInitial) * 100 : 0} accent={theme === 'custom' ? 'custom-accent text-white' : currentTheme.accent} />}
+                                <div className={`relative flex justify-center items-center w-full mt-4 p-8 ${ringPosition === 'left' ? 'flex-row' : ringPosition === 'right' ? 'flex-row-reverse' : 'flex-col'}`}>
+                                    {showProgressRing && <ProgressRing progress={timerInitial > 0 ? (timerSeconds / timerInitial) * 100 : 0} accent={theme === 'custom' ? 'custom-accent text-white' : currentTheme.accent} position={ringPosition} />}
                                     <div
                                         className="text-[18vw] md:text-[120px] font-bold tracking-tighter tabular-nums drop-shadow-2xl cursor-pointer hover:opacity-80 transition-opacity flex items-baseline gap-1 md:gap-2 z-10"
                                         onClick={() => {
@@ -1320,9 +1346,9 @@ function App() {
                             <button onClick={() => resetPomo('short')} className={`px-4 py-1 rounded-full text-sm border transition-all ${pomoMode === 'short' ? `bg-white/10 border-white/50 ${currentTheme.accent}` : 'border-transparent opacity-50'}`}>{t('break')}</button>
                             <button onClick={() => resetPomo('long')} className={`px-4 py-1 rounded-full text-sm border transition-all ${pomoMode === 'long' ? `bg-white/10 border-white/50 ${currentTheme.accent}` : 'border-transparent opacity-50'}`}>{t('long')}</button>
                         </div>
-                        <div className="relative flex justify-center items-center w-full mt-4 p-8">
-                            {showProgressRing && <ProgressRing progress={(pomoSeconds / (pomoMode === 'work' ? 25 * 60 : pomoMode === 'short' ? 5 * 60 : 15 * 60)) * 100} accent={theme === 'custom' ? 'custom-accent text-white' : currentTheme.accent} />}
-                            <div className="text-[24vw] md:text-[150px] font-bold tracking-tighter tabular-nums drop-shadow-2xl z-10">
+                        <div className={`relative flex justify-center items-center w-full mt-4 p-8 ${ringPosition === 'left' ? 'flex-row' : ringPosition === 'right' ? 'flex-row-reverse' : 'flex-col'}`}>
+                            {showProgressRing && <ProgressRing progress={(pomoSeconds / (pomoMode === 'work' ? 25 * 60 : pomoMode === 'short' ? 5 * 60 : 15 * 60)) * 100} accent={theme === 'custom' ? 'custom-accent text-white' : currentTheme.accent} position={ringPosition} />}
+                            <div className="text-[24vw] md:text-[150px] font-bold tracking-tighter tabular-nums drop-shadow-2xl z-10 flex">
                                 {Math.floor(pomoSeconds / 60).toString().padStart(2, '0')}:{(pomoSeconds % 60).toString().padStart(2, '0')}
                             </div>
                         </div>

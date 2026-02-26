@@ -131,6 +131,10 @@ const I18N = {
     focusStats: '專注時長統計',
     exportImage: '輸出為主題照片',
     exporting: '正在生成...',
+    ringPosition: '進度環位置',
+    ringLeft: '數字左側',
+    ringRight: '數字右側',
+    ringBackground: '背景置中',
     "Taipei": "台北",
     "Tokyo": "東京",
     "Seoul": "首爾",
@@ -259,6 +263,10 @@ const I18N = {
     focusStats: 'Focus Stats',
     exportImage: 'Export as Image',
     exporting: 'Exporting...',
+    ringPosition: 'Ring Position',
+    ringLeft: 'Left of Number',
+    ringRight: 'Right of Number',
+    ringBackground: 'Background Centered',
     "Taipei": "Taipei",
     "Tokyo": "Tokyo",
     "Seoul": "Seoul",
@@ -387,6 +395,10 @@ const I18N = {
     focusStats: '集中時間統計',
     exportImage: '画像として書き出し',
     exporting: '書き出し中...',
+    ringPosition: 'リングの位置',
+    ringLeft: '数字の左側',
+    ringRight: '数字の右側',
+    ringBackground: '背景の中心',
     "Taipei": "台北",
     "Tokyo": "東京",
     "Seoul": "ソウル",
@@ -625,15 +637,17 @@ const ALL_ZONES = [
 const ProgressRing = /*#__PURE__*/React.memo(_ref => {
   let {
     progress,
-    accent
+    accent,
+    position
   } = _ref;
   const clampedProgress = Math.min(100, Math.max(0, progress || 0));
   const radius = 46;
-  const stroke = 1.5;
+  const stroke = position === 'background' ? 1.5 : 4;
   const circumference = radius * 2 * Math.PI;
   const strokeDashoffset = Math.max(0, circumference - clampedProgress / 100 * circumference);
+  const baseClass = position === 'background' ? "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none drop-shadow-2xl opacity-50 z-0 flex justify-center items-center w-[90vw] h-[90vw] max-w-[500px] max-h-[500px]" : "pointer-events-none drop-shadow-2xl opacity-80 flex flex-shrink-0 justify-center items-center w-[12vw] h-[12vw] min-w-[50px] min-h-[50px] max-w-[100px] max-h-[100px] mx-4";
   return /*#__PURE__*/React.createElement("div", {
-    className: "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none drop-shadow-2xl opacity-50 z-0 flex justify-center items-center w-[90vw] h-[90vw] max-w-[500px] max-h-[500px]"
+    className: baseClass
   }, /*#__PURE__*/React.createElement("svg", {
     viewBox: "0 0 100 100",
     className: "w-full h-full pointer-events-none",
@@ -642,7 +656,7 @@ const ProgressRing = /*#__PURE__*/React.memo(_ref => {
     stroke: "currentColor",
     fill: "transparent",
     strokeWidth: stroke,
-    className: "opacity-[0.05]",
+    className: "opacity-[0.1]",
     r: radius,
     cx: "50",
     cy: "50"
@@ -655,7 +669,7 @@ const ProgressRing = /*#__PURE__*/React.memo(_ref => {
       strokeDashoffset,
       transition: 'stroke-dashoffset 1s linear'
     },
-    className: "opacity-80 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] ".concat(accent),
+    className: "opacity-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] ".concat(accent),
     strokeLinecap: "round",
     r: radius,
     cx: "50",
@@ -788,6 +802,7 @@ function App() {
   const [font, setFont] = useState(() => localStorage.getItem('clock_font') || 'modern');
   const [showMillis, setShowMillis] = useState(() => localStorage.getItem('clock_millis') === 'true');
   const [showProgressRing, setShowProgressRing] = useState(() => localStorage.getItem('clock_progressRing') !== 'false');
+  const [ringPosition, setRingPosition] = useState(() => localStorage.getItem('clock_ringPosition') || 'left');
   const [enableMiniTask, setEnableMiniTask] = useState(() => localStorage.getItem('clock_miniTask') === 'true');
   const [enableFocusAnalytics, setEnableFocusAnalytics] = useState(() => localStorage.getItem('clock_focusAnalytics') === 'true');
   const [enableMeetingPlanner, setEnableMeetingPlanner] = useState(() => localStorage.getItem('clock_meetingPlanner') === 'true');
@@ -1005,6 +1020,9 @@ function App() {
   useEffect(() => {
     localStorage.setItem('clock_progressRing', showProgressRing);
   }, [showProgressRing]);
+  useEffect(() => {
+    localStorage.setItem('clock_ringPosition', ringPosition);
+  }, [ringPosition]);
   useEffect(() => {
     localStorage.setItem('clock_miniTask', enableMiniTask);
   }, [enableMiniTask]);
@@ -1686,6 +1704,18 @@ function App() {
     className: "flex justify-between items-center mb-4"
   }, /*#__PURE__*/React.createElement("span", {
     className: "text-sm font-medium opacity-80"
+  }, t('ringPosition'))), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-3 gap-3"
+  }, ['left', 'right', 'background'].map(sk => /*#__PURE__*/React.createElement("button", {
+    key: sk,
+    onClick: () => setRingPosition(sk),
+    className: "p-4 rounded-xl text-center text-sm transition-all border ".concat(ringPosition === sk ? 'bg-white/10 border-white/50 shadow-lg scale-105' : 'bg-white/5 border-transparent hover:bg-white/10')
+  }, t("ring".concat(sk.charAt(0).toUpperCase() + sk.slice(1))))))), /*#__PURE__*/React.createElement("div", {
+    className: "pt-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex justify-between items-center mb-4"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-sm font-medium opacity-80"
   }, t('alarmSound')), /*#__PURE__*/React.createElement("button", {
     onClick: playAlarm,
     className: "text-xs px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
@@ -1963,10 +1993,11 @@ function App() {
     size: 32,
     className: currentTheme.accent
   })))) : /*#__PURE__*/React.createElement("div", {
-    className: "relative flex justify-center items-center w-full mt-4 p-8"
+    className: "relative flex justify-center items-center w-full mt-4 p-8 ".concat(ringPosition === 'left' ? 'flex-row' : ringPosition === 'right' ? 'flex-row-reverse' : 'flex-col')
   }, showProgressRing && /*#__PURE__*/React.createElement(ProgressRing, {
     progress: timerInitial > 0 ? timerSeconds / timerInitial * 100 : 0,
-    accent: theme === 'custom' ? 'custom-accent text-white' : currentTheme.accent
+    accent: theme === 'custom' ? 'custom-accent text-white' : currentTheme.accent,
+    position: ringPosition
   }), /*#__PURE__*/React.createElement("div", {
     className: "text-[18vw] md:text-[120px] font-bold tracking-tighter tabular-nums drop-shadow-2xl cursor-pointer hover:opacity-80 transition-opacity flex items-baseline gap-1 md:gap-2 z-10",
     onClick: () => {
@@ -2071,12 +2102,13 @@ function App() {
     onClick: () => resetPomo('long'),
     className: "px-4 py-1 rounded-full text-sm border transition-all ".concat(pomoMode === 'long' ? "bg-white/10 border-white/50 ".concat(currentTheme.accent) : 'border-transparent opacity-50')
   }, t('long'))), /*#__PURE__*/React.createElement("div", {
-    className: "relative flex justify-center items-center w-full mt-4 p-8"
+    className: "relative flex justify-center items-center w-full mt-4 p-8 ".concat(ringPosition === 'left' ? 'flex-row' : ringPosition === 'right' ? 'flex-row-reverse' : 'flex-col')
   }, showProgressRing && /*#__PURE__*/React.createElement(ProgressRing, {
     progress: pomoSeconds / (pomoMode === 'work' ? 25 * 60 : pomoMode === 'short' ? 5 * 60 : 15 * 60) * 100,
-    accent: theme === 'custom' ? 'custom-accent text-white' : currentTheme.accent
+    accent: theme === 'custom' ? 'custom-accent text-white' : currentTheme.accent,
+    position: ringPosition
   }), /*#__PURE__*/React.createElement("div", {
-    className: "text-[24vw] md:text-[150px] font-bold tracking-tighter tabular-nums drop-shadow-2xl z-10"
+    className: "text-[24vw] md:text-[150px] font-bold tracking-tighter tabular-nums drop-shadow-2xl z-10 flex"
   }, Math.floor(pomoSeconds / 60).toString().padStart(2, '0'), ":", (pomoSeconds % 60).toString().padStart(2, '0'))), /*#__PURE__*/React.createElement("div", {
     className: "mt-8 flex gap-6 z-50 ".concat(isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100')
   }, /*#__PURE__*/React.createElement("button", {
