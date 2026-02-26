@@ -136,7 +136,6 @@ const I18N = {
     ringRight: '數字右側',
     ringBackground: '背景置中',
     autoZenMode: '計時自動進入專注模式',
-    autoFullscreen: '計時自動全螢幕',
     "Taipei": "台北",
     "Tokyo": "東京",
     "Seoul": "首爾",
@@ -270,7 +269,6 @@ const I18N = {
     ringRight: 'Right of Number',
     ringBackground: 'Background Centered',
     autoZenMode: 'Auto Zen Mode on Start',
-    autoFullscreen: 'Auto Fullscreen on Start',
     "Taipei": "Taipei",
     "Tokyo": "Tokyo",
     "Seoul": "Seoul",
@@ -404,7 +402,6 @@ const I18N = {
     ringRight: '数字の右側',
     ringBackground: '背景の中心',
     autoZenMode: '開始時に集中モード',
-    autoFullscreen: '開始時に全画面表示',
     "Taipei": "台北",
     "Tokyo": "東京",
     "Seoul": "ソウル",
@@ -815,7 +812,6 @@ function App() {
 
   // New Automation Settings
   const [autoZenMode, setAutoZenMode] = useState(() => localStorage.getItem('clock_autoZenMode') === 'true');
-  const [autoFullscreen, setAutoFullscreen] = useState(() => localStorage.getItem('clock_autoFullscreen') !== 'false');
   const [selectedZones, setSelectedZones] = useState(() => {
     try {
       const saved = localStorage.getItem('clock_zones');
@@ -1697,7 +1693,7 @@ function App() {
     size: 24
   }), " ", t('general')), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-1 sm:grid-cols-2 gap-4"
-  }, [['showMillis', showMillis, setShowMillis], ['notifications', notificationsEnabled, handleToggleNotifications], ['autoZenMode', autoZenMode, setAutoZenMode], ['autoFullscreen', autoFullscreen, setAutoFullscreen], ['showProgressRing', showProgressRing, setShowProgressRing], ['enableMiniTask', enableMiniTask, setEnableMiniTask], ['enableFocusAnalytics', enableFocusAnalytics, setEnableFocusAnalytics], ['enableMeetingPlanner', enableMeetingPlanner, setEnableMeetingPlanner]].map(_ref0 => {
+  }, [['showMillis', showMillis, setShowMillis], ['notifications', notificationsEnabled, handleToggleNotifications], ['autoZenMode', autoZenMode, setAutoZenMode], ['showProgressRing', showProgressRing, setShowProgressRing], ['enableMiniTask', enableMiniTask, setEnableMiniTask], ['enableFocusAnalytics', enableFocusAnalytics, setEnableFocusAnalytics], ['enableMeetingPlanner', enableMeetingPlanner, setEnableMeetingPlanner]].map(_ref0 => {
     let [k, val, setVal] = _ref0;
     return /*#__PURE__*/React.createElement("label", {
       key: k,
@@ -1994,7 +1990,7 @@ function App() {
         setTimerSeconds(sec);
         setIsEditingTimer(false);
         setIsTimerRunning(true);
-        handleStartFocus();
+        if (autoZenMode && !isZenMode) setIsZenMode(true);
       } else {
         setIsEditingTimer(false);
       }
@@ -2036,7 +2032,7 @@ function App() {
           return;
         }
       }
-      if (!isTimerRunning) handleStartFocus();
+      if (!isTimerRunning && autoZenMode && !isZenMode) setIsZenMode(true);
       setIsTimerRunning(!isTimerRunning);
     },
     className: "p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all"
@@ -2126,7 +2122,7 @@ function App() {
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       if (!isPomoRunning && pomoSeconds <= 0) resetPomo(pomoMode);
-      if (!isPomoRunning) handleStartFocus();
+      if (!isPomoRunning && autoZenMode && !isZenMode) setIsZenMode(true);
       setIsPomoRunning(!isPomoRunning);
     },
     className: "p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all"
