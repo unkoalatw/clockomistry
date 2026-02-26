@@ -5,7 +5,8 @@ function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" 
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Maximize2, Minimize2, Timer, Clock, Monitor, Play, Pause, RotateCcw, AlertCircle, Globe, StopCircle, Settings, X, Check, Plus, Search, Type, Upload, Palette, ArrowLeft, Coffee, Brain, CalendarDays, Languages, Trash2, ChevronLeft, ChevronRight, Calendar, CloudSun, Share2, Download, LayoutTemplate, Sparkles, Delete } from 'lucide-react';
+import html2canvas from 'html2canvas';
+import { Maximize2, Minimize2, Timer, Clock, Monitor, Play, Pause, RotateCcw, AlertCircle, Globe, StopCircle, Settings, X, Check, Plus, Search, Type, Upload, Palette, ArrowLeft, Coffee, Brain, CalendarDays, Languages, Trash2, ChevronLeft, ChevronRight, Calendar, CloudSun, Share2, Download, LayoutTemplate, Sparkles, Delete, Camera, CheckSquare, BarChart2, Sliders, Target } from 'lucide-react';
 
 // --- IndexedDB 管理 (用於儲存大體積字型) ---
 const DB_NAME = 'ClockomistryDB';
@@ -122,6 +123,14 @@ const I18N = {
     soundDigital: '電子錶',
     soundBell: '清脆鈴聲',
     testSound: '測試鈴聲',
+    showProgressRing: '動態進度環',
+    enableMiniTask: '微型任務管理',
+    enableFocusAnalytics: '專注數據統計',
+    enableMeetingPlanner: '智慧時區規劃器',
+    focusGoal: '當前專注目標',
+    focusStats: '專注時長統計',
+    exportImage: '輸出為主題照片',
+    exporting: '正在生成...',
     "Taipei": "台北",
     "Tokyo": "東京",
     "Seoul": "首爾",
@@ -242,6 +251,14 @@ const I18N = {
     soundDigital: 'Digital',
     soundBell: 'Bell',
     testSound: 'Test Sound',
+    showProgressRing: 'Progress Ring',
+    enableMiniTask: 'Mini Task List',
+    enableFocusAnalytics: 'Focus Analytics',
+    enableMeetingPlanner: 'Meeting Planner',
+    focusGoal: 'Current Goal',
+    focusStats: 'Focus Stats',
+    exportImage: 'Export as Image',
+    exporting: 'Exporting...',
     "Taipei": "Taipei",
     "Tokyo": "Tokyo",
     "Seoul": "Seoul",
@@ -362,6 +379,14 @@ const I18N = {
     soundDigital: 'デジタル',
     soundBell: 'ベル',
     testSound: 'テスト音',
+    showProgressRing: 'プログレスリング',
+    enableMiniTask: 'ミニタスク管理',
+    enableFocusAnalytics: '集中時間統計',
+    enableMeetingPlanner: 'MTGプランナー',
+    focusGoal: '現在の目標',
+    focusStats: '集中時間統計',
+    exportImage: '画像として書き出し',
+    exporting: '書き出し中...',
     "Taipei": "台北",
     "Tokyo": "東京",
     "Seoul": "ソウル",
@@ -597,11 +622,50 @@ const ALL_ZONES = [
 }];
 
 // --- Memoized Components ---
-const WeatherWidget = /*#__PURE__*/React.memo(_ref => {
+const ProgressRing = /*#__PURE__*/React.memo(_ref => {
+  let {
+    progress,
+    accent
+  } = _ref;
+  const radius = 46;
+  const stroke = 2.5;
+  const circumference = radius * 2 * Math.PI;
+  const strokeDashoffset = circumference - progress / 100 * circumference;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "absolute inset-0 pointer-events-none drop-shadow-2xl opacity-50 flex items-center justify-center scale-[1.3] sm:scale-[1.4] transition-transform duration-500 z-0"
+  }, /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 100 100",
+    className: "w-[85%] h-[85%] max-w-[400px] max-h-[400px]"
+  }, /*#__PURE__*/React.createElement("circle", {
+    stroke: "currentColor",
+    fill: "transparent",
+    strokeWidth: stroke,
+    className: "opacity-[0.05]",
+    r: radius,
+    cx: "50",
+    cy: "50"
+  }), /*#__PURE__*/React.createElement("circle", {
+    stroke: "currentColor",
+    fill: "transparent",
+    strokeWidth: stroke,
+    strokeDasharray: circumference + ' ' + circumference,
+    style: {
+      strokeDashoffset,
+      transition: 'stroke-dashoffset 1s linear'
+    },
+    className: "opacity-80 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] ".concat(accent),
+    strokeLinecap: "round",
+    r: radius,
+    cx: "50",
+    cy: "50",
+    transform: "rotate(-90 50 50)"
+  })));
+});
+const WeatherWidget = /*#__PURE__*/React.memo(_ref2 => {
   let {
     weather,
     accent
-  } = _ref;
+  } = _ref2;
   return /*#__PURE__*/React.createElement("div", {
     className: "mb-8 flex items-center gap-4 px-6 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm animate-fade-in opacity-60 hover:opacity-100 transition-opacity"
   }, /*#__PURE__*/React.createElement(CloudSun, {
@@ -611,7 +675,7 @@ const WeatherWidget = /*#__PURE__*/React.memo(_ref => {
     className: "text-sm font-medium"
   }, weather.city, " \xB7 ", weather.temp, "\xB0C \xB7 ", weather.condition));
 });
-const ClockDisplay = /*#__PURE__*/React.memo(_ref2 => {
+const ClockDisplay = /*#__PURE__*/React.memo(_ref3 => {
   let {
     h,
     m,
@@ -620,7 +684,7 @@ const ClockDisplay = /*#__PURE__*/React.memo(_ref2 => {
     showMillis,
     accent,
     dateLabel
-  } = _ref2;
+  } = _ref3;
   return /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col items-center select-none"
   }, /*#__PURE__*/React.createElement("div", {
@@ -641,7 +705,7 @@ const ClockDisplay = /*#__PURE__*/React.memo(_ref2 => {
     className: "mt-2 md:mt-4 text-sm md:text-2xl font-light tracking-[0.3em] opacity-80 uppercase text-center"
   }, dateLabel));
 });
-const NavigationBar = /*#__PURE__*/React.memo(_ref3 => {
+const NavigationBar = /*#__PURE__*/React.memo(_ref4 => {
   let {
     mode,
     setMode,
@@ -651,9 +715,9 @@ const NavigationBar = /*#__PURE__*/React.memo(_ref3 => {
     toggleFullscreen,
     setShowSettings,
     setIsZenMode
-  } = _ref3;
+  } = _ref4;
   return /*#__PURE__*/React.createElement("div", {
-    className: "fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 flex items-center justify-between sm:justify-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-[2rem] sm:rounded-full backdrop-blur-xl bg-white/5 border border-white/20 shadow-2xl transition-all duration-500 z-50 w-[92vw] max-w-2xl sm:w-auto ".concat(showControls ? 'translate-y-0 opacity-100' : 'translate-y-32 opacity-0')
+    className: "hide-on-export fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 flex items-center justify-between sm:justify-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-[2rem] sm:rounded-full backdrop-blur-xl bg-white/5 border border-white/20 shadow-2xl transition-all duration-500 z-50 w-[92vw] max-w-2xl sm:w-auto ".concat(showControls ? 'translate-y-0 opacity-100' : 'translate-y-32 opacity-0')
   }, /*#__PURE__*/React.createElement("style", null, ".hide-scroll::-webkit-scrollbar { display: none; }"), /*#__PURE__*/React.createElement("div", {
     className: "flex bg-white/5 rounded-full p-1 gap-1 flex-1 sm:flex-none overflow-x-auto overflow-y-hidden snap-x snap-mandatory hide-scroll",
     style: {
@@ -682,11 +746,11 @@ const NavigationBar = /*#__PURE__*/React.memo(_ref3 => {
   }, {
     m: 'stopwatch',
     icon: StopCircle
-  }].map(_ref4 => {
+  }].map(_ref5 => {
     let {
       m,
       icon: Icon
-    } = _ref4;
+    } = _ref5;
     return /*#__PURE__*/React.createElement("button", {
       key: m,
       onClick: () => setMode(m),
@@ -721,6 +785,10 @@ function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem('clock_theme') || 'modern');
   const [font, setFont] = useState(() => localStorage.getItem('clock_font') || 'modern');
   const [showMillis, setShowMillis] = useState(() => localStorage.getItem('clock_millis') === 'true');
+  const [showProgressRing, setShowProgressRing] = useState(() => localStorage.getItem('clock_progressRing') !== 'false');
+  const [enableMiniTask, setEnableMiniTask] = useState(() => localStorage.getItem('clock_miniTask') === 'true');
+  const [enableFocusAnalytics, setEnableFocusAnalytics] = useState(() => localStorage.getItem('clock_focusAnalytics') === 'true');
+  const [enableMeetingPlanner, setEnableMeetingPlanner] = useState(() => localStorage.getItem('clock_meetingPlanner') === 'true');
   const [selectedZones, setSelectedZones] = useState(() => {
     try {
       const saved = localStorage.getItem('clock_zones');
@@ -776,6 +844,17 @@ function App() {
     } catch (e) {}
     return [];
   });
+
+  // Advance Features 狀態
+  const [focusGoal, setFocusGoal] = useState(() => localStorage.getItem('clock_focusGoal') || '');
+  const [focusStats, setFocusStats] = useState(() => {
+    try {
+      const s = localStorage.getItem('clock_focusStats');
+      if (s) return JSON.parse(s);
+    } catch (e) {}
+    return {};
+  });
+  const [meetingOffset, setMeetingOffset] = useState(0);
 
   // Weather 狀態
   const [weather, setWeather] = useState({
@@ -921,6 +1000,24 @@ function App() {
   useEffect(() => {
     localStorage.setItem('clock_notifications', notificationsEnabled);
   }, [notificationsEnabled]);
+  useEffect(() => {
+    localStorage.setItem('clock_progressRing', showProgressRing);
+  }, [showProgressRing]);
+  useEffect(() => {
+    localStorage.setItem('clock_miniTask', enableMiniTask);
+  }, [enableMiniTask]);
+  useEffect(() => {
+    localStorage.setItem('clock_focusAnalytics', enableFocusAnalytics);
+  }, [enableFocusAnalytics]);
+  useEffect(() => {
+    localStorage.setItem('clock_meetingPlanner', enableMeetingPlanner);
+  }, [enableMeetingPlanner]);
+  useEffect(() => {
+    localStorage.setItem('clock_focusGoal', focusGoal);
+  }, [focusGoal]);
+  useEffect(() => {
+    localStorage.setItem('clock_focusStats', JSON.stringify(focusStats));
+  }, [focusStats]);
 
   // 螢幕保護自動偵測
   useEffect(() => {
@@ -1069,6 +1166,28 @@ function App() {
       setTimeout(() => setErrorMsg(''), 3000);
     }
   };
+  const [isExporting, setIsExporting] = useState(false);
+  const handleExportImage = async () => {
+    if (!containerRef.current || isExporting) return;
+    setIsExporting(true);
+    const prevZen = isZenMode;
+    if (!prevZen) setIsZenMode(true);
+    setTimeout(async () => {
+      try {
+        const canvas = await html2canvas(containerRef.current, {
+          scale: 2,
+          backgroundColor: null,
+          ignoreElements: el => el.classList.contains('hide-on-export')
+        });
+        const link = document.createElement('a');
+        link.download = "clockomistry-".concat(Date.now(), ".png");
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      } catch (err) {}
+      setIsZenMode(prevZen);
+      setIsExporting(false);
+    }, 500);
+  };
 
   // 初始化時從 IndexedDB 載入字體
   useEffect(() => {
@@ -1140,6 +1259,12 @@ function App() {
 
       // 自動切換模式或播放鈴聲（這裡先簡單處理）
       if (pomoMode === 'work') {
+        if (enableFocusAnalytics) {
+          const today = new Date().toISOString().split('T')[0];
+          setFocusStats(prev => _objectSpread(_objectSpread({}, prev), {}, {
+            [today]: (prev[today] || 0) + 25 * 60
+          }));
+        }
         setPomoMode('short');
         setPomoSeconds(5 * 60);
       } else {
@@ -1247,7 +1372,7 @@ function App() {
   };
   const getWorldTime = timezone => {
     try {
-      const d = new Date();
+      const d = new Date(Date.now() + meetingOffset * 3600 * 1000);
       const s = d.toLocaleTimeString('en-US', {
         timeZone: timezone,
         hour12: false,
@@ -1300,7 +1425,7 @@ function App() {
     style: containerStyle,
     className: "h-screen w-full flex flex-col items-center justify-center transition-all duration-1000 ".concat(theme !== 'custom' ? "bg-gradient-to-br ".concat(currentTheme.gradient, " ").concat(currentTheme.text) : '', " overflow-hidden relative selection:bg-pink-500 selection:text-white")
   }, theme === 'custom' && /*#__PURE__*/React.createElement("style", null, "\n                .custom-accent { color: ".concat(customColors.accent, "; }\n                .custom-card { background: ").concat(customColors.bg1, "33; border-color: ").concat(customColors.text, "1a; box-shadow: 0 8px 32px 0 rgba(0,0,0,0.36); }\n                .custom-settings { background: ").concat(customColors.bg1, "e6; backdrop-filter: blur(64px); }\n            ")), /*#__PURE__*/React.createElement("div", {
-    className: "fixed top-8 left-1/2 -translate-x-1/2 z-[100] transition-all duration-300 ".concat(errorMsg ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none')
+    className: "hide-on-export fixed top-8 left-1/2 -translate-x-1/2 z-[100] transition-all duration-300 ".concat(errorMsg ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none')
   }, /*#__PURE__*/React.createElement("div", {
     className: "px-6 py-3 rounded-full shadow-lg backdrop-blur-md flex items-center gap-2 bg-slate-800/90 text-white"
   }, /*#__PURE__*/React.createElement(AlertCircle, {
@@ -1333,8 +1458,8 @@ function App() {
     size: 24
   }), " ", t('appearance')), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-2 sm:grid-cols-4 gap-4"
-  }, Object.entries(DEFAULT_THEMES).map(_ref5 => {
-    let [key, thm] = _ref5;
+  }, Object.entries(DEFAULT_THEMES).map(_ref6 => {
+    let [key, thm] = _ref6;
     return /*#__PURE__*/React.createElement("button", {
       key: key,
       onClick: () => setTheme(key),
@@ -1369,8 +1494,8 @@ function App() {
     }
   }, t('bgGradient')), /*#__PURE__*/React.createElement("div", {
     className: "flex gap-4 items-center"
-  }, [['bg1', t('color1')], ['bg2', t('color2')], ['bg3', t('color3')]].map(_ref6 => {
-    let [k, l] = _ref6;
+  }, [['bg1', t('color1')], ['bg2', t('color2')], ['bg3', t('color3')]].map(_ref7 => {
+    let [k, l] = _ref7;
     return /*#__PURE__*/React.createElement("label", {
       key: k,
       className: "flex flex-col items-center gap-1 cursor-pointer"
@@ -1406,8 +1531,8 @@ function App() {
     }
   }, t('textAccent')), /*#__PURE__*/React.createElement("div", {
     className: "flex gap-4 items-center"
-  }, [['text', t('text')], ['accent', t('accent')]].map(_ref7 => {
-    let [k, l] = _ref7;
+  }, [['text', t('text')], ['accent', t('accent')]].map(_ref8 => {
+    let [k, l] = _ref8;
     return /*#__PURE__*/React.createElement("label", {
       key: k,
       className: "flex flex-col items-center gap-1 cursor-pointer"
@@ -1486,8 +1611,8 @@ function App() {
     onChange: handleFontUpload
   })), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-1 sm:grid-cols-2 gap-4"
-  }, Object.entries(DEFAULT_FONTS).map(_ref8 => {
-    let [key, f] = _ref8;
+  }, Object.entries(DEFAULT_FONTS).map(_ref9 => {
+    let [key, f] = _ref9;
     return /*#__PURE__*/React.createElement("button", {
       key: key,
       onClick: () => setFont(key),
@@ -1542,21 +1667,18 @@ function App() {
     size: 24
   }), " ", t('general')), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-1 sm:grid-cols-2 gap-4"
-  }, /*#__PURE__*/React.createElement("label", {
-    className: "flex items-center justify-between p-6 rounded-2xl bg-white/5 cursor-pointer hover:bg-white/10 transition-colors"
-  }, /*#__PURE__*/React.createElement("span", null, t('showMillis')), /*#__PURE__*/React.createElement("div", {
-    onClick: () => setShowMillis(!showMillis),
-    className: "w-14 h-8 rounded-full relative transition-colors ".concat(showMillis ? 'bg-blue-500' : 'bg-slate-600')
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "absolute top-1 w-6 h-6 rounded-full bg-white transition-all ".concat(showMillis ? 'left-7' : 'left-1')
-  }))), /*#__PURE__*/React.createElement("label", {
-    className: "flex items-center justify-between p-6 rounded-2xl bg-white/5 cursor-pointer hover:bg-white/10 transition-colors"
-  }, /*#__PURE__*/React.createElement("span", null, t('notifications')), /*#__PURE__*/React.createElement("div", {
-    onClick: handleToggleNotifications,
-    className: "w-14 h-8 rounded-full relative transition-colors ".concat(notificationsEnabled ? 'bg-blue-500' : 'bg-slate-600')
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "absolute top-1 w-6 h-6 rounded-full bg-white transition-all ".concat(notificationsEnabled ? 'left-7' : 'left-1')
-  })))), /*#__PURE__*/React.createElement("div", {
+  }, [['showMillis', showMillis, setShowMillis], ['notifications', notificationsEnabled, handleToggleNotifications], ['showProgressRing', showProgressRing, setShowProgressRing], ['enableMiniTask', enableMiniTask, setEnableMiniTask], ['enableFocusAnalytics', enableFocusAnalytics, setEnableFocusAnalytics], ['enableMeetingPlanner', enableMeetingPlanner, setEnableMeetingPlanner]].map(_ref0 => {
+    let [k, val, setVal] = _ref0;
+    return /*#__PURE__*/React.createElement("label", {
+      key: k,
+      className: "flex items-center justify-between p-6 rounded-2xl bg-white/5 cursor-pointer hover:bg-white/10 transition-colors"
+    }, /*#__PURE__*/React.createElement("span", null, t(k)), /*#__PURE__*/React.createElement("div", {
+      onClick: () => k === 'notifications' ? handleToggleNotifications() : setVal(!val),
+      className: "w-14 h-8 rounded-full relative transition-colors ".concat(val ? 'bg-blue-500' : 'bg-slate-600')
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "absolute top-1 w-6 h-6 rounded-full bg-white transition-all ".concat(val ? 'left-7' : 'left-1')
+    })));
+  })), /*#__PURE__*/React.createElement("div", {
     className: "pt-2"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex justify-between items-center mb-4"
@@ -1579,8 +1701,8 @@ function App() {
     size: 24
   }), " ", t('language')), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-3 gap-4"
-  }, Object.entries(I18N).map(_ref9 => {
-    let [key, val] = _ref9;
+  }, Object.entries(I18N).map(_ref1 => {
+    let [key, val] = _ref1;
     return /*#__PURE__*/React.createElement("button", {
       key: key,
       onClick: () => setLang(key),
@@ -1600,6 +1722,13 @@ function App() {
   }, /*#__PURE__*/React.createElement(Download, {
     size: 20
   }), /*#__PURE__*/React.createElement("span", null, t('export'))), /*#__PURE__*/React.createElement("button", {
+    onClick: handleExportImage,
+    disabled: isExporting,
+    className: "p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 flex flex-col items-center gap-2 transition-all"
+  }, /*#__PURE__*/React.createElement(Camera, {
+    size: 20,
+    className: isExporting ? 'animate-pulse' : ''
+  }), /*#__PURE__*/React.createElement("span", null, isExporting ? t('exporting') : t('exportImage'))), /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       const code = prompt(t('importPrompt'));
       importTheme(code);
@@ -1669,8 +1798,8 @@ function App() {
     className: "bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500"
   }, "omistry")), /*#__PURE__*/React.createElement("div", {
     className: "flex gap-2 justify-center mt-6"
-  }, Object.entries(I18N).map(_ref0 => {
-    let [key, val] = _ref0;
+  }, Object.entries(I18N).map(_ref10 => {
+    let [key, val] = _ref10;
     return /*#__PURE__*/React.createElement("button", {
       key: key,
       onClick: () => setLang(key),
@@ -1744,8 +1873,27 @@ function App() {
     dateLabel: formatDate(time)
   })), mode === 'world' && /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col items-center select-none w-full"
+  }, enableMeetingPlanner && /*#__PURE__*/React.createElement("div", {
+    className: "w-full max-w-lg mb-8 px-6 py-4 rounded-3xl bg-white/5 border border-white/10 flex flex-col gap-4 animate-fade-in"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "grid grid-cols-1 sm:grid-cols-2 gap-8 w-full max-h-[60vh] overflow-y-auto custom-scrollbar p-4"
+    className: "flex justify-between text-sm opacity-80 font-medium"
+  }, /*#__PURE__*/React.createElement("span", null, "-12h"), /*#__PURE__*/React.createElement("span", {
+    className: currentTheme.accent
+  }, meetingOffset > 0 ? "+".concat(meetingOffset, "h") : meetingOffset < 0 ? "".concat(meetingOffset, "h") : t('today')), /*#__PURE__*/React.createElement("span", null, "+12h")), /*#__PURE__*/React.createElement("input", {
+    type: "range",
+    min: "-12",
+    max: "12",
+    step: "1",
+    value: meetingOffset,
+    onDoubleClick: () => setMeetingOffset(0),
+    onChange: e => setMeetingOffset(Number(e.target.value)),
+    className: "w-full cursor-pointer opacity-80 hover:opacity-100 transition-opacity",
+    style: {
+      accentColor: '#3b82f6'
+    },
+    title: "Double click to reset"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-1 sm:grid-cols-2 gap-8 w-full max-h-[50vh] overflow-y-auto custom-scrollbar p-4"
   }, selectedZones.map(zone => {
     const tWorld = getWorldTime(zone.id);
     return /*#__PURE__*/React.createElement("div", {
@@ -1812,8 +1960,13 @@ function App() {
   }, /*#__PURE__*/React.createElement(Play, {
     size: 32,
     className: currentTheme.accent
-  })))) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
-    className: "text-[18vw] md:text-[120px] font-bold tracking-tighter tabular-nums drop-shadow-2xl cursor-pointer hover:opacity-80 transition-opacity flex items-baseline gap-1 md:gap-2",
+  })))) : /*#__PURE__*/React.createElement("div", {
+    className: "relative flex justify-center items-center w-full mt-4 p-8"
+  }, showProgressRing && /*#__PURE__*/React.createElement(ProgressRing, {
+    progress: timerInitial > 0 ? timerSeconds / timerInitial * 100 : 0,
+    accent: theme === 'custom' ? 'custom-accent text-white' : currentTheme.accent
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "text-[18vw] md:text-[120px] font-bold tracking-tighter tabular-nums drop-shadow-2xl cursor-pointer hover:opacity-80 transition-opacity flex items-baseline gap-1 md:gap-2 z-10",
     onClick: () => {
       if (!isTimerRunning) {
         setIsEditingTimer(true);
@@ -1826,8 +1979,8 @@ function App() {
     className: "text-[6vw] md:text-[40px] opacity-50 ml-1"
   }, "m")), /*#__PURE__*/React.createElement("span", null, (timerSeconds % 60).toString().padStart(2, '0'), /*#__PURE__*/React.createElement("span", {
     className: "text-[6vw] md:text-[40px] opacity-50 ml-1"
-  }, "s"))), /*#__PURE__*/React.createElement("div", {
-    className: "mt-8 flex gap-6 z-50 ".concat(isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100')
+  }, "s"))))), /*#__PURE__*/React.createElement("div", {
+    className: "mt-8 flex gap-6 z-50 ".concat(isEditingTimer && 'hidden', " ").concat(isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100')
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => setIsTimerRunning(!isTimerRunning),
     className: "p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all"
@@ -1844,7 +1997,7 @@ function App() {
     className: "p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all"
   }, /*#__PURE__*/React.createElement(RotateCcw, {
     size: 32
-  }))))), /*#__PURE__*/React.createElement("div", {
+  }))), /*#__PURE__*/React.createElement("div", {
     className: "w-full max-h-[40vh] overflow-y-auto custom-scrollbar space-y-3 p-2 border-t border-white/10 pt-8"
   }, multiTimers.map(timer => {
     const mins = Math.floor(timer.remaining / 60).toString().padStart(2, '0');
@@ -1905,8 +2058,13 @@ function App() {
     onClick: () => resetPomo('long'),
     className: "px-4 py-1 rounded-full text-sm border transition-all ".concat(pomoMode === 'long' ? "bg-white/10 border-white/50 ".concat(currentTheme.accent) : 'border-transparent opacity-50')
   }, t('long'))), /*#__PURE__*/React.createElement("div", {
-    className: "text-[24vw] md:text-[150px] font-bold tracking-tighter tabular-nums drop-shadow-2xl"
-  }, Math.floor(pomoSeconds / 60).toString().padStart(2, '0'), ":", (pomoSeconds % 60).toString().padStart(2, '0')), /*#__PURE__*/React.createElement("div", {
+    className: "relative flex justify-center items-center w-full mt-4 p-8"
+  }, showProgressRing && /*#__PURE__*/React.createElement(ProgressRing, {
+    progress: pomoSeconds / (pomoMode === 'work' ? 25 * 60 : pomoMode === 'short' ? 5 * 60 : 15 * 60) * 100,
+    accent: theme === 'custom' ? 'custom-accent text-white' : currentTheme.accent
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "text-[24vw] md:text-[150px] font-bold tracking-tighter tabular-nums drop-shadow-2xl z-10"
+  }, Math.floor(pomoSeconds / 60).toString().padStart(2, '0'), ":", (pomoSeconds % 60).toString().padStart(2, '0'))), /*#__PURE__*/React.createElement("div", {
     className: "mt-8 flex gap-6 z-50 ".concat(isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100')
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => setIsPomoRunning(!isPomoRunning),
@@ -1921,6 +2079,51 @@ function App() {
     className: "p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all"
   }, /*#__PURE__*/React.createElement(RotateCcw, {
     size: 32
+  }))), enableMiniTask && /*#__PURE__*/React.createElement("div", {
+    className: "mt-8 flex items-center justify-center w-[80vw] max-w-sm transition-opacity duration-500 relative ".concat(isZenMode ? 'opacity-0' : 'opacity-100')
+  }, /*#__PURE__*/React.createElement(Target, {
+    size: 18,
+    className: "absolute left-2 opacity-30 pointer-events-none"
+  }), /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    placeholder: t('focusGoal'),
+    value: focusGoal,
+    onChange: e => setFocusGoal(e.target.value),
+    className: "w-full text-center bg-transparent border-b border-white/20 focus:border-white/60 py-2 outline-none text-base transition-colors placeholder:text-white/20 text-inherit",
+    style: {
+      color: 'inherit'
+    }
+  })), enableFocusAnalytics && /*#__PURE__*/React.createElement("div", {
+    className: "mt-6 w-[80vw] max-w-sm p-4 rounded-3xl bg-white/5 border border-white/10 flex flex-col gap-2 transition-opacity duration-500 ".concat(isZenMode ? 'opacity-0' : 'opacity-100')
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-xs font-medium opacity-80 flex items-center justify-between"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-1.5"
+  }, /*#__PURE__*/React.createElement(BarChart2, {
+    size: 14
+  }), " ", t('focusStats')), /*#__PURE__*/React.createElement("div", {
+    className: "opacity-50"
+  }, Object.keys(focusStats).slice(-7).length, " Days")), /*#__PURE__*/React.createElement("div", {
+    className: "text-2xl font-bold"
+  }, Math.floor(Object.values(focusStats).reduce((a, b) => a + b, 0) / 60), " ", /*#__PURE__*/React.createElement("span", {
+    className: "text-xs opacity-50 font-normal"
+  }, "mins (total)")), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-end gap-1.5 h-12 mt-1 w-full mx-auto justify-between px-1"
+  }, [...Array(7)].map((_, i) => {
+    const dateStrs = Object.keys(focusStats).sort();
+    const ds = dateStrs.slice(-7)[i];
+    const max = Math.max(...Object.values(focusStats), 1);
+    const val = ds ? focusStats[ds] : 0;
+    const pct = ds ? val / max * 100 : 0;
+    return /*#__PURE__*/React.createElement("div", {
+      key: i,
+      className: "flex-1 rounded-sm opacity-60 hover:opacity-100 transition-all ".concat(pct === 0 ? 'bg-white/10' : ''),
+      style: {
+        height: pct > 0 ? "max(4px, ".concat(pct, "%)") : '4px',
+        background: pct > 0 ? theme === 'custom' ? customColors.accent : currentTheme.bg.includes('50') ? '#3b82f6' : '#60a5fa' : ''
+      },
+      title: ds ? "".concat(ds, ": ").concat(Math.floor(val / 60), "m") : ''
+    });
   })))), mode === 'stopwatch' && /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col items-center select-none w-full min-w-[300px]"
   }, /*#__PURE__*/React.createElement("div", {

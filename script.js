@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { createRoot } from 'react-dom/client';
+import html2canvas from 'html2canvas';
 import {
     Maximize2, Minimize2, Timer, Clock, Monitor,
     Play, Pause, RotateCcw, AlertCircle, Globe,
     StopCircle, Settings, X, Check, Plus, Search,
     Type, Upload, Palette, ArrowLeft, Coffee, Brain,
     CalendarDays, Languages, Trash2, ChevronLeft, ChevronRight,
-    Calendar, CloudSun, Share2, Download, LayoutTemplate, Sparkles, Delete
+    Calendar, CloudSun, Share2, Download, LayoutTemplate, Sparkles, Delete,
+    Camera, CheckSquare, BarChart2, Sliders, Target
 } from 'lucide-react';
 
 // --- IndexedDB 管理 (用於儲存大體積字型) ---
@@ -66,6 +68,7 @@ const I18N = {
         themeModern: '極夜黑', themeLight: '光學白', themeCyber: '霓虹紫', themeForest: '水晶綠', themeCustom: '自訂',
         fontModern: '現代', fontElegant: '經典', fontTechnical: '工程', fontCyber: '未來', fontCustom: '已匯入',
         alarmSound: '計時鈴聲', notifications: '系統通知', soundNone: '無', soundBeep: '嗶嗶聲', soundDigital: '電子錶', soundBell: '清脆鈴聲', testSound: '測試鈴聲',
+        showProgressRing: '動態進度環', enableMiniTask: '微型任務管理', enableFocusAnalytics: '專注數據統計', enableMeetingPlanner: '智慧時區規劃器', focusGoal: '當前專注目標', focusStats: '專注時長統計', exportImage: '輸出為主題照片', exporting: '正在生成...',
         "Taipei": "台北", "Tokyo": "東京", "Seoul": "首爾", "Shanghai": "上海", "Hong Kong": "香港",
         "Singapore": "新加坡", "Bangkok": "曼谷", "Dubai": "杜拜", "Kolkata": "加爾各答", "Ho Chi Minh": "胡志明市",
         "London": "倫敦", "Paris": "巴黎", "Berlin": "柏林", "Rome": "羅馬", "Madrid": "馬德里", "Moscow": "莫斯科",
@@ -105,6 +108,7 @@ const I18N = {
         themeModern: 'Midnight', themeLight: 'Optical', themeCyber: 'Cyber', themeForest: 'Crystal', themeCustom: 'Custom',
         fontModern: 'Modern', fontElegant: 'Elegant', fontTechnical: 'Tech', fontCyber: 'Future', fontCustom: 'Imported',
         alarmSound: 'Alarm Sound', notifications: 'Notifications', soundNone: 'None', soundBeep: 'Beep', soundDigital: 'Digital', soundBell: 'Bell', testSound: 'Test Sound',
+        showProgressRing: 'Progress Ring', enableMiniTask: 'Mini Task List', enableFocusAnalytics: 'Focus Analytics', enableMeetingPlanner: 'Meeting Planner', focusGoal: 'Current Goal', focusStats: 'Focus Stats', exportImage: 'Export as Image', exporting: 'Exporting...',
         "Taipei": "Taipei", "Tokyo": "Tokyo", "Seoul": "Seoul", "Shanghai": "Shanghai", "Hong Kong": "Hong Kong",
         "Singapore": "Singapore", "Bangkok": "Bangkok", "Dubai": "Dubai", "Kolkata": "Kolkata", "Ho Chi Minh": "Ho Chi Minh",
         "London": "London", "Paris": "Paris", "Berlin": "Berlin", "Rome": "Rome", "Madrid": "Madrid", "Moscow": "Moscow",
@@ -144,6 +148,7 @@ const I18N = {
         themeModern: '真夜中', themeLight: 'ライト', themeCyber: 'サイバー', themeForest: 'フォレスト', themeCustom: 'カスタム',
         fontModern: 'モダン', fontElegant: 'エレガント', fontTechnical: 'テック', fontCyber: 'フューチャー', fontCustom: 'カスタム',
         alarmSound: 'アラーム音', notifications: '通知', soundNone: '無し', soundBeep: 'ビープ', soundDigital: 'デジタル', soundBell: 'ベル', testSound: 'テスト音',
+        showProgressRing: 'プログレスリング', enableMiniTask: 'ミニタスク管理', enableFocusAnalytics: '集中時間統計', enableMeetingPlanner: 'MTGプランナー', focusGoal: '現在の目標', focusStats: '集中時間統計', exportImage: '画像として書き出し', exporting: '書き出し中...',
         "Taipei": "台北", "Tokyo": "東京", "Seoul": "ソウル", "Shanghai": "上海", "Hong Kong": "香港",
         "Singapore": "シンガポール", "Bangkok": "バンコク", "Dubai": "ドバイ", "Kolkata": "コルカタ", "Ho Chi Minh": "ホーチミン",
         "London": "ロンドン", "Paris": "パリ", "Berlin": "ベルリン", "Rome": "ローマ", "Madrid": "マドリード", "Moscow": "モスクワ",
@@ -244,6 +249,22 @@ const ALL_ZONES = [
 ];
 
 // --- Memoized Components ---
+const ProgressRing = React.memo(({ progress, accent }) => {
+    const radius = 46;
+    const stroke = 2.5;
+    const circumference = radius * 2 * Math.PI;
+    const strokeDashoffset = circumference - ((progress / 100) * circumference);
+
+    return (
+        <div className="absolute inset-0 pointer-events-none drop-shadow-2xl opacity-50 flex items-center justify-center scale-[1.3] sm:scale-[1.4] transition-transform duration-500 z-0">
+            <svg viewBox="0 0 100 100" className="w-[85%] h-[85%] max-w-[400px] max-h-[400px]">
+                <circle stroke="currentColor" fill="transparent" strokeWidth={stroke} className="opacity-[0.05]" r={radius} cx="50" cy="50" />
+                <circle stroke="currentColor" fill="transparent" strokeWidth={stroke} strokeDasharray={circumference + ' ' + circumference} style={{ strokeDashoffset, transition: 'stroke-dashoffset 1s linear' }} className={`opacity-80 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] ${accent}`} strokeLinecap="round" r={radius} cx="50" cy="50" transform="rotate(-90 50 50)" />
+            </svg>
+        </div>
+    );
+});
+
 const WeatherWidget = React.memo(({ weather, accent }) => (
     <div className="mb-8 flex items-center gap-4 px-6 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm animate-fade-in opacity-60 hover:opacity-100 transition-opacity">
         <CloudSun size={18} className={accent} />
@@ -270,7 +291,7 @@ const ClockDisplay = React.memo(({ h, m, s, ms, showMillis, accent, dateLabel })
 
 const NavigationBar = React.memo(({ mode, setMode, isZenMode, accent, showControls, toggleFullscreen, setShowSettings, setIsZenMode }) => {
     return (
-        <div className={`fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 flex items-center justify-between sm:justify-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-[2rem] sm:rounded-full backdrop-blur-xl bg-white/5 border border-white/20 shadow-2xl transition-all duration-500 z-50 w-[92vw] max-w-2xl sm:w-auto ${showControls ? 'translate-y-0 opacity-100' : 'translate-y-32 opacity-0'}`}>
+        <div className={`hide-on-export fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 flex items-center justify-between sm:justify-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-[2rem] sm:rounded-full backdrop-blur-xl bg-white/5 border border-white/20 shadow-2xl transition-all duration-500 z-50 w-[92vw] max-w-2xl sm:w-auto ${showControls ? 'translate-y-0 opacity-100' : 'translate-y-32 opacity-0'}`}>
             <style>{`.hide-scroll::-webkit-scrollbar { display: none; }`}</style>
             <div className="flex bg-white/5 rounded-full p-1 gap-1 flex-1 sm:flex-none overflow-x-auto overflow-y-hidden snap-x snap-mandatory hide-scroll" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
                 {[
@@ -299,6 +320,10 @@ function App() {
     const [theme, setTheme] = useState(() => localStorage.getItem('clock_theme') || 'modern');
     const [font, setFont] = useState(() => localStorage.getItem('clock_font') || 'modern');
     const [showMillis, setShowMillis] = useState(() => localStorage.getItem('clock_millis') === 'true');
+    const [showProgressRing, setShowProgressRing] = useState(() => localStorage.getItem('clock_progressRing') !== 'false');
+    const [enableMiniTask, setEnableMiniTask] = useState(() => localStorage.getItem('clock_miniTask') === 'true');
+    const [enableFocusAnalytics, setEnableFocusAnalytics] = useState(() => localStorage.getItem('clock_focusAnalytics') === 'true');
+    const [enableMeetingPlanner, setEnableMeetingPlanner] = useState(() => localStorage.getItem('clock_meetingPlanner') === 'true');
     const [selectedZones, setSelectedZones] = useState(() => {
         try {
             const saved = localStorage.getItem('clock_zones');
@@ -348,6 +373,14 @@ function App() {
         try { const s = localStorage.getItem('clock_anniversaries'); if (s) return JSON.parse(s); } catch (e) { }
         return [];
     });
+
+    // Advance Features 狀態
+    const [focusGoal, setFocusGoal] = useState(() => localStorage.getItem('clock_focusGoal') || '');
+    const [focusStats, setFocusStats] = useState(() => {
+        try { const s = localStorage.getItem('clock_focusStats'); if (s) return JSON.parse(s); } catch (e) { }
+        return {};
+    });
+    const [meetingOffset, setMeetingOffset] = useState(0);
 
     // Weather 狀態
     const [weather, setWeather] = useState({ temp: '--', condition: '', city: '--' });
@@ -463,6 +496,12 @@ function App() {
     useEffect(() => { localStorage.setItem('clock_anniversaries', JSON.stringify(anniversaries)); }, [anniversaries]);
     useEffect(() => { localStorage.setItem('clock_alarmSound', alarmSound); }, [alarmSound]);
     useEffect(() => { localStorage.setItem('clock_notifications', notificationsEnabled); }, [notificationsEnabled]);
+    useEffect(() => { localStorage.setItem('clock_progressRing', showProgressRing); }, [showProgressRing]);
+    useEffect(() => { localStorage.setItem('clock_miniTask', enableMiniTask); }, [enableMiniTask]);
+    useEffect(() => { localStorage.setItem('clock_focusAnalytics', enableFocusAnalytics); }, [enableFocusAnalytics]);
+    useEffect(() => { localStorage.setItem('clock_meetingPlanner', enableMeetingPlanner); }, [enableMeetingPlanner]);
+    useEffect(() => { localStorage.setItem('clock_focusGoal', focusGoal); }, [focusGoal]);
+    useEffect(() => { localStorage.setItem('clock_focusStats', JSON.stringify(focusStats)); }, [focusStats]);
 
     // 螢幕保護自動偵測
     useEffect(() => {
@@ -577,6 +616,30 @@ function App() {
         } catch (e) { setErrorMsg(t('invalidThemeCode')); setTimeout(() => setErrorMsg(''), 3000); }
     };
 
+    const [isExporting, setIsExporting] = useState(false);
+    const handleExportImage = async () => {
+        if (!containerRef.current || isExporting) return;
+        setIsExporting(true);
+        const prevZen = isZenMode;
+        if (!prevZen) setIsZenMode(true);
+
+        setTimeout(async () => {
+            try {
+                const canvas = await html2canvas(containerRef.current, {
+                    scale: 2,
+                    backgroundColor: null,
+                    ignoreElements: (el) => el.classList.contains('hide-on-export')
+                });
+                const link = document.createElement('a');
+                link.download = `clockomistry-${Date.now()}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            } catch (err) { }
+            setIsZenMode(prevZen);
+            setIsExporting(false);
+        }, 500);
+    };
+
     // 初始化時從 IndexedDB 載入字體
     useEffect(() => {
         const initFont = async () => {
@@ -641,6 +704,13 @@ function App() {
 
             // 自動切換模式或播放鈴聲（這裡先簡單處理）
             if (pomoMode === 'work') {
+                if (enableFocusAnalytics) {
+                    const today = new Date().toISOString().split('T')[0];
+                    setFocusStats(prev => ({
+                        ...prev,
+                        [today]: (prev[today] || 0) + (25 * 60)
+                    }));
+                }
                 setPomoMode('short');
                 setPomoSeconds(5 * 60);
             } else {
@@ -750,7 +820,7 @@ function App() {
 
     const getWorldTime = (timezone) => {
         try {
-            const d = new Date();
+            const d = new Date(Date.now() + meetingOffset * 3600 * 1000);
             const s = d.toLocaleTimeString('en-US', { timeZone: timezone, hour12: false, hour: '2-digit', minute: '2-digit' });
             const [h, m] = s.split(':');
             return { h, m };
@@ -787,7 +857,7 @@ function App() {
                 .custom-settings { background: ${customColors.bg1}e6; backdrop-filter: blur(64px); }
             `}</style>}
             {/* Toast */}
-            <div className={`fixed top-8 left-1/2 -translate-x-1/2 z-[100] transition-all duration-300 ${errorMsg ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}>
+            <div className={`hide-on-export fixed top-8 left-1/2 -translate-x-1/2 z-[100] transition-all duration-300 ${errorMsg ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}>
                 <div className={`px-6 py-3 rounded-full shadow-lg backdrop-blur-md flex items-center gap-2 bg-slate-800/90 text-white`}>
                     <AlertCircle size={18} />
                     <span className="text-sm font-medium">{errorMsg}</span>
@@ -910,18 +980,19 @@ function App() {
                             <section className="space-y-6">
                                 <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><Settings size={24} /> {t('general')}</h3>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <label className="flex items-center justify-between p-6 rounded-2xl bg-white/5 cursor-pointer hover:bg-white/10 transition-colors">
-                                        <span>{t('showMillis')}</span>
-                                        <div onClick={() => setShowMillis(!showMillis)} className={`w-14 h-8 rounded-full relative transition-colors ${showMillis ? 'bg-blue-500' : 'bg-slate-600'}`}>
-                                            <div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all ${showMillis ? 'left-7' : 'left-1'}`} />
-                                        </div>
-                                    </label>
-                                    <label className="flex items-center justify-between p-6 rounded-2xl bg-white/5 cursor-pointer hover:bg-white/10 transition-colors">
-                                        <span>{t('notifications')}</span>
-                                        <div onClick={handleToggleNotifications} className={`w-14 h-8 rounded-full relative transition-colors ${notificationsEnabled ? 'bg-blue-500' : 'bg-slate-600'}`}>
-                                            <div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all ${notificationsEnabled ? 'left-7' : 'left-1'}`} />
-                                        </div>
-                                    </label>
+                                    {[['showMillis', showMillis, setShowMillis],
+                                    ['notifications', notificationsEnabled, handleToggleNotifications],
+                                    ['showProgressRing', showProgressRing, setShowProgressRing],
+                                    ['enableMiniTask', enableMiniTask, setEnableMiniTask],
+                                    ['enableFocusAnalytics', enableFocusAnalytics, setEnableFocusAnalytics],
+                                    ['enableMeetingPlanner', enableMeetingPlanner, setEnableMeetingPlanner]].map(([k, val, setVal]) => (
+                                        <label key={k} className="flex items-center justify-between p-6 rounded-2xl bg-white/5 cursor-pointer hover:bg-white/10 transition-colors">
+                                            <span>{t(k)}</span>
+                                            <div onClick={() => k === 'notifications' ? handleToggleNotifications() : setVal(!val)} className={`w-14 h-8 rounded-full relative transition-colors ${val ? 'bg-blue-500' : 'bg-slate-600'}`}>
+                                                <div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all ${val ? 'left-7' : 'left-1'}`} />
+                                            </div>
+                                        </label>
+                                    ))}
                                 </div>
 
                                 <div className="pt-2">
@@ -958,6 +1029,10 @@ function App() {
                                     <button onClick={exportTheme} className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 flex flex-col items-center gap-2 transition-all">
                                         <Download size={20} />
                                         <span>{t('export')}</span>
+                                    </button>
+                                    <button onClick={handleExportImage} disabled={isExporting} className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 flex flex-col items-center gap-2 transition-all">
+                                        <Camera size={20} className={isExporting ? 'animate-pulse' : ''} />
+                                        <span>{isExporting ? t('exporting') : t('exportImage')}</span>
                                     </button>
                                     <button
                                         onClick={() => {
@@ -1101,7 +1176,17 @@ function App() {
 
                 {mode === 'world' && (
                     <div className="flex flex-col items-center select-none w-full">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 w-full max-h-[60vh] overflow-y-auto custom-scrollbar p-4">
+                        {enableMeetingPlanner && (
+                            <div className="w-full max-w-lg mb-8 px-6 py-4 rounded-3xl bg-white/5 border border-white/10 flex flex-col gap-4 animate-fade-in">
+                                <div className="flex justify-between text-sm opacity-80 font-medium">
+                                    <span>-12h</span>
+                                    <span className={currentTheme.accent}>{meetingOffset > 0 ? `+${meetingOffset}h` : meetingOffset < 0 ? `${meetingOffset}h` : t('today')}</span>
+                                    <span>+12h</span>
+                                </div>
+                                <input type="range" min="-12" max="12" step="1" value={meetingOffset} onDoubleClick={() => setMeetingOffset(0)} onChange={e => setMeetingOffset(Number(e.target.value))} className="w-full cursor-pointer opacity-80 hover:opacity-100 transition-opacity" style={{ accentColor: '#3b82f6' }} title="Double click to reset" />
+                            </div>
+                        )}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 w-full max-h-[50vh] overflow-y-auto custom-scrollbar p-4">
                             {selectedZones.map(zone => {
                                 const tWorld = getWorldTime(zone.id);
                                 return (
@@ -1155,9 +1240,10 @@ function App() {
                                     </div>
                                 </div>
                             ) : (
-                                <>
+                                <div className="relative flex justify-center items-center w-full mt-4 p-8">
+                                    {showProgressRing && <ProgressRing progress={timerInitial > 0 ? (timerSeconds / timerInitial) * 100 : 0} accent={theme === 'custom' ? 'custom-accent text-white' : currentTheme.accent} />}
                                     <div
-                                        className="text-[18vw] md:text-[120px] font-bold tracking-tighter tabular-nums drop-shadow-2xl cursor-pointer hover:opacity-80 transition-opacity flex items-baseline gap-1 md:gap-2"
+                                        className="text-[18vw] md:text-[120px] font-bold tracking-tighter tabular-nums drop-shadow-2xl cursor-pointer hover:opacity-80 transition-opacity flex items-baseline gap-1 md:gap-2 z-10"
                                         onClick={() => {
                                             if (!isTimerRunning) {
                                                 setIsEditingTimer(true);
@@ -1169,16 +1255,17 @@ function App() {
                                         <span>{Math.floor((timerSeconds % 3600) / 60).toString().padStart(2, '0')}<span className="text-[6vw] md:text-[40px] opacity-50 ml-1">m</span></span>
                                         <span>{(timerSeconds % 60).toString().padStart(2, '0')}<span className="text-[6vw] md:text-[40px] opacity-50 ml-1">s</span></span>
                                     </div>
-                                    <div className={`mt-8 flex gap-6 z-50 ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-                                        <button onClick={() => setIsTimerRunning(!isTimerRunning)} className={`p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all`}>
-                                            {isTimerRunning ? <Pause size={32} /> : <Play size={32} className={currentTheme.accent} />}
-                                        </button>
-                                        <button onClick={() => { setIsTimerRunning(false); setTimerSeconds(timerInitial); }} className="p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all">
-                                            <RotateCcw size={32} />
-                                        </button>
-                                    </div>
-                                </>
+                                </div>
                             )}
+                        </div>
+
+                        <div className={`mt-8 flex gap-6 z-50 ${isEditingTimer && 'hidden'} ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+                            <button onClick={() => setIsTimerRunning(!isTimerRunning)} className={`p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all`}>
+                                {isTimerRunning ? <Pause size={32} /> : <Play size={32} className={currentTheme.accent} />}
+                            </button>
+                            <button onClick={() => { setIsTimerRunning(false); setTimerSeconds(timerInitial); }} className="p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all">
+                                <RotateCcw size={32} />
+                            </button>
                         </div>
 
                         {/* Integrated Multi-Timers */}
@@ -1221,8 +1308,11 @@ function App() {
                             <button onClick={() => resetPomo('short')} className={`px-4 py-1 rounded-full text-sm border transition-all ${pomoMode === 'short' ? `bg-white/10 border-white/50 ${currentTheme.accent}` : 'border-transparent opacity-50'}`}>{t('break')}</button>
                             <button onClick={() => resetPomo('long')} className={`px-4 py-1 rounded-full text-sm border transition-all ${pomoMode === 'long' ? `bg-white/10 border-white/50 ${currentTheme.accent}` : 'border-transparent opacity-50'}`}>{t('long')}</button>
                         </div>
-                        <div className="text-[24vw] md:text-[150px] font-bold tracking-tighter tabular-nums drop-shadow-2xl">
-                            {Math.floor(pomoSeconds / 60).toString().padStart(2, '0')}:{(pomoSeconds % 60).toString().padStart(2, '0')}
+                        <div className="relative flex justify-center items-center w-full mt-4 p-8">
+                            {showProgressRing && <ProgressRing progress={(pomoSeconds / (pomoMode === 'work' ? 25 * 60 : pomoMode === 'short' ? 5 * 60 : 15 * 60)) * 100} accent={theme === 'custom' ? 'custom-accent text-white' : currentTheme.accent} />}
+                            <div className="text-[24vw] md:text-[150px] font-bold tracking-tighter tabular-nums drop-shadow-2xl z-10">
+                                {Math.floor(pomoSeconds / 60).toString().padStart(2, '0')}:{(pomoSeconds % 60).toString().padStart(2, '0')}
+                            </div>
                         </div>
                         <div className={`mt-8 flex gap-6 z-50 ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
                             <button onClick={() => setIsPomoRunning(!isPomoRunning)} className={`p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all`}>
@@ -1232,6 +1322,31 @@ function App() {
                                 <RotateCcw size={32} />
                             </button>
                         </div>
+                        {enableMiniTask && (
+                            <div className={`mt-8 flex items-center justify-center w-[80vw] max-w-sm transition-opacity duration-500 relative ${isZenMode ? 'opacity-0' : 'opacity-100'}`}>
+                                <Target size={18} className="absolute left-2 opacity-30 pointer-events-none" />
+                                <input type="text" placeholder={t('focusGoal')} value={focusGoal} onChange={e => setFocusGoal(e.target.value)} className="w-full text-center bg-transparent border-b border-white/20 focus:border-white/60 py-2 outline-none text-base transition-colors placeholder:text-white/20 text-inherit" style={{ color: 'inherit' }} />
+                            </div>
+                        )}
+                        {enableFocusAnalytics && (
+                            <div className={`mt-6 w-[80vw] max-w-sm p-4 rounded-3xl bg-white/5 border border-white/10 flex flex-col gap-2 transition-opacity duration-500 ${isZenMode ? 'opacity-0' : 'opacity-100'}`}>
+                                <div className="text-xs font-medium opacity-80 flex items-center justify-between">
+                                    <div className="flex items-center gap-1.5"><BarChart2 size={14} /> {t('focusStats')}</div>
+                                    <div className="opacity-50">{Object.keys(focusStats).slice(-7).length} Days</div>
+                                </div>
+                                <div className="text-2xl font-bold">{Math.floor(Object.values(focusStats).reduce((a, b) => a + b, 0) / 60)} <span className="text-xs opacity-50 font-normal">mins (total)</span></div>
+                                <div className="flex items-end gap-1.5 h-12 mt-1 w-full mx-auto justify-between px-1">
+                                    {[...Array(7)].map((_, i) => {
+                                        const dateStrs = Object.keys(focusStats).sort();
+                                        const ds = dateStrs.slice(-7)[i];
+                                        const max = Math.max(...Object.values(focusStats), 1);
+                                        const val = ds ? focusStats[ds] : 0;
+                                        const pct = ds ? (val / max) * 100 : 0;
+                                        return <div key={i} className={`flex-1 rounded-sm opacity-60 hover:opacity-100 transition-all ${pct === 0 ? 'bg-white/10' : ''}`} style={{ height: pct > 0 ? `max(4px, ${pct}%)` : '4px', background: pct > 0 ? (theme === 'custom' ? customColors.accent : (currentTheme.bg.includes('50') ? '#3b82f6' : '#60a5fa')) : '' }} title={ds ? `${ds}: ${Math.floor(val / 60)}m` : ''} />
+                                    })}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
 
