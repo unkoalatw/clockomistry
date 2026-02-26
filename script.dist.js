@@ -115,6 +115,13 @@ const I18N = {
     fontTechnical: '工程',
     fontCyber: '未來',
     fontCustom: '已匯入',
+    alarmSound: '計時鈴聲',
+    notifications: '系統通知',
+    soundNone: '無',
+    soundBeep: '嗶嗶聲',
+    soundDigital: '電子錶',
+    soundBell: '清脆鈴聲',
+    testSound: '測試鈴聲',
     "Taipei": "台北",
     "Tokyo": "東京",
     "Seoul": "首爾",
@@ -228,6 +235,13 @@ const I18N = {
     fontTechnical: 'Tech',
     fontCyber: 'Future',
     fontCustom: 'Imported',
+    alarmSound: 'Alarm Sound',
+    notifications: 'Notifications',
+    soundNone: 'None',
+    soundBeep: 'Beep',
+    soundDigital: 'Digital',
+    soundBell: 'Bell',
+    testSound: 'Test Sound',
     "Taipei": "Taipei",
     "Tokyo": "Tokyo",
     "Seoul": "Seoul",
@@ -341,6 +355,13 @@ const I18N = {
     fontTechnical: 'テック',
     fontCyber: 'フューチャー',
     fontCustom: 'カスタム',
+    alarmSound: 'アラーム音',
+    notifications: '通知',
+    soundNone: '無し',
+    soundBeep: 'ビープ',
+    soundDigital: 'デジタル',
+    soundBell: 'ベル',
+    testSound: 'テスト音',
     "Taipei": "台北",
     "Tokyo": "東京",
     "Seoul": "ソウル",
@@ -801,6 +822,50 @@ function App() {
   const [pomoSeconds, setPomoSeconds] = useState(25 * 60);
   const [isPomoRunning, setIsPomoRunning] = useState(false);
 
+  // Alarm & Notification 狀態
+  const [alarmSound, setAlarmSound] = useState(() => localStorage.getItem('clock_alarmSound') || 'beep');
+  const [notificationsEnabled, setNotificationsEnabled] = useState(() => localStorage.getItem('clock_notifications') === 'true');
+  const audioRef = useRef(null);
+  const playAlarm = useCallback(() => {
+    if (alarmSound === 'none') return;
+    if (!audioRef.current) audioRef.current = new Audio();
+    audioRef.current.src = "public/audio/".concat(alarmSound, ".ogg");
+    audioRef.current.play().catch(e => console.log('Audio play failed', e));
+  }, [alarmSound]);
+  const showNotification = useCallback((title, body) => {
+    if (!notificationsEnabled || !('Notification' in window) || Notification.permission !== 'granted') return;
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.ready.then(registration => {
+        registration.showNotification(title, {
+          body: body,
+          icon: 'icons/icon-192.png',
+          vibrate: [200, 100, 200, 100, 200, 100, 200]
+        });
+      });
+    } else {
+      new Notification(title, {
+        body,
+        icon: 'icons/icon-192.png'
+      });
+    }
+  }, [notificationsEnabled]);
+  const handleToggleNotifications = async () => {
+    if (!notificationsEnabled) {
+      if (!('Notification' in window)) {
+        showError('Browser does not support notifications');
+        return;
+      }
+      if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') setNotificationsEnabled(true);
+      } else if (Notification.permission === 'granted') {
+        setNotificationsEnabled(true);
+      }
+    } else {
+      setNotificationsEnabled(false);
+    }
+  };
+
   // Stopwatch 狀態
   const [stopwatchTime, setStopwatchTime] = useState(0);
   const [isStopwatchRunning, setIsStopwatchRunning] = useState(false);
@@ -846,6 +911,12 @@ function App() {
   useEffect(() => {
     localStorage.setItem('clock_anniversaries', JSON.stringify(anniversaries));
   }, [anniversaries]);
+  useEffect(() => {
+    localStorage.setItem('clock_alarmSound', alarmSound);
+  }, [alarmSound]);
+  useEffect(() => {
+    localStorage.setItem('clock_notifications', notificationsEnabled);
+  }, [notificationsEnabled]);
 
   // 螢幕保護自動偵測
   useEffect(() => {
@@ -935,17 +1006,21 @@ function App() {
       setMultiTimers(prev => prev.map(t => {
         if (!t.running || t.remaining <= 0) return t;
         const next = t.remaining - 1;
-        if (next <= 0) return _objectSpread(_objectSpread({}, t), {}, {
-          remaining: 0,
-          running: false
-        });
+        if (next <= 0) {
+          playAlarm();
+          showNotification('Timer Finished', "Timer ".concat(t.label, " has finished"));
+          return _objectSpread(_objectSpread({}, t), {}, {
+            remaining: 0,
+            running: false
+          });
+        }
         return _objectSpread(_objectSpread({}, t), {}, {
           remaining: next
         });
       }));
     }, 1000);
     return () => clearInterval(interval);
-  }, [multiTimers]);
+  }, [multiTimers, playAlarm, showNotification]);
   const addMultiTimer = function () {
     let minutes = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 5;
     multiTimerIdRef.current += 1;
@@ -1054,8 +1129,11 @@ function App() {
     let interval = null;
     if (isPomoRunning && pomoSeconds > 0) {
       interval = setInterval(() => setPomoSeconds(prev => prev - 1), 1000);
-    } else if (pomoSeconds === 0) {
+    } else if (isPomoRunning && pomoSeconds === 0) {
       setIsPomoRunning(false);
+      playAlarm();
+      showNotification('Pomodoro Finished', "".concat(t(pomoMode), " section is complete"));
+
       // 自動切換模式或播放鈴聲（這裡先簡單處理）
       if (pomoMode === 'work') {
         setPomoMode('short');
@@ -1066,7 +1144,7 @@ function App() {
       }
     }
     return () => clearInterval(interval);
-  }, [isPomoRunning, pomoSeconds, pomoMode]);
+  }, [isPomoRunning, pomoSeconds, pomoMode, playAlarm, showNotification, t]);
   const resetPomo = modeType => {
     setIsPomoRunning(false);
     setPomoMode(modeType);
@@ -1089,11 +1167,13 @@ function App() {
     let interval = null;
     if (isTimerRunning && timerSeconds > 0) {
       interval = setInterval(() => setTimerSeconds(prev => prev - 1), 1000);
-    } else if (timerSeconds === 0) {
+    } else if (isTimerRunning && timerSeconds === 0) {
+      playAlarm();
+      showNotification('Timer Finished', 'Your timer has finished');
       setIsTimerRunning(false);
     }
     return () => clearInterval(interval);
-  }, [isTimerRunning, timerSeconds]);
+  }, [isTimerRunning, timerSeconds, playAlarm, showNotification]);
   useEffect(() => {
     if (isStopwatchRunning) {
       previousTimeRef.current = Date.now();
@@ -1456,14 +1536,38 @@ function App() {
     className: "text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"
   }, /*#__PURE__*/React.createElement(Settings, {
     size: 24
-  }), " ", t('general')), /*#__PURE__*/React.createElement("label", {
-    className: "flex items-center justify-between p-6 rounded-2xl bg-white/5 cursor-pointer"
+  }), " ", t('general')), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-1 sm:grid-cols-2 gap-4"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "flex items-center justify-between p-6 rounded-2xl bg-white/5 cursor-pointer hover:bg-white/10 transition-colors"
   }, /*#__PURE__*/React.createElement("span", null, t('showMillis')), /*#__PURE__*/React.createElement("div", {
     onClick: () => setShowMillis(!showMillis),
     className: "w-14 h-8 rounded-full relative transition-colors ".concat(showMillis ? 'bg-blue-500' : 'bg-slate-600')
   }, /*#__PURE__*/React.createElement("div", {
     className: "absolute top-1 w-6 h-6 rounded-full bg-white transition-all ".concat(showMillis ? 'left-7' : 'left-1')
-  })))), /*#__PURE__*/React.createElement("section", {
+  }))), /*#__PURE__*/React.createElement("label", {
+    className: "flex items-center justify-between p-6 rounded-2xl bg-white/5 cursor-pointer hover:bg-white/10 transition-colors"
+  }, /*#__PURE__*/React.createElement("span", null, t('notifications')), /*#__PURE__*/React.createElement("div", {
+    onClick: handleToggleNotifications,
+    className: "w-14 h-8 rounded-full relative transition-colors ".concat(notificationsEnabled ? 'bg-blue-500' : 'bg-slate-600')
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "absolute top-1 w-6 h-6 rounded-full bg-white transition-all ".concat(notificationsEnabled ? 'left-7' : 'left-1')
+  })))), /*#__PURE__*/React.createElement("div", {
+    className: "pt-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex justify-between items-center mb-4"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-sm font-medium opacity-80"
+  }, t('alarmSound')), /*#__PURE__*/React.createElement("button", {
+    onClick: playAlarm,
+    className: "text-xs px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+  }, t('testSound'))), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-2 sm:grid-cols-4 gap-3"
+  }, ['none', 'beep', 'digital', 'bell'].map(sk => /*#__PURE__*/React.createElement("button", {
+    key: sk,
+    onClick: () => setAlarmSound(sk),
+    className: "p-4 rounded-xl text-center text-sm transition-all border ".concat(alarmSound === sk ? 'bg-white/10 border-white/50 scale-105' : 'bg-white/5 border-transparent hover:bg-white/10')
+  }, t("sound".concat(sk.charAt(0).toUpperCase() + sk.slice(1)))))))), /*#__PURE__*/React.createElement("section", {
     className: "space-y-6"
   }, /*#__PURE__*/React.createElement("h3", {
     className: "text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"

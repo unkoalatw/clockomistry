@@ -65,6 +65,7 @@ const I18N = {
         invalidThemeCode: '主題代碼錯誤',
         themeModern: '極夜黑', themeLight: '光學白', themeCyber: '霓虹紫', themeForest: '水晶綠', themeCustom: '自訂',
         fontModern: '現代', fontElegant: '經典', fontTechnical: '工程', fontCyber: '未來', fontCustom: '已匯入',
+        alarmSound: '計時鈴聲', notifications: '系統通知', soundNone: '無', soundBeep: '嗶嗶聲', soundDigital: '電子錶', soundBell: '清脆鈴聲', testSound: '測試鈴聲',
         "Taipei": "台北", "Tokyo": "東京", "Seoul": "首爾", "Shanghai": "上海", "Hong Kong": "香港",
         "Singapore": "新加坡", "Bangkok": "曼谷", "Dubai": "杜拜", "Kolkata": "加爾各答", "Ho Chi Minh": "胡志明市",
         "London": "倫敦", "Paris": "巴黎", "Berlin": "柏林", "Rome": "羅馬", "Madrid": "馬德里", "Moscow": "莫斯科",
@@ -103,6 +104,7 @@ const I18N = {
         invalidThemeCode: 'Invalid Theme Code',
         themeModern: 'Midnight', themeLight: 'Optical', themeCyber: 'Cyber', themeForest: 'Crystal', themeCustom: 'Custom',
         fontModern: 'Modern', fontElegant: 'Elegant', fontTechnical: 'Tech', fontCyber: 'Future', fontCustom: 'Imported',
+        alarmSound: 'Alarm Sound', notifications: 'Notifications', soundNone: 'None', soundBeep: 'Beep', soundDigital: 'Digital', soundBell: 'Bell', testSound: 'Test Sound',
         "Taipei": "Taipei", "Tokyo": "Tokyo", "Seoul": "Seoul", "Shanghai": "Shanghai", "Hong Kong": "Hong Kong",
         "Singapore": "Singapore", "Bangkok": "Bangkok", "Dubai": "Dubai", "Kolkata": "Kolkata", "Ho Chi Minh": "Ho Chi Minh",
         "London": "London", "Paris": "Paris", "Berlin": "Berlin", "Rome": "Rome", "Madrid": "Madrid", "Moscow": "Moscow",
@@ -141,6 +143,7 @@ const I18N = {
         invalidThemeCode: 'テーマコードが無効です',
         themeModern: '真夜中', themeLight: 'ライト', themeCyber: 'サイバー', themeForest: 'フォレスト', themeCustom: 'カスタム',
         fontModern: 'モダン', fontElegant: 'エレガント', fontTechnical: 'テック', fontCyber: 'フューチャー', fontCustom: 'カスタム',
+        alarmSound: 'アラーム音', notifications: '通知', soundNone: '無し', soundBeep: 'ビープ', soundDigital: 'デジタル', soundBell: 'ベル', testSound: 'テスト音',
         "Taipei": "台北", "Tokyo": "東京", "Seoul": "ソウル", "Shanghai": "上海", "Hong Kong": "香港",
         "Singapore": "シンガポール", "Bangkok": "バンコク", "Dubai": "ドバイ", "Kolkata": "コルカタ", "Ho Chi Minh": "ホーチミン",
         "London": "ロンドン", "Paris": "パリ", "Berlin": "ベルリン", "Rome": "ローマ", "Madrid": "マドリード", "Moscow": "モスクワ",
@@ -380,6 +383,50 @@ function App() {
     const [pomoSeconds, setPomoSeconds] = useState(25 * 60);
     const [isPomoRunning, setIsPomoRunning] = useState(false);
 
+    // Alarm & Notification 狀態
+    const [alarmSound, setAlarmSound] = useState(() => localStorage.getItem('clock_alarmSound') || 'beep');
+    const [notificationsEnabled, setNotificationsEnabled] = useState(() => localStorage.getItem('clock_notifications') === 'true');
+    const audioRef = useRef(null);
+
+    const playAlarm = useCallback(() => {
+        if (alarmSound === 'none') return;
+        if (!audioRef.current) audioRef.current = new Audio();
+        audioRef.current.src = `public/audio/${alarmSound}.ogg`;
+        audioRef.current.play().catch(e => console.log('Audio play failed', e));
+    }, [alarmSound]);
+
+    const showNotification = useCallback((title, body) => {
+        if (!notificationsEnabled || !('Notification' in window) || Notification.permission !== 'granted') return;
+        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+            navigator.serviceWorker.ready.then(registration => {
+                registration.showNotification(title, {
+                    body: body,
+                    icon: 'icons/icon-192.png',
+                    vibrate: [200, 100, 200, 100, 200, 100, 200]
+                });
+            });
+        } else {
+            new Notification(title, { body, icon: 'icons/icon-192.png' });
+        }
+    }, [notificationsEnabled]);
+
+    const handleToggleNotifications = async () => {
+        if (!notificationsEnabled) {
+            if (!('Notification' in window)) {
+                showError('Browser does not support notifications');
+                return;
+            }
+            if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') setNotificationsEnabled(true);
+            } else if (Notification.permission === 'granted') {
+                setNotificationsEnabled(true);
+            }
+        } else {
+            setNotificationsEnabled(false);
+        }
+    };
+
     // Stopwatch 狀態
     const [stopwatchTime, setStopwatchTime] = useState(0);
     const [isStopwatchRunning, setIsStopwatchRunning] = useState(false);
@@ -408,6 +455,8 @@ function App() {
     useEffect(() => { localStorage.setItem('clock_agreed', hasAgreed); }, [hasAgreed]);
     useEffect(() => { localStorage.setItem('clock_lang', lang); }, [lang]);
     useEffect(() => { localStorage.setItem('clock_anniversaries', JSON.stringify(anniversaries)); }, [anniversaries]);
+    useEffect(() => { localStorage.setItem('clock_alarmSound', alarmSound); }, [alarmSound]);
+    useEffect(() => { localStorage.setItem('clock_notifications', notificationsEnabled); }, [notificationsEnabled]);
 
     // 螢幕保護自動偵測
     useEffect(() => {
@@ -485,12 +534,16 @@ function App() {
             setMultiTimers(prev => prev.map(t => {
                 if (!t.running || t.remaining <= 0) return t;
                 const next = t.remaining - 1;
-                if (next <= 0) return { ...t, remaining: 0, running: false };
+                if (next <= 0) {
+                    playAlarm();
+                    showNotification('Timer Finished', `Timer ${t.label} has finished`);
+                    return { ...t, remaining: 0, running: false };
+                }
                 return { ...t, remaining: next };
             }));
         }, 1000);
         return () => clearInterval(interval);
-    }, [multiTimers]);
+    }, [multiTimers, playAlarm, showNotification]);
 
     const addMultiTimer = (minutes = 5) => {
         multiTimerIdRef.current += 1;
@@ -575,8 +628,11 @@ function App() {
         let interval = null;
         if (isPomoRunning && pomoSeconds > 0) {
             interval = setInterval(() => setPomoSeconds(prev => prev - 1), 1000);
-        } else if (pomoSeconds === 0) {
+        } else if (isPomoRunning && pomoSeconds === 0) {
             setIsPomoRunning(false);
+            playAlarm();
+            showNotification('Pomodoro Finished', `${t(pomoMode)} section is complete`);
+
             // 自動切換模式或播放鈴聲（這裡先簡單處理）
             if (pomoMode === 'work') {
                 setPomoMode('short');
@@ -587,7 +643,7 @@ function App() {
             }
         }
         return () => clearInterval(interval);
-    }, [isPomoRunning, pomoSeconds, pomoMode]);
+    }, [isPomoRunning, pomoSeconds, pomoMode, playAlarm, showNotification, t]);
 
     const resetPomo = (modeType) => {
         setIsPomoRunning(false);
@@ -615,11 +671,13 @@ function App() {
         let interval = null;
         if (isTimerRunning && timerSeconds > 0) {
             interval = setInterval(() => setTimerSeconds(prev => prev - 1), 1000);
-        } else if (timerSeconds === 0) {
+        } else if (isTimerRunning && timerSeconds === 0) {
+            playAlarm();
+            showNotification('Timer Finished', 'Your timer has finished');
             setIsTimerRunning(false);
         }
         return () => clearInterval(interval);
-    }, [isTimerRunning, timerSeconds]);
+    }, [isTimerRunning, timerSeconds, playAlarm, showNotification]);
 
     useEffect(() => {
         if (isStopwatchRunning) {
@@ -845,12 +903,38 @@ function App() {
                             </section>
                             <section className="space-y-6">
                                 <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><Settings size={24} /> {t('general')}</h3>
-                                <label className="flex items-center justify-between p-6 rounded-2xl bg-white/5 cursor-pointer">
-                                    <span>{t('showMillis')}</span>
-                                    <div onClick={() => setShowMillis(!showMillis)} className={`w-14 h-8 rounded-full relative transition-colors ${showMillis ? 'bg-blue-500' : 'bg-slate-600'}`}>
-                                        <div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all ${showMillis ? 'left-7' : 'left-1'}`} />
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <label className="flex items-center justify-between p-6 rounded-2xl bg-white/5 cursor-pointer hover:bg-white/10 transition-colors">
+                                        <span>{t('showMillis')}</span>
+                                        <div onClick={() => setShowMillis(!showMillis)} className={`w-14 h-8 rounded-full relative transition-colors ${showMillis ? 'bg-blue-500' : 'bg-slate-600'}`}>
+                                            <div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all ${showMillis ? 'left-7' : 'left-1'}`} />
+                                        </div>
+                                    </label>
+                                    <label className="flex items-center justify-between p-6 rounded-2xl bg-white/5 cursor-pointer hover:bg-white/10 transition-colors">
+                                        <span>{t('notifications')}</span>
+                                        <div onClick={handleToggleNotifications} className={`w-14 h-8 rounded-full relative transition-colors ${notificationsEnabled ? 'bg-blue-500' : 'bg-slate-600'}`}>
+                                            <div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all ${notificationsEnabled ? 'left-7' : 'left-1'}`} />
+                                        </div>
+                                    </label>
+                                </div>
+
+                                <div className="pt-2">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <span className="text-sm font-medium opacity-80">{t('alarmSound')}</span>
+                                        <button onClick={playAlarm} className="text-xs px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 transition-colors">{t('testSound')}</button>
                                     </div>
-                                </label>
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                        {['none', 'beep', 'digital', 'bell'].map(sk => (
+                                            <button
+                                                key={sk}
+                                                onClick={() => setAlarmSound(sk)}
+                                                className={`p-4 rounded-xl text-center text-sm transition-all border ${alarmSound === sk ? 'bg-white/10 border-white/50 scale-105' : 'bg-white/5 border-transparent hover:bg-white/10'}`}
+                                            >
+                                                {t(`sound${sk.charAt(0).toUpperCase() + sk.slice(1)}`)}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
                             </section>
 
                             <section className="space-y-6">

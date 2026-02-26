@@ -5,7 +5,10 @@ const ASSETS = [
     '/clockomistry/output.css',
     '/clockomistry/script.js',
     '/clockomistry/icons/icon-192.png',
-    '/clockomistry/icons/icon-512.png'
+    '/clockomistry/icons/icon-512.png',
+    '/clockomistry/public/audio/beep.ogg',
+    '/clockomistry/public/audio/digital.ogg',
+    '/clockomistry/public/audio/bell.ogg'
 ];
 
 // Install — cache core assets
@@ -41,5 +44,23 @@ self.addEventListener('fetch', (e) => {
                 return res;
             })
             .catch(() => caches.match(e.request))
+    );
+});
+
+// Notification click handler
+self.addEventListener('notificationclick', function (event) {
+    event.notification.close();
+    event.waitUntil(
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (clientList) {
+            for (let i = 0; i < clientList.length; i++) {
+                const client = clientList[i];
+                if (client.url.includes('/clockomistry/') && 'focus' in client) {
+                    return client.focus();
+                }
+            }
+            if (clients.openWindow) {
+                return clients.openWindow('/clockomistry/');
+            }
+        })
     );
 });
