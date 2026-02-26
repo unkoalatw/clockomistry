@@ -71,6 +71,7 @@ const I18N = {
         showProgressRing: '動態進度環', enableMiniTask: '微型任務管理', enableFocusAnalytics: '專注數據統計', enableMeetingPlanner: '智慧時區規劃器', focusGoal: '當前專注目標', focusStats: '專注時長統計', exportImage: '輸出為主題照片', exporting: '正在生成...',
         ringPosition: '進度環位置', ringLeft: '數字左側', ringRight: '數字右側', ringBackground: '背景置中',
         autoZenMode: '計時自動進入專注模式',
+        clearData: '清除所有資料', clearDataDesc: '將刪除本機所有設定、檔案記錄和徫取。此操作無法復原。', clearDataConfirm: '確認刪除所有資料？', clearDataDone: '資料已清除，即將重新載入…', clearDataBtn: '清除資料',
         "Taipei": "台北", "Tokyo": "東京", "Seoul": "首爾", "Shanghai": "上海", "Hong Kong": "香港",
         "Singapore": "新加坡", "Bangkok": "曼谷", "Dubai": "杜拜", "Kolkata": "加爾各答", "Ho Chi Minh": "胡志明市",
         "London": "倫敦", "Paris": "巴黎", "Berlin": "柏林", "Rome": "羅馬", "Madrid": "馬德里", "Moscow": "莫斯科",
@@ -113,6 +114,7 @@ const I18N = {
         showProgressRing: 'Progress Ring', enableMiniTask: 'Mini Task List', enableFocusAnalytics: 'Focus Analytics', enableMeetingPlanner: 'Meeting Planner', focusGoal: 'Current Goal', focusStats: 'Focus Stats', exportImage: 'Export as Image', exporting: 'Exporting...',
         ringPosition: 'Ring Position', ringLeft: 'Left of Number', ringRight: 'Right of Number', ringBackground: 'Background Centered',
         autoZenMode: 'Auto Zen Mode on Start',
+        clearData: 'Clear All Data', clearDataDesc: 'Deletes all settings, records and cache on this device. This cannot be undone.', clearDataConfirm: 'Delete all data?', clearDataDone: 'Data cleared, reloading…', clearDataBtn: 'Clear Data',
         "Taipei": "Taipei", "Tokyo": "Tokyo", "Seoul": "Seoul", "Shanghai": "Shanghai", "Hong Kong": "Hong Kong",
         "Singapore": "Singapore", "Bangkok": "Bangkok", "Dubai": "Dubai", "Kolkata": "Kolkata", "Ho Chi Minh": "Ho Chi Minh",
         "London": "London", "Paris": "Paris", "Berlin": "Berlin", "Rome": "Rome", "Madrid": "Madrid", "Moscow": "Moscow",
@@ -155,6 +157,7 @@ const I18N = {
         showProgressRing: 'プログレスリング', enableMiniTask: 'ミニタスク管理', enableFocusAnalytics: '集中時間統計', enableMeetingPlanner: 'MTGプランナー', focusGoal: '現在の目標', focusStats: '集中時間統計', exportImage: '画像として書き出し', exporting: '書き出し中...',
         ringPosition: 'リングの位置', ringLeft: '数字の左側', ringRight: '数字の右側', ringBackground: '背景の中心',
         autoZenMode: '開始時に集中モード',
+        clearData: '全データを削除', clearDataDesc: 'このデバイスのすべての設定、記録、キャッシュを削除します。元に戻せません。', clearDataConfirm: 'すべてのデータを削除しますか？', clearDataDone: 'データを削除しました。再読込み中…', clearDataBtn: 'データを削除',
         "Taipei": "台北", "Tokyo": "東京", "Seoul": "ソウル", "Shanghai": "上海", "Hong Kong": "香港",
         "Singapore": "シンガポール", "Bangkok": "バンコク", "Dubai": "ドバイ", "Kolkata": "コルカタ", "Ho Chi Minh": "ホーチミン",
         "London": "ロンドン", "Paris": "パリ", "Berlin": "ベルリン", "Rome": "ローマ", "Madrid": "マドリード", "Moscow": "モスクワ",
@@ -818,6 +821,28 @@ function App() {
         setTimeout(() => setErrorMsg(''), 3000);
     };
 
+    const handleClearData = async () => {
+        if (!window.confirm(t('clearDataConfirm'))) return;
+        // 1. Clear all localStorage keys
+        localStorage.clear();
+        // 2. Clear all cookies for this origin
+        document.cookie.split(';').forEach(c => {
+            document.cookie = c.replace(/^ +/, '').replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/');
+        });
+        // 3. Clear all SW caches
+        if ('caches' in window) {
+            const keys = await caches.keys();
+            await Promise.all(keys.map(k => caches.delete(k)));
+        }
+        // 4. Unregister service workers
+        if ('serviceWorker' in navigator) {
+            const regs = await navigator.serviceWorker.getRegistrations();
+            await Promise.all(regs.map(r => r.unregister()));
+        }
+        showError(t('clearDataDone'));
+        setTimeout(() => window.location.reload(true), 1800);
+    };
+
     const formatTime = (date) => {
         const h = date.getHours().toString().padStart(2, '0');
         const m = date.getMinutes().toString().padStart(2, '0');
@@ -1078,6 +1103,20 @@ function App() {
                                     >
                                         <LayoutTemplate size={20} />
                                         <span>{t('import')}</span>
+                                    </button>
+                                </div>
+                            </section>
+
+                            <section className="space-y-6">
+                                <h3 className="text-xl font-medium flex items-center gap-3 border-b border-red-500/30 pb-4 text-red-400"><Trash2 size={24} /> {t('clearData')}</h3>
+                                <div className="p-6 rounded-2xl bg-red-500/5 border border-red-500/20">
+                                    <p className="text-sm opacity-60 mb-6 leading-relaxed">{t('clearDataDesc')}</p>
+                                    <button
+                                        onClick={handleClearData}
+                                        className="w-full py-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 font-medium hover:bg-red-500/25 hover:border-red-500/60 active:scale-95 transition-all flex items-center justify-center gap-2"
+                                    >
+                                        <Trash2 size={18} />
+                                        {t('clearDataBtn')}
                                     </button>
                                 </div>
                             </section>

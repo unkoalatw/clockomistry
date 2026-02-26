@@ -136,6 +136,11 @@ const I18N = {
     ringRight: '數字右側',
     ringBackground: '背景置中',
     autoZenMode: '計時自動進入專注模式',
+    clearData: '清除所有資料',
+    clearDataDesc: '將刪除本機所有設定、檔案記錄和徫取。此操作無法復原。',
+    clearDataConfirm: '確認刪除所有資料？',
+    clearDataDone: '資料已清除，即將重新載入…',
+    clearDataBtn: '清除資料',
     "Taipei": "台北",
     "Tokyo": "東京",
     "Seoul": "首爾",
@@ -269,6 +274,11 @@ const I18N = {
     ringRight: 'Right of Number',
     ringBackground: 'Background Centered',
     autoZenMode: 'Auto Zen Mode on Start',
+    clearData: 'Clear All Data',
+    clearDataDesc: 'Deletes all settings, records and cache on this device. This cannot be undone.',
+    clearDataConfirm: 'Delete all data?',
+    clearDataDone: 'Data cleared, reloading…',
+    clearDataBtn: 'Clear Data',
     "Taipei": "Taipei",
     "Tokyo": "Tokyo",
     "Seoul": "Seoul",
@@ -402,6 +412,11 @@ const I18N = {
     ringRight: '数字の右側',
     ringBackground: '背景の中心',
     autoZenMode: '開始時に集中モード',
+    clearData: '全データを削除',
+    clearDataDesc: 'このデバイスのすべての設定、記録、キャッシュを削除します。元に戻せません。',
+    clearDataConfirm: 'すべてのデータを削除しますか？',
+    clearDataDone: 'データを削除しました。再読込み中…',
+    clearDataBtn: 'データを削除',
     "Taipei": "台北",
     "Tokyo": "東京",
     "Seoul": "ソウル",
@@ -1368,6 +1383,27 @@ function App() {
     setErrorMsg(msg);
     setTimeout(() => setErrorMsg(''), 3000);
   };
+  const handleClearData = async () => {
+    if (!window.confirm(t('clearDataConfirm'))) return;
+    // 1. Clear all localStorage keys
+    localStorage.clear();
+    // 2. Clear all cookies for this origin
+    document.cookie.split(';').forEach(c => {
+      document.cookie = c.replace(/^ +/, '').replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/');
+    });
+    // 3. Clear all SW caches
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+    }
+    // 4. Unregister service workers
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r => r.unregister()));
+    }
+    showError(t('clearDataDone'));
+    setTimeout(() => window.location.reload(true), 1800);
+  };
   const formatTime = date => {
     const h = date.getHours().toString().padStart(2, '0');
     const m = date.getMinutes().toString().padStart(2, '0');
@@ -1775,6 +1811,21 @@ function App() {
   }, /*#__PURE__*/React.createElement(LayoutTemplate, {
     size: 20
   }), /*#__PURE__*/React.createElement("span", null, t('import'))))), /*#__PURE__*/React.createElement("section", {
+    className: "space-y-6"
+  }, /*#__PURE__*/React.createElement("h3", {
+    className: "text-xl font-medium flex items-center gap-3 border-b border-red-500/30 pb-4 text-red-400"
+  }, /*#__PURE__*/React.createElement(Trash2, {
+    size: 24
+  }), " ", t('clearData')), /*#__PURE__*/React.createElement("div", {
+    className: "p-6 rounded-2xl bg-red-500/5 border border-red-500/20"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "text-sm opacity-60 mb-6 leading-relaxed"
+  }, t('clearDataDesc')), /*#__PURE__*/React.createElement("button", {
+    onClick: handleClearData,
+    className: "w-full py-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 font-medium hover:bg-red-500/25 hover:border-red-500/60 active:scale-95 transition-all flex items-center justify-center gap-2"
+  }, /*#__PURE__*/React.createElement(Trash2, {
+    size: 18
+  }), t('clearDataBtn')))), /*#__PURE__*/React.createElement("section", {
     className: "space-y-6"
   }, /*#__PURE__*/React.createElement("h3", {
     className: "text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"
