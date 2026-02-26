@@ -1,14 +1,14 @@
-const CACHE_NAME = 'clockomistry-v2';
+const CACHE_NAME = 'clockomistry-v3';
 const ASSETS = [
-    '/clockomistry/',
-    '/clockomistry/index.html',
-    '/clockomistry/output.css',
-    '/clockomistry/script.js',
-    '/clockomistry/icons/icon-192.png',
-    '/clockomistry/icons/icon-512.png',
-    '/clockomistry/public/audio/beep.ogg',
-    '/clockomistry/public/audio/digital.ogg',
-    '/clockomistry/public/audio/bell.ogg'
+    './',
+    './index.html',
+    './output.css',
+    './script.dist.js',
+    './icons/icon-192.png',
+    './icons/icon-512.png',
+    './public/audio/beep.ogg',
+    './public/audio/digital.ogg',
+    './public/audio/bell.ogg'
 ];
 
 // Install — cache core assets
@@ -37,7 +37,8 @@ self.addEventListener('fetch', (e) => {
     e.respondWith(
         fetch(e.request)
             .then(res => {
-                if (res.status === 200) {
+                // allow storing opaque responses (from CDNs like esm.sh & fonts)
+                if (res.status === 200 || res.type === 'opaque') {
                     const clone = res.clone();
                     caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
                 }
@@ -54,12 +55,12 @@ self.addEventListener('notificationclick', function (event) {
         clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (clientList) {
             for (let i = 0; i < clientList.length; i++) {
                 const client = clientList[i];
-                if (client.url.includes('/clockomistry/') && 'focus' in client) {
+                if ('focus' in client) {
                     return client.focus();
                 }
             }
             if (clients.openWindow) {
-                return clients.openWindow('/clockomistry/');
+                return clients.openWindow('./');
             }
         })
     );
