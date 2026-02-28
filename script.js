@@ -329,39 +329,80 @@ const NavigationBar = React.memo(({ mode, setMode, isZenMode, accent, showContro
     )
 });
 
+// --- Custom Hooks for Local Storage ---
+function useLocalString(key, initialValue) {
+    const [value, setValue] = useState(() => {
+        const item = window.localStorage.getItem(key);
+        if (item !== null) return item;
+        return typeof initialValue === 'function' ? initialValue() : initialValue;
+    });
+    useEffect(() => { window.localStorage.setItem(key, value); }, [key, value]);
+    return [value, setValue];
+}
+
+function useLocalBoolean(key, initialValue) {
+    const [value, setValue] = useState(() => {
+        const item = window.localStorage.getItem(key);
+        return item !== null ? item === 'true' : initialValue;
+    });
+    useEffect(() => { window.localStorage.setItem(key, value); }, [key, value]);
+    return [value, setValue];
+}
+
+function useLocalJSON(key, initialValue, parser) {
+    const [value, setValue] = useState(() => {
+        try {
+            const item = window.localStorage.getItem(key);
+            if (!item) return typeof initialValue === 'function' ? initialValue() : initialValue;
+            const parsed = JSON.parse(item);
+            return parser ? parser(parsed) : parsed;
+        } catch (e) { return typeof initialValue === 'function' ? initialValue() : initialValue; }
+    });
+    useEffect(() => { window.localStorage.setItem(key, JSON.stringify(value)); }, [key, value]);
+    return [value, setValue];
+}
+
+const formatTime = (date) => {
+    const h = date.getHours().toString().padStart(2, '0');
+    const m = date.getMinutes().toString().padStart(2, '0');
+    const s = date.getSeconds().toString().padStart(2, '0');
+    const ms = Math.floor(date.getMilliseconds() / 10).toString().padStart(2, '0');
+    return { h, m, s, ms };
+};
+
+const formatDuration = (ms) => {
+    const m = Math.floor(ms / 60000).toString().padStart(2, '0');
+    const s = Math.floor((ms % 60000) / 1000).toString().padStart(2, '0');
+    const cs = Math.floor((ms % 1000) / 10).toString().padStart(2, '0');
+    return { m, s, cs };
+};
+
 function App() {
     const [time, setTime] = useState(new Date());
-    const [theme, setTheme] = useState(() => localStorage.getItem('clock_theme') || 'modern');
-    const [font, setFont] = useState(() => localStorage.getItem('clock_font') || 'modern');
-    const [showMillis, setShowMillis] = useState(() => localStorage.getItem('clock_millis') === 'true');
-    const [showProgressRing, setShowProgressRing] = useState(() => localStorage.getItem('clock_progressRing') !== 'false');
-    const [ringPosition, setRingPosition] = useState(() => localStorage.getItem('clock_ringPosition') || 'left');
-    const [enableMiniTask, setEnableMiniTask] = useState(() => localStorage.getItem('clock_miniTask') === 'true');
-    const [enableFocusAnalytics, setEnableFocusAnalytics] = useState(() => localStorage.getItem('clock_focusAnalytics') === 'true');
-    const [enableMeetingPlanner, setEnableMeetingPlanner] = useState(() => localStorage.getItem('clock_meetingPlanner') === 'true');
+    const [theme, setTheme] = useLocalString('clock_theme', 'modern');
+    const [font, setFont] = useLocalString('clock_font', 'modern');
+    const [showMillis, setShowMillis] = useLocalBoolean('clock_millis', true);
+    const [showProgressRing, setShowProgressRing] = useLocalBoolean('clock_progressRing', true);
+    const [ringPosition, setRingPosition] = useLocalString('clock_ringPosition', 'left');
+    const [enableMiniTask, setEnableMiniTask] = useLocalBoolean('clock_miniTask', true);
+    const [enableFocusAnalytics, setEnableFocusAnalytics] = useLocalBoolean('clock_focusAnalytics', true);
+    const [enableMeetingPlanner, setEnableMeetingPlanner] = useLocalBoolean('clock_meetingPlanner', true);
 
     // New Automation Settings
-    const [autoZenMode, setAutoZenMode] = useState(() => localStorage.getItem('clock_autoZenMode') === 'true');
+    const [autoZenMode, setAutoZenMode] = useLocalBoolean('clock_autoZenMode', true);
 
-    const [selectedZones, setSelectedZones] = useState(() => {
-        try {
-            const saved = localStorage.getItem('clock_zones');
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                // 兼容性處理：如果儲存的是字串陣列，或是舊的物件，重新對應
-                const zones = parsed.map(item => {
-                    const id = typeof item === 'string' ? item : item.id;
-                    return ALL_ZONES.find(z => z.id === id);
-                }).filter(Boolean);
-                if (zones.length > 0) return zones;
-            }
-        } catch (e) { }
-        return [
-            ALL_ZONES.find(z => z.id === 'Asia/Taipei'),
-            ALL_ZONES.find(z => z.id === 'America/New_York'),
-            ALL_ZONES.find(z => z.id === 'Europe/London'),
-            ALL_ZONES.find(z => z.id === 'Asia/Tokyo')
-        ].filter(Boolean);
+    const [selectedZones, setSelectedZones] = useLocalJSON('clock_zones', () => [
+        ALL_ZONES.find(z => z.id === 'Asia/Taipei'),
+        ALL_ZONES.find(z => z.id === 'America/New_York'),
+        ALL_ZONES.find(z => z.id === 'Europe/London'),
+        ALL_ZONES.find(z => z.id === 'Asia/Tokyo')
+    ].filter(Boolean), (parsed) => {
+        const zones = parsed.map(item => {
+            const id = typeof item === 'string' ? item : item.id;
+            return ALL_ZONES.find(z => z.id === id);
+        }).filter(Boolean);
+        if (zones.length > 0) return zones;
+        return null; // fallback
     });
 
     const [mode, setMode] = useState('clock');
@@ -371,16 +412,12 @@ function App() {
     const [showSettings, setShowSettings] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [hasCustomFont, setHasCustomFont] = useState(false);
-    const [hasAgreed, setHasAgreed] = useState(() => localStorage.getItem('clock_agreed') === 'true');
-    const [customColors, setCustomColors] = useState(() => {
-        try { const s = localStorage.getItem('clock_custom_colors'); if (s) return JSON.parse(s); } catch (e) { }
-        return { bg1: '#0a0a1a', bg2: '#1a1a3e', bg3: '#0a0a1a', text: '#e2e8f0', accent: '#22d3ee' };
-    });
-    const [customBgImage, setCustomBgImage] = useState(() => localStorage.getItem('clock_custom_bg') || '');
-    const [lang, setLang] = useState(() => {
-        const saved = localStorage.getItem('clock_lang');
-        if (saved) return saved;
-        // 自動偵測瀏覽器語言
+    const [hasAgreed, setHasAgreed] = useLocalBoolean('clock_agreed', false);
+
+    const [customColors, setCustomColors] = useLocalJSON('clock_custom_colors', { bg1: '#0a0a1a', bg2: '#1a1a3e', bg3: '#0a0a1a', text: '#e2e8f0', accent: '#22d3ee' });
+    const [customBgImage, setCustomBgImage] = useLocalString('clock_custom_bg', '');
+
+    const [lang, setLang] = useLocalString('clock_lang', () => {
         const browserLang = navigator.language.split('-')[0];
         if (I18N[browserLang]) return browserLang;
         if (navigator.language === 'zh-CN' || navigator.language === 'zh-HK') return 'zh-TW';
@@ -388,17 +425,11 @@ function App() {
     });
 
     // Anniversary 狀態
-    const [anniversaries, setAnniversaries] = useState(() => {
-        try { const s = localStorage.getItem('clock_anniversaries'); if (s) return JSON.parse(s); } catch (e) { }
-        return [];
-    });
+    const [anniversaries, setAnniversaries] = useLocalJSON('clock_anniversaries', []);
 
     // Advance Features 狀態
-    const [focusGoal, setFocusGoal] = useState(() => localStorage.getItem('clock_focusGoal') || '');
-    const [focusStats, setFocusStats] = useState(() => {
-        try { const s = localStorage.getItem('clock_focusStats'); if (s) return JSON.parse(s); } catch (e) { }
-        return {};
-    });
+    const [focusGoal, setFocusGoal] = useLocalString('clock_focusGoal', '');
+    const [focusStats, setFocusStats] = useLocalJSON('clock_focusStats', {});
     const [meetingOffset, setMeetingOffset] = useState(0);
 
     // Weather 狀態
@@ -442,8 +473,8 @@ function App() {
     const [isPomoRunning, setIsPomoRunning] = useState(false);
 
     // Alarm & Notification 狀態
-    const [alarmSound, setAlarmSound] = useState(() => localStorage.getItem('clock_alarmSound') || 'beep');
-    const [notificationsEnabled, setNotificationsEnabled] = useState(() => localStorage.getItem('clock_notifications') === 'true');
+    const [alarmSound, setAlarmSound] = useLocalString('clock_alarmSound', 'beep');
+    const [notificationsEnabled, setNotificationsEnabled] = useLocalBoolean('clock_notifications', true);
     const audioRef = useRef(null);
 
     const playAlarm = useCallback(() => {
@@ -504,24 +535,7 @@ function App() {
     const bgImageInputRef = useRef(null);
 
     // --- 持久化設定 ---
-    useEffect(() => { localStorage.setItem('clock_theme', theme); }, [theme]);
-    useEffect(() => { localStorage.setItem('clock_font', font); }, [font]);
-    useEffect(() => { localStorage.setItem('clock_millis', showMillis); }, [showMillis]);
-    useEffect(() => { localStorage.setItem('clock_zones', JSON.stringify(selectedZones)); }, [selectedZones]);
-    useEffect(() => { localStorage.setItem('clock_custom_colors', JSON.stringify(customColors)); }, [customColors]);
-    useEffect(() => { localStorage.setItem('clock_custom_bg', customBgImage); }, [customBgImage]);
-    useEffect(() => { localStorage.setItem('clock_agreed', hasAgreed); }, [hasAgreed]);
-    useEffect(() => { localStorage.setItem('clock_lang', lang); }, [lang]);
-    useEffect(() => { localStorage.setItem('clock_anniversaries', JSON.stringify(anniversaries)); }, [anniversaries]);
-    useEffect(() => { localStorage.setItem('clock_alarmSound', alarmSound); }, [alarmSound]);
-    useEffect(() => { localStorage.setItem('clock_notifications', notificationsEnabled); }, [notificationsEnabled]);
-    useEffect(() => { localStorage.setItem('clock_progressRing', showProgressRing); }, [showProgressRing]);
-    useEffect(() => { localStorage.setItem('clock_ringPosition', ringPosition); }, [ringPosition]);
-    useEffect(() => { localStorage.setItem('clock_miniTask', enableMiniTask); }, [enableMiniTask]);
-    useEffect(() => { localStorage.setItem('clock_focusAnalytics', enableFocusAnalytics); }, [enableFocusAnalytics]);
-    useEffect(() => { localStorage.setItem('clock_meetingPlanner', enableMeetingPlanner); }, [enableMeetingPlanner]);
-    useEffect(() => { localStorage.setItem('clock_focusGoal', focusGoal); }, [focusGoal]);
-    useEffect(() => { localStorage.setItem('clock_focusStats', JSON.stringify(focusStats)); }, [focusStats]);
+    // The explicit useEffect syncing logic is now automatically managed by the custom hooks above!
 
     // 螢幕保護自動偵測
     useEffect(() => {
@@ -843,22 +857,7 @@ function App() {
         setTimeout(() => window.location.reload(true), 1800);
     };
 
-    const formatTime = (date) => {
-        const h = date.getHours().toString().padStart(2, '0');
-        const m = date.getMinutes().toString().padStart(2, '0');
-        const s = date.getSeconds().toString().padStart(2, '0');
-        const ms = Math.floor(date.getMilliseconds() / 10).toString().padStart(2, '0');
-        return { h, m, s, ms };
-    };
-
     const formatDate = (date) => date.toLocaleDateString(t('locale'), { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-
-    const formatDuration = (ms) => {
-        const m = Math.floor(ms / 60000).toString().padStart(2, '0');
-        const s = Math.floor((ms % 60000) / 1000).toString().padStart(2, '0');
-        const cs = Math.floor((ms % 1000) / 10).toString().padStart(2, '0');
-        return { m, s, cs };
-    };
 
     const getWorldTime = (timezone) => {
         try {
@@ -1397,8 +1396,9 @@ function App() {
                         </div>
                         <div className={`relative flex justify-center items-center w-full mt-4 p-8 ${ringPosition === 'left' ? 'flex-row' : ringPosition === 'right' ? 'flex-row-reverse' : 'flex-col'}`}>
                             {showProgressRing && <ProgressRing progress={(pomoSeconds / (pomoMode === 'work' ? 25 * 60 : pomoMode === 'short' ? 5 * 60 : 15 * 60)) * 100} accent={theme === 'custom' ? 'custom-accent text-white' : currentTheme.accent} position={ringPosition} />}
-                            <div className="text-[24vw] md:text-[150px] font-bold tracking-tighter tabular-nums drop-shadow-2xl z-10 flex">
-                                {Math.floor(pomoSeconds / 60).toString().padStart(2, '0')}:{(pomoSeconds % 60).toString().padStart(2, '0')}
+                            <div className="text-[18vw] md:text-[120px] font-bold tracking-tighter tabular-nums drop-shadow-2xl z-10 flex items-baseline gap-1 md:gap-2">
+                                <span>{Math.floor(pomoSeconds / 60).toString().padStart(2, '0')}<span className="text-[6vw] md:text-[40px] opacity-50 ml-1">m</span></span>
+                                <span>{(pomoSeconds % 60).toString().padStart(2, '0')}<span className="text-[6vw] md:text-[40px] opacity-50 ml-1">s</span></span>
                             </div>
                         </div>
                         <div className={`mt-8 flex gap-6 z-50 ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
