@@ -171,8 +171,11 @@ const I18N = {
     ringRight: '數字右側',
     ringBackground: '背景置中',
     autoZenMode: '計時自動進入專注模式',
+    downloadApp: '下載 Android 原生版',
+    downloadingApp: '正在取得下載連結...',
+    appDesc: '安裝 APK 以獲得更流暢的效能與震動回饋',
     clearData: '清除所有資料',
-    clearDataDesc: '將刪除本機所有設定、檔案記錄和徫取。此操作無法復原。',
+    clearDataDesc: '將刪除本機所有設定、檔案記錄和快取。此操作無法復原。',
     clearDataConfirm: '確認刪除所有資料？',
     clearDataDone: '資料已清除，即將重新載入…',
     clearDataBtn: '清除資料',
@@ -323,6 +326,9 @@ const I18N = {
     ringRight: 'Right of Number',
     ringBackground: 'Background Centered',
     autoZenMode: 'Auto Zen Mode on Start',
+    downloadApp: 'Download Android App',
+    downloadingApp: 'Fetching link...',
+    appDesc: 'Install the native APK for smoother performance and haptics',
     clearData: 'Clear All Data',
     clearDataDesc: 'Deletes all settings, records and cache on this device. This cannot be undone.',
     clearDataConfirm: 'Delete all data?',
@@ -475,6 +481,9 @@ const I18N = {
     ringRight: '数字の右側',
     ringBackground: '背景の中心',
     autoZenMode: '開始時に集中モード',
+    downloadApp: 'Androidアプリをダウンロード',
+    downloadingApp: 'リンクを取得中...',
+    appDesc: 'よりスムーズなパフォーマンスのためにAPKをインストール',
     clearData: '全データを削除',
     clearDataDesc: 'このデバイスのすべての設定、記録、キャッシュを削除します。元に戻せません。',
     clearDataConfirm: 'すべてのデータを削除しますか？',
@@ -1551,6 +1560,27 @@ function App() {
     showError(t('clearDataDone'));
     setTimeout(() => window.location.reload(true), 1800);
   };
+  const [isDownloadingApp, setIsDownloadingApp] = useState(false);
+  const handleDownloadApp = async () => {
+    if (isDownloadingApp) return;
+    setIsDownloadingApp(true);
+    try {
+      var _data$assets;
+      const res = await fetch('https://api.github.com/repos/unkoalatw/clockomistry/releases/latest');
+      if (!res.ok) throw new Error('Network error');
+      const data = await res.json();
+      const apkAsset = (_data$assets = data.assets) === null || _data$assets === void 0 ? void 0 : _data$assets.find(a => a.name.endsWith('.apk'));
+      if (apkAsset && apkAsset.browser_download_url) {
+        window.open(apkAsset.browser_download_url, '_blank');
+      } else {
+        showError('APK not found in the latest release.');
+      }
+    } catch (err) {
+      showError('Failed to fetch release from GitHub.');
+    } finally {
+      setIsDownloadingApp(false);
+    }
+  };
   const formatDate = date => date.toLocaleDateString(t('locale'), {
     weekday: 'long',
     year: 'numeric',
@@ -1936,6 +1966,24 @@ function App() {
   }, /*#__PURE__*/React.createElement(LayoutTemplate, {
     size: 20
   }), /*#__PURE__*/React.createElement("span", null, t('import'))))), /*#__PURE__*/React.createElement("section", {
+    className: "space-y-6"
+  }, /*#__PURE__*/React.createElement("h3", {
+    className: "text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"
+  }, /*#__PURE__*/React.createElement(Download, {
+    size: 24,
+    className: "text-blue-400"
+  }), " ", t('downloadApp')), /*#__PURE__*/React.createElement("div", {
+    className: "p-6 rounded-2xl bg-blue-500/10 border border-blue-500/20"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "text-sm opacity-80 mb-6 leading-relaxed text-blue-100"
+  }, t('appDesc')), /*#__PURE__*/React.createElement("button", {
+    onClick: handleDownloadApp,
+    disabled: isDownloadingApp,
+    className: "w-full py-4 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-bold tracking-wide active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20"
+  }, /*#__PURE__*/React.createElement(Download, {
+    size: 18,
+    className: isDownloadingApp ? 'animate-bounce' : ''
+  }), isDownloadingApp ? t('downloadingApp') : t('downloadApp')))), /*#__PURE__*/React.createElement("section", {
     className: "space-y-6"
   }, /*#__PURE__*/React.createElement("h3", {
     className: "text-xl font-medium flex items-center gap-3 border-b border-red-500/30 pb-4 text-red-400"
