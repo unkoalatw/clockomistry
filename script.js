@@ -1,6 +1,27 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { createRoot } from 'react-dom/client';
 import html2canvas from 'html2canvas';
+import confetti from 'canvas-confetti';
+
+const triggerHaptic = () => {
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        navigator.vibrate(15);
+    }
+};
+
+const triggerSuccess = () => {
+    triggerHaptic();
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        navigator.vibrate([30, 50, 30]);
+    }
+    confetti({
+        particleCount: 150,
+        spread: 100,
+        origin: { y: 0.6 },
+        colors: ['#3b82f6', '#8b5cf6', '#ec4899', '#10b981'],
+        disableForReducedMotion: true
+    });
+};
 import {
     Maximize2, Minimize2, Timer, Clock, Monitor,
     Play, Pause, RotateCcw, AlertCircle, Globe,
@@ -282,8 +303,19 @@ const ProgressRing = React.memo(({ progress, accent, position }) => {
     return (
         <div className={baseClass}>
             <svg viewBox="0 0 100 100" className="w-full h-full pointer-events-none" preserveAspectRatio="xMidYMid meet">
+                <defs>
+                    <filter id="ringGlow" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur1" />
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur2" />
+                        <feMerge>
+                            <feMergeNode in="blur2" />
+                            <feMergeNode in="blur1" />
+                            <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                    </filter>
+                </defs>
                 <circle stroke="currentColor" fill="transparent" strokeWidth={stroke} className="opacity-[0.1]" r={radius} cx="50" cy="50" />
-                <circle stroke="currentColor" fill="transparent" strokeWidth={stroke} strokeDasharray={circumference + ' ' + circumference} style={{ strokeDashoffset, transition: 'stroke-dashoffset 1s linear' }} className={`opacity-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] ${accent}`} strokeLinecap="round" r={radius} cx="50" cy="50" transform="rotate(-90 50 50)" />
+                <circle filter="url(#ringGlow)" stroke="currentColor" fill="transparent" strokeWidth={stroke} strokeDasharray={circumference + ' ' + circumference} style={{ strokeDashoffset, transition: 'stroke-dashoffset 1s linear' }} className={`opacity-100 ${accent}`} strokeLinecap="round" r={radius} cx="50" cy="50" transform="rotate(-90 50 50)" />
             </svg>
         </div>
     );
@@ -786,6 +818,7 @@ function App() {
             setIsPomoRunning(false);
             playAlarm();
             showNotification('Pomodoro Finished', `${t(pomoMode)} section is complete`);
+            triggerSuccess();
 
             // 自動切換模式或播放鈴聲（這裡先簡單處理）
             if (pomoMode === 'work') {
@@ -836,6 +869,7 @@ function App() {
             playAlarm();
             showNotification('Timer Finished', 'Your timer has finished');
             setIsTimerRunning(false);
+            triggerSuccess();
         }
         return () => clearInterval(interval);
     }, [isTimerRunning, timerSeconds, playAlarm, showNotification]);
@@ -860,6 +894,47 @@ function App() {
         document.addEventListener('fullscreenchange', handleFullscreenChange);
         return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
     }, []);
+
+    // 全域按鈕震動與快捷鍵 (Spacebar Play/Pause, Esc Reset)
+    useEffect(() => {
+        const handleBtnClick = (e) => {
+            if (e.target.closest('button')) triggerHaptic();
+        };
+        const handleKeyDown = (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            if (e.code === 'Space') {
+                e.preventDefault();
+                triggerHaptic();
+                if (mode === 'timer') {
+                    if (isTimerRunning) setIsTimerRunning(false);
+                    else if (timerSeconds > 0) setIsTimerRunning(true);
+                } else if (mode === 'pomodoro') {
+                    setIsPomoRunning(prev => !prev);
+                } else if (mode === 'stopwatch') {
+                    setIsStopwatchRunning(prev => !prev);
+                }
+            } else if (e.code === 'Escape') {
+                e.preventDefault();
+                triggerHaptic();
+                if (mode === 'timer') {
+                    setIsTimerRunning(false);
+                    // setIsEditingTimer(true); // Let button handle editing explicitly
+                } else if (mode === 'pomodoro') {
+                    resetPomo(pomoMode);
+                } else if (mode === 'stopwatch') {
+                    setStopwatchTime(0);
+                    setLaps([]);
+                    setIsStopwatchRunning(false);
+                }
+            }
+        };
+        document.addEventListener('click', handleBtnClick);
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+            document.removeEventListener('click', handleBtnClick);
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [mode, isTimerRunning, timerSeconds, isPomoRunning, pomoMode, isStopwatchRunning]);
 
     const [showControls, setShowControls] = useState(true);
     const controlsTimeoutRef = useRef(null);
@@ -1282,10 +1357,27 @@ function App() {
                 </div>
             )}
 
-            {/* Decor - Optimized blurs for performance */}
+            {/* Decor - Optimized blurs with Ambient Animations */}
             <div className={`absolute inset-0 overflow-hidden pointer-events-none transition-opacity duration-1000 ${isZenMode ? 'opacity-20' : 'opacity-100'}`}>
-                <div className="absolute top-[10%] left-[10%] w-[50vw] h-[50vw] rounded-full blur-[80px] opacity-10 bg-blue-500/30"></div>
-                <div className="absolute bottom-[10%] right-[10%] w-[50vw] h-[50vw] rounded-full blur-[80px] opacity-10 bg-purple-500/30"></div>
+                <style>{`
+                    @keyframes ambientFloat1 {
+                        0%, 100% { transform: translate(0, 0) scale(1); }
+                        33% { transform: translate(5vw, 5vh) scale(1.1); }
+                        66% { transform: translate(-5vw, 10vh) scale(0.9); }
+                    }
+                    @keyframes ambientFloat2 {
+                        0%, 100% { transform: translate(0, 0) scale(1); }
+                        33% { transform: translate(-5vw, -5vh) scale(1.2); }
+                        66% { transform: translate(5vw, -10vh) scale(0.8); }
+                    }
+                    .ambient-blob-1 { animation: ambientFloat1 25s ease-in-out infinite alternate; }
+                    .ambient-blob-2 { animation: ambientFloat2 30s ease-in-out infinite alternate; }
+                    
+                    /* Global tactical button squish */
+                    button:active { transform: scale(0.93) !important; transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1) !important; }
+                `}</style>
+                <div className="ambient-blob-1 absolute top-[10%] left-[10%] w-[50vw] h-[50vw] rounded-full blur-[80px] opacity-20 bg-blue-500/40"></div>
+                <div className="ambient-blob-2 absolute bottom-[10%] right-[10%] w-[50vw] h-[50vw] rounded-full blur-[80px] opacity-20 bg-purple-500/40"></div>
             </div>
 
             {/* Main Card */}

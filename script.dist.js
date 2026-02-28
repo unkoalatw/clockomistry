@@ -6,6 +6,27 @@ function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { createRoot } from 'react-dom/client';
 import html2canvas from 'html2canvas';
+import confetti from 'canvas-confetti';
+const triggerHaptic = () => {
+  if (typeof navigator !== 'undefined' && navigator.vibrate) {
+    navigator.vibrate(15);
+  }
+};
+const triggerSuccess = () => {
+  triggerHaptic();
+  if (typeof navigator !== 'undefined' && navigator.vibrate) {
+    navigator.vibrate([30, 50, 30]);
+  }
+  confetti({
+    particleCount: 150,
+    spread: 100,
+    origin: {
+      y: 0.6
+    },
+    colors: ['#3b82f6', '#8b5cf6', '#ec4899', '#10b981'],
+    disableForReducedMotion: true
+  });
+};
 import { Maximize2, Minimize2, Timer, Clock, Monitor, Play, Pause, RotateCcw, AlertCircle, Globe, StopCircle, Settings, X, Check, Plus, Search, Type, Upload, Palette, ArrowLeft, Coffee, Brain, CalendarDays, Languages, Trash2, ChevronLeft, ChevronRight, Calendar, CloudSun, Share2, Download, LayoutTemplate, Sparkles, Delete, Camera, CheckSquare, BarChart2, Sliders, Target, Sunrise, Sunset, LayoutGrid, LayoutPanelTop } from 'lucide-react';
 
 // --- IndexedDB 管理 (用於儲存大體積字型) ---
@@ -712,7 +733,27 @@ const ProgressRing = /*#__PURE__*/React.memo(_ref => {
     viewBox: "0 0 100 100",
     className: "w-full h-full pointer-events-none",
     preserveAspectRatio: "xMidYMid meet"
-  }, /*#__PURE__*/React.createElement("circle", {
+  }, /*#__PURE__*/React.createElement("defs", null, /*#__PURE__*/React.createElement("filter", {
+    id: "ringGlow",
+    x: "-50%",
+    y: "-50%",
+    width: "200%",
+    height: "200%"
+  }, /*#__PURE__*/React.createElement("feGaussianBlur", {
+    in: "SourceGraphic",
+    stdDeviation: "2",
+    result: "blur1"
+  }), /*#__PURE__*/React.createElement("feGaussianBlur", {
+    in: "SourceGraphic",
+    stdDeviation: "5",
+    result: "blur2"
+  }), /*#__PURE__*/React.createElement("feMerge", null, /*#__PURE__*/React.createElement("feMergeNode", {
+    in: "blur2"
+  }), /*#__PURE__*/React.createElement("feMergeNode", {
+    in: "blur1"
+  }), /*#__PURE__*/React.createElement("feMergeNode", {
+    in: "SourceGraphic"
+  })))), /*#__PURE__*/React.createElement("circle", {
     stroke: "currentColor",
     fill: "transparent",
     strokeWidth: stroke,
@@ -721,6 +762,7 @@ const ProgressRing = /*#__PURE__*/React.memo(_ref => {
     cx: "50",
     cy: "50"
   }), /*#__PURE__*/React.createElement("circle", {
+    filter: "url(#ringGlow)",
     stroke: "currentColor",
     fill: "transparent",
     strokeWidth: stroke,
@@ -729,7 +771,7 @@ const ProgressRing = /*#__PURE__*/React.memo(_ref => {
       strokeDashoffset,
       transition: 'stroke-dashoffset 1s linear'
     },
-    className: "opacity-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] ".concat(accent),
+    className: "opacity-100 ".concat(accent),
     strokeLinecap: "round",
     r: radius,
     cx: "50",
@@ -1360,6 +1402,7 @@ function App() {
       setIsPomoRunning(false);
       playAlarm();
       showNotification('Pomodoro Finished', "".concat(t(pomoMode), " section is complete"));
+      triggerSuccess();
 
       // 自動切換模式或播放鈴聲（這裡先簡單處理）
       if (pomoMode === 'work') {
@@ -1404,6 +1447,7 @@ function App() {
       playAlarm();
       showNotification('Timer Finished', 'Your timer has finished');
       setIsTimerRunning(false);
+      triggerSuccess();
     }
     return () => clearInterval(interval);
   }, [isTimerRunning, timerSeconds, playAlarm, showNotification]);
@@ -1426,6 +1470,46 @@ function App() {
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
+
+  // 全域按鈕震動與快捷鍵 (Spacebar Play/Pause, Esc Reset)
+  useEffect(() => {
+    const handleBtnClick = e => {
+      if (e.target.closest('button')) triggerHaptic();
+    };
+    const handleKeyDown = e => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (e.code === 'Space') {
+        e.preventDefault();
+        triggerHaptic();
+        if (mode === 'timer') {
+          if (isTimerRunning) setIsTimerRunning(false);else if (timerSeconds > 0) setIsTimerRunning(true);
+        } else if (mode === 'pomodoro') {
+          setIsPomoRunning(prev => !prev);
+        } else if (mode === 'stopwatch') {
+          setIsStopwatchRunning(prev => !prev);
+        }
+      } else if (e.code === 'Escape') {
+        e.preventDefault();
+        triggerHaptic();
+        if (mode === 'timer') {
+          setIsTimerRunning(false);
+          // setIsEditingTimer(true); // Let button handle editing explicitly
+        } else if (mode === 'pomodoro') {
+          resetPomo(pomoMode);
+        } else if (mode === 'stopwatch') {
+          setStopwatchTime(0);
+          setLaps([]);
+          setIsStopwatchRunning(false);
+        }
+      }
+    };
+    document.addEventListener('click', handleBtnClick);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('click', handleBtnClick);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [mode, isTimerRunning, timerSeconds, isPomoRunning, pomoMode, isStopwatchRunning]);
   const [showControls, setShowControls] = useState(true);
   const controlsTimeoutRef = useRef(null);
   const handleMouseMove = () => {
@@ -1982,10 +2066,10 @@ function App() {
     className: "mt-4 text-sm opacity-20 tracking-[1em] uppercase"
   }, t('ssHint')))), /*#__PURE__*/React.createElement("div", {
     className: "absolute inset-0 overflow-hidden pointer-events-none transition-opacity duration-1000 ".concat(isZenMode ? 'opacity-20' : 'opacity-100')
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "absolute top-[10%] left-[10%] w-[50vw] h-[50vw] rounded-full blur-[80px] opacity-10 bg-blue-500/30"
+  }, /*#__PURE__*/React.createElement("style", null, "\n                    @keyframes ambientFloat1 {\n                        0%, 100% { transform: translate(0, 0) scale(1); }\n                        33% { transform: translate(5vw, 5vh) scale(1.1); }\n                        66% { transform: translate(-5vw, 10vh) scale(0.9); }\n                    }\n                    @keyframes ambientFloat2 {\n                        0%, 100% { transform: translate(0, 0) scale(1); }\n                        33% { transform: translate(-5vw, -5vh) scale(1.2); }\n                        66% { transform: translate(5vw, -10vh) scale(0.8); }\n                    }\n                    .ambient-blob-1 { animation: ambientFloat1 25s ease-in-out infinite alternate; }\n                    .ambient-blob-2 { animation: ambientFloat2 30s ease-in-out infinite alternate; }\n                    \n                    /* Global tactical button squish */\n                    button:active { transform: scale(0.93) !important; transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1) !important; }\n                "), /*#__PURE__*/React.createElement("div", {
+    className: "ambient-blob-1 absolute top-[10%] left-[10%] w-[50vw] h-[50vw] rounded-full blur-[80px] opacity-20 bg-blue-500/40"
   }), /*#__PURE__*/React.createElement("div", {
-    className: "absolute bottom-[10%] right-[10%] w-[50vw] h-[50vw] rounded-full blur-[80px] opacity-10 bg-purple-500/30"
+    className: "ambient-blob-2 absolute bottom-[10%] right-[10%] w-[50vw] h-[50vw] rounded-full blur-[80px] opacity-20 bg-purple-500/40"
   })), /*#__PURE__*/React.createElement("div", {
     className: "relative z-10 w-full my-auto shrink-0 max-w-[95vw] md:max-w-4xl p-6 pb-32 sm:p-12 sm:pb-12 rounded-[3rem] transition-all duration-700 ".concat(!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0', " flex flex-col items-center justify-center min-h-[50vh] ").concat(isZenMode ? 'scale-110' : '', " ").concat(isCleanMode ? 'scale-[0.85] !p-0' : '')
   }, ['timer', 'pomodoro', 'stopwatch'].includes(mode) && /*#__PURE__*/React.createElement("div", {
