@@ -1420,11 +1420,11 @@ function App() {
             </div>
 
             {/* Main Card */}
-            <div className={`relative z-10 w-full my-auto shrink-0 max-w-[95vw] md:max-w-4xl p-6 pb-32 sm:p-12 sm:pb-12 rounded-[3rem] transition-all duration-700 ${!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0'} flex flex-col items-center justify-center min-h-[50vh] ${isZenMode ? 'scale-110' : ''} ${isCleanMode ? 'scale-[0.85] !p-0' : ''}`}>
+            <div className={`relative z-10 w-full my-auto shrink-0 max-w-[95vw] md:max-w-4xl p-6 pb-44 sm:p-12 sm:pb-16 rounded-[3rem] transition-all duration-700 ${!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0'} flex flex-col items-center justify-center min-h-[50vh] ${isZenMode ? 'scale-110' : ''} ${isCleanMode ? 'scale-[0.85] !p-0' : ''}`}>
 
                 {/* Sub-Navigation for Time Tools */}
                 {['timer', 'pomodoro', 'stopwatch'].includes(mode) && (
-                    <div className={`flex justify-center gap-2 bg-black/20 p-1.5 rounded-full border border-white/5 w-max animate-fade-in z-50 mb-8 mt-[-1rem] ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:opacity-100'}`} style={{ transition: 'opacity 0.3s ease' }}>
+                    <div className={`flex justify-center gap-2 bg-black/20 p-1.5 rounded-full border border-white/5 w-max animate-fade-in z-20 mb-8 mt-[-1rem] ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:opacity-100'}`} style={{ transition: 'opacity 0.3s ease' }}>
                         <button onClick={() => setMode('pomodoro')} className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ${mode === 'pomodoro' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100'}`}>{t('tabPomodoro')}</button>
                         <button onClick={() => setMode('timer')} className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ${mode === 'timer' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100'}`}>{t('tabTimer')}</button>
                         <button onClick={() => setMode('stopwatch')} className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ${mode === 'stopwatch' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100'}`}>{t('tabStopwatch')}</button>
@@ -1433,7 +1433,7 @@ function App() {
 
                 {/* Sub-Navigation for Calendar Tools */}
                 {['calendar', 'anniversary', 'memento'].includes(mode) && (
-                    <div className={`flex justify-center gap-2 bg-black/20 p-1.5 rounded-full border border-white/5 w-max animate-fade-in z-50 mb-8 mt-[-1rem] ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:opacity-100'}`} style={{ transition: 'opacity 0.3s ease' }}>
+                    <div className={`flex justify-center gap-2 bg-black/20 p-1.5 rounded-full border border-white/5 w-max animate-fade-in z-20 mb-8 mt-[-1rem] ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:opacity-100'}`} style={{ transition: 'opacity 0.3s ease' }}>
                         <button onClick={() => setMode('calendar')} className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ${mode === 'calendar' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100'}`}>{t('tabMonthly')}</button>
                         <button onClick={() => setMode('anniversary')} className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ${mode === 'anniversary' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100'}`}>{t('tabEvents')}</button>
                         <button onClick={() => setMode('memento')} className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ${mode === 'memento' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100'}`}>{t('tabLife')}</button>
@@ -1493,7 +1493,7 @@ function App() {
                                             </button>
                                         ))}
                                     </div>
-                                    <div className="mt-8 flex gap-6 z-50">
+                                    <div className="mt-8 flex gap-6 z-30 relative">
                                         <button onClick={() => setIsEditingTimer(false)} className="p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all">
                                             <X size={32} />
                                         </button>
@@ -1533,7 +1533,7 @@ function App() {
                             )}
                         </div>
 
-                        <div className={`mt-8 flex gap-6 z-50 ${isEditingTimer ? 'hidden' : ''} ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+                        <div className={`mt-8 flex gap-6 z-30 relative ${isEditingTimer ? 'hidden' : ''} ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
                             <button onClick={() => {
                                 if (!isTimerRunning && timerSeconds <= 0) {
                                     if (timerInitial > 0) {
@@ -1578,7 +1578,7 @@ function App() {
                                     </div>
                                 );
                             })}
-                            <div className={`flex flex-wrap justify-center gap-3 pt-4 ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+                            <div className={`flex flex-wrap justify-center gap-3 pt-4 pb-8 ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
                                 {[1, 3, 5, 10, 15, 30].map(m => (
                                     <button key={m} onClick={() => addMultiTimer(m)} className="px-4 py-2 rounded-full bg-white/10 border border-white/10 hover:bg-white/20 text-sm transition-all">+{m}min</button>
                                 ))}
@@ -1601,7 +1601,7 @@ function App() {
                                 <span>{(pomoSeconds % 60).toString().padStart(2, '0')}<span className="text-[6vw] md:text-[40px] opacity-50 ml-1">s</span></span>
                             </div>
                         </div>
-                        <div className={`mt-8 flex gap-6 z-50 ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+                        <div className={`mt-8 flex gap-6 z-30 relative ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
                             <button onClick={() => {
                                 if (!isPomoRunning && pomoSeconds <= 0) resetPomo(pomoMode);
                                 if (!isPomoRunning && autoZenMode && !isZenMode) setIsZenMode(true);
@@ -1647,7 +1647,7 @@ function App() {
                             <span>{stopwatch.m}</span><span className="opacity-50 mx-1">:</span><span>{stopwatch.s}</span>
                             <span className={`text-[8vw] md:text-[60px] ml-1 md:ml-2 ${currentTheme.accent}`}>.{stopwatch.cs}</span>
                         </div>
-                        <div className={`mt-8 flex gap-6 z-50 ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+                        <div className={`mt-8 flex gap-6 z-30 relative ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
                             <button onClick={() => setIsStopwatchRunning(!isStopwatchRunning)} className="p-4 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition-all">
                                 {isStopwatchRunning ? <Pause size={32} /> : <Play size={32} className={currentTheme.accent} />}
                             </button>

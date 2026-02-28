@@ -2119,9 +2119,9 @@ function App() {
   }), /*#__PURE__*/React.createElement("div", {
     className: "ambient-blob-2 absolute bottom-[10%] right-[10%] w-[50vw] h-[50vw] rounded-full blur-[80px] opacity-20 bg-purple-500/40"
   })), /*#__PURE__*/React.createElement("div", {
-    className: "relative z-10 w-full my-auto shrink-0 max-w-[95vw] md:max-w-4xl p-6 pb-32 sm:p-12 sm:pb-12 rounded-[3rem] transition-all duration-700 ".concat(!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0', " flex flex-col items-center justify-center min-h-[50vh] ").concat(isZenMode ? 'scale-110' : '', " ").concat(isCleanMode ? 'scale-[0.85] !p-0' : '')
+    className: "relative z-10 w-full my-auto shrink-0 max-w-[95vw] md:max-w-4xl p-6 pb-44 sm:p-12 sm:pb-16 rounded-[3rem] transition-all duration-700 ".concat(!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0', " flex flex-col items-center justify-center min-h-[50vh] ").concat(isZenMode ? 'scale-110' : '', " ").concat(isCleanMode ? 'scale-[0.85] !p-0' : '')
   }, ['timer', 'pomodoro', 'stopwatch'].includes(mode) && /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-center gap-2 bg-black/20 p-1.5 rounded-full border border-white/5 w-max animate-fade-in z-50 mb-8 mt-[-1rem] ".concat(isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:opacity-100'),
+    className: "flex justify-center gap-2 bg-black/20 p-1.5 rounded-full border border-white/5 w-max animate-fade-in z-20 mb-8 mt-[-1rem] ".concat(isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:opacity-100'),
     style: {
       transition: 'opacity 0.3s ease'
     }
@@ -2135,7 +2135,7 @@ function App() {
     onClick: () => setMode('stopwatch'),
     className: "px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ".concat(mode === 'stopwatch' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100')
   }, t('tabStopwatch'))), ['calendar', 'anniversary', 'memento'].includes(mode) && /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-center gap-2 bg-black/20 p-1.5 rounded-full border border-white/5 w-max animate-fade-in z-50 mb-8 mt-[-1rem] ".concat(isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:opacity-100'),
+    className: "flex justify-center gap-2 bg-black/20 p-1.5 rounded-full border border-white/5 w-max animate-fade-in z-20 mb-8 mt-[-1rem] ".concat(isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:opacity-100'),
     style: {
       transition: 'opacity 0.3s ease'
     }
@@ -2228,7 +2228,7 @@ function App() {
   }, btn === 'del' ? /*#__PURE__*/React.createElement(Delete, {
     size: 24
   }) : btn))), /*#__PURE__*/React.createElement("div", {
-    className: "mt-8 flex gap-6 z-50"
+    className: "mt-8 flex gap-6 z-30 relative"
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => setIsEditingTimer(false),
     className: "p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all"
@@ -2272,7 +2272,7 @@ function App() {
   }, "min")), /*#__PURE__*/React.createElement("span", null, (timerSeconds % 60).toString().padStart(2, '0'), /*#__PURE__*/React.createElement("span", {
     className: "text-[6vw] md:text-[40px] opacity-50 ml-1"
   }, "s"))))), /*#__PURE__*/React.createElement("div", {
-    className: "mt-8 flex gap-6 z-50 ".concat(isEditingTimer ? 'hidden' : '', " ").concat(isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100')
+    className: "mt-8 flex gap-6 z-30 relative ".concat(isEditingTimer ? 'hidden' : '', " ").concat(isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100')
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       if (!isTimerRunning && timerSeconds <= 0) {
@@ -2343,7 +2343,7 @@ function App() {
       size: 18
     }))));
   }), /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-wrap justify-center gap-3 pt-4 ".concat(isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100')
+    className: "flex flex-wrap justify-center gap-3 pt-4 pb-8 ".concat(isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100')
   }, [1, 3, 5, 10, 15, 30].map(m => /*#__PURE__*/React.createElement("button", {
     key: m,
     onClick: () => addMultiTimer(m),
@@ -2374,7 +2374,7 @@ function App() {
   }, "min")), /*#__PURE__*/React.createElement("span", null, (pomoSeconds % 60).toString().padStart(2, '0'), /*#__PURE__*/React.createElement("span", {
     className: "text-[6vw] md:text-[40px] opacity-50 ml-1"
   }, "s")))), /*#__PURE__*/React.createElement("div", {
-    className: "mt-8 flex gap-6 z-50 ".concat(isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100')
+    className: "mt-8 flex gap-6 z-30 relative ".concat(isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100')
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       if (!isPomoRunning && pomoSeconds <= 0) resetPomo(pomoMode);
@@ -2446,7 +2446,7 @@ function App() {
   }, ":"), /*#__PURE__*/React.createElement("span", null, stopwatch.s), /*#__PURE__*/React.createElement("span", {
     className: "text-[8vw] md:text-[60px] ml-1 md:ml-2 ".concat(currentTheme.accent)
   }, ".", stopwatch.cs)), /*#__PURE__*/React.createElement("div", {
-    className: "mt-8 flex gap-6 z-50 ".concat(isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100')
+    className: "mt-8 flex gap-6 z-30 relative ".concat(isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100')
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => setIsStopwatchRunning(!isStopwatchRunning),
     className: "p-4 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition-all"
