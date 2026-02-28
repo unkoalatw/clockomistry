@@ -95,6 +95,12 @@ const I18N = {
     totalWeeks: '總週數 (約 80 年)',
     miniMode: '懸浮/迷你模式',
     exitMiniMode: '退出迷你模式',
+    tabTimer: '計時器',
+    tabPomodoro: '番茄鐘',
+    tabStopwatch: '碼表',
+    tabMonthly: '月曆視圖',
+    tabEvents: '事件與倒數',
+    tabLife: '生命日曆',
     months: ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'],
     anniversary: '倒數日',
     addEvent: '新增事件',
@@ -241,6 +247,12 @@ const I18N = {
     totalWeeks: 'Total Weeks (~80 yrs)',
     miniMode: 'PIP / Mini Mode',
     exitMiniMode: 'Exit Mini Mode',
+    tabTimer: 'Timer',
+    tabPomodoro: 'Pomodoro',
+    tabStopwatch: 'Stopwatch',
+    tabMonthly: 'Monthly UI',
+    tabEvents: 'Events',
+    tabLife: 'Life Grid',
     months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
     anniversary: 'Anniversary',
     addEvent: 'Add Event',
@@ -387,6 +399,12 @@ const I18N = {
     totalWeeks: '合計 (約80年)',
     miniMode: 'ミニモード',
     exitMiniMode: 'ミニモードを終了',
+    tabTimer: 'タイマー',
+    tabPomodoro: 'ポモドーロ',
+    tabStopwatch: 'ストップウォッチ',
+    tabMonthly: '月カレンダー',
+    tabEvents: '記念日',
+    tabLife: '人生',
     months: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
     anniversary: 'お祝い',
     addEvent: 'イベント追加',
@@ -810,32 +828,23 @@ const NavigationBar = /*#__PURE__*/React.memo(_ref4 => {
     m: 'calendar',
     icon: CalendarDays
   }, {
-    m: 'anniversary',
-    icon: Calendar
-  }, {
-    m: 'timer',
-    icon: Timer
-  }, {
     m: 'pomodoro',
-    icon: Brain
-  }, {
-    m: 'stopwatch',
-    icon: StopCircle
-  }, {
-    m: 'memento',
-    icon: LayoutGrid
+    icon: Timer
   }].map(_ref5 => {
     let {
       m,
       icon: Icon
     } = _ref5;
+    const isActive = m === 'pomodoro' && ['timer', 'pomodoro', 'stopwatch'].includes(mode) || m === 'calendar' && ['calendar', 'anniversary', 'memento'].includes(mode) || mode === m;
     return /*#__PURE__*/React.createElement("button", {
       key: m,
-      onClick: () => setMode(m),
-      className: "p-3 rounded-full transition-all snap-center flex-shrink-0 ".concat(mode === m ? 'bg-white/20 scale-105 shadow-sm' : 'opacity-60 hover:bg-white/10')
+      onClick: () => {
+        if (m === 'pomodoro' && !['timer', 'pomodoro', 'stopwatch'].includes(mode)) setMode('pomodoro');else if (m === 'calendar' && !['calendar', 'anniversary', 'memento'].includes(mode)) setMode('calendar');else if (m === 'clock' || m === 'world') setMode(m);
+      },
+      className: "p-3 lg:px-6 lg:py-3 rounded-full transition-all snap-center flex-shrink-0 ".concat(isActive ? 'bg-white/20 scale-105 shadow-sm' : 'opacity-60 hover:bg-white/10')
     }, /*#__PURE__*/React.createElement(Icon, {
       size: 20,
-      className: mode === m ? accent : ''
+      className: isActive ? accent : ''
     }));
   })), /*#__PURE__*/React.createElement("div", {
     className: "w-px h-8 bg-white/20 hidden sm:block"
@@ -1979,7 +1988,35 @@ function App() {
     className: "absolute bottom-[10%] right-[10%] w-[50vw] h-[50vw] rounded-full blur-[80px] opacity-10 bg-purple-500/30"
   })), /*#__PURE__*/React.createElement("div", {
     className: "relative z-10 w-full max-w-[90vw] md:max-w-4xl p-8 sm:p-12 rounded-[3rem] transition-all duration-700 ".concat(!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0', " flex flex-col items-center justify-center min-h-[50vh] ").concat(isZenMode ? 'scale-110' : '', " ").concat(isCleanMode ? 'scale-[0.85] !p-0' : '')
-  }, mode === 'clock' && /*#__PURE__*/React.createElement("div", {
+  }, ['timer', 'pomodoro', 'stopwatch'].includes(mode) && /*#__PURE__*/React.createElement("div", {
+    className: "flex justify-center gap-2 bg-black/20 p-1.5 rounded-full border border-white/5 w-max animate-fade-in z-50 mb-8 mt-[-1rem] ".concat(isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:opacity-100'),
+    style: {
+      transition: 'opacity 0.3s ease'
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setMode('pomodoro'),
+    className: "px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ".concat(mode === 'pomodoro' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100')
+  }, t('tabPomodoro')), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setMode('timer'),
+    className: "px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ".concat(mode === 'timer' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100')
+  }, t('tabTimer')), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setMode('stopwatch'),
+    className: "px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ".concat(mode === 'stopwatch' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100')
+  }, t('tabStopwatch'))), ['calendar', 'anniversary', 'memento'].includes(mode) && /*#__PURE__*/React.createElement("div", {
+    className: "flex justify-center gap-2 bg-black/20 p-1.5 rounded-full border border-white/5 w-max animate-fade-in z-50 mb-8 mt-[-1rem] ".concat(isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:opacity-100'),
+    style: {
+      transition: 'opacity 0.3s ease'
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setMode('calendar'),
+    className: "px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ".concat(mode === 'calendar' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100')
+  }, t('tabMonthly')), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setMode('anniversary'),
+    className: "px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ".concat(mode === 'anniversary' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100')
+  }, t('tabEvents')), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setMode('memento'),
+    className: "px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ".concat(mode === 'memento' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100')
+  }, t('tabLife'))), mode === 'clock' && /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col items-center select-none"
   }, /*#__PURE__*/React.createElement(WeatherWidget, {
     weather: weather,
@@ -2031,7 +2068,7 @@ function App() {
   }, /*#__PURE__*/React.createElement(Settings, {
     size: 14
   }), " ", t('addEditZones'))), mode === 'timer' && /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-col items-center select-none w-full max-w-lg"
+    className: "flex flex-col items-center select-none w-full max-w-lg mt-12"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col items-center mb-12 w-full"
   }, isEditingTimer ? /*#__PURE__*/React.createElement("div", {
@@ -2180,7 +2217,7 @@ function App() {
     onClick: () => addMultiTimer(m),
     className: "px-4 py-2 rounded-full bg-white/10 border border-white/10 hover:bg-white/20 text-sm transition-all"
   }, "+", m, "m"))))), mode === 'pomodoro' && /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-col items-center select-none"
+    className: "flex flex-col items-center select-none mt-12"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex gap-4 mb-4"
   }, /*#__PURE__*/React.createElement("button", {
@@ -2269,7 +2306,7 @@ function App() {
       title: ds ? "".concat(ds, ": ").concat(Math.floor(val / 60), "m") : ''
     });
   })))), mode === 'stopwatch' && /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-col items-center select-none w-full min-w-[300px]"
+    className: "flex flex-col items-center select-none w-full min-w-[300px] mt-12"
   }, /*#__PURE__*/React.createElement("div", {
     className: "text-[18vw] md:text-[120px] font-bold tracking-tighter tabular-nums flex items-baseline"
   }, /*#__PURE__*/React.createElement("span", null, stopwatch.m), /*#__PURE__*/React.createElement("span", {
@@ -2345,7 +2382,8 @@ function App() {
         flexDirection: 'column',
         width: '100%',
         maxWidth: 540,
-        userSelect: 'none'
+        userSelect: 'none',
+        marginTop: '48px'
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
@@ -2455,7 +2493,7 @@ function App() {
       }, cell.day));
     })));
   })(), mode === 'anniversary' && /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-col items-center select-none w-full max-w-lg"
+    className: "flex flex-col items-center select-none w-full max-w-lg mt-12"
   }, /*#__PURE__*/React.createElement("div", {
     className: "w-full max-h-[50vh] overflow-y-auto custom-scrollbar space-y-4 p-2"
   }, anniversaries.length === 0 && /*#__PURE__*/React.createElement("div", {
@@ -2505,7 +2543,7 @@ function App() {
   }, /*#__PURE__*/React.createElement(Plus, {
     size: 20
   }), " ", t('addEvent'))), mode === 'memento' && /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-col items-center select-none w-full max-w-2xl animate-fade-in relative"
+    className: "flex flex-col items-center select-none w-full max-w-2xl animate-fade-in relative mt-12"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col mb-8 text-center bg-black/40 backdrop-blur-md px-12 py-6 rounded-[2rem] border border-white/10 w-full pb-8"
   }, /*#__PURE__*/React.createElement("h2", {
