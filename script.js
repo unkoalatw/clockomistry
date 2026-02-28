@@ -30,8 +30,10 @@ import {
     CalendarDays, Languages, Trash2, ChevronLeft, ChevronRight,
     Calendar, CloudSun, Share2, Download, LayoutTemplate, Sparkles, Delete,
     Camera, CheckSquare, BarChart2, Sliders, Target,
-    Sunrise, Sunset, LayoutGrid, LayoutPanelTop
+    Sunrise, Sunset, LayoutGrid, LayoutPanelTop, RefreshCw
 } from 'lucide-react';
+
+const APP_VERSION = '1.3.0';
 
 // --- IndexedDB 管理 (用於儲存大體積字型) ---
 const DB_NAME = 'ClockomistryDB';
@@ -97,6 +99,7 @@ const I18N = {
         ringPosition: '進度環位置', ringLeft: '數字左側', ringRight: '數字右側', ringBackground: '背景置中',
         autoZenMode: '計時自動進入專注模式',
         downloadApp: '下載 Android 原生版', downloadingApp: '正在取得下載連結...', appDesc: '安裝 APK 以獲得更流暢的效能與震動回饋',
+        updateTitle: '更新與版本', currentVersion: '目前版本', checkUpdate: '檢查更新', checking: '檢查中...', upToDate: '已是最新版本！', newVersion: '有新版本', updateNow: '立即更新', updateDesc: '確保您的 Clockomistry 始終保持最新狀態',
         clearData: '清除所有資料', clearDataDesc: '將刪除本機所有設定、檔案記錄和快取。此操作無法復原。', clearDataConfirm: '確認刪除所有資料？', clearDataDone: '資料已清除，即將重新載入…', clearDataBtn: '清除資料',
         "Taipei": "台北", "Tokyo": "東京", "Seoul": "首爾", "Shanghai": "上海", "Hong Kong": "香港",
         "Singapore": "新加坡", "Bangkok": "曼谷", "Dubai": "杜拜", "Kolkata": "加爾各答", "Ho Chi Minh": "胡志明市",
@@ -144,6 +147,7 @@ const I18N = {
         ringPosition: 'Ring Position', ringLeft: 'Left of Number', ringRight: 'Right of Number', ringBackground: 'Background Centered',
         autoZenMode: 'Auto Zen Mode on Start',
         downloadApp: 'Download Android App', downloadingApp: 'Fetching link...', appDesc: 'Install the native APK for smoother performance and haptics',
+        updateTitle: 'Updates & Version', currentVersion: 'Current Version', checkUpdate: 'Check for Updates', checking: 'Checking...', upToDate: 'You are up to date!', newVersion: 'New version available', updateNow: 'Update Now', updateDesc: 'Keep your Clockomistry always up to date',
         clearData: 'Clear All Data', clearDataDesc: 'Deletes all settings, records and cache on this device. This cannot be undone.', clearDataConfirm: 'Delete all data?', clearDataDone: 'Data cleared, reloading…', clearDataBtn: 'Clear Data',
         "Taipei": "Taipei", "Tokyo": "Tokyo", "Seoul": "Seoul", "Shanghai": "Shanghai", "Hong Kong": "Hong Kong",
         "Singapore": "Singapore", "Bangkok": "Bangkok", "Dubai": "Dubai", "Kolkata": "Kolkata", "Ho Chi Minh": "Ho Chi Minh",
@@ -191,6 +195,7 @@ const I18N = {
         ringPosition: 'リングの位置', ringLeft: '数字の左側', ringRight: '数字の右側', ringBackground: '背景の中心',
         autoZenMode: '開始時に集中モード',
         downloadApp: 'Androidアプリをダウンロード', downloadingApp: 'リンクを取得中...', appDesc: 'よりスムーズなパフォーマンスのためにAPKをインストール',
+        updateTitle: 'アップデートとバージョン', currentVersion: '現在のバージョン', checkUpdate: 'アップデートを確認', checking: '確認中...', upToDate: '最新版です！', newVersion: '新しいバージョンがあります', updateNow: '今すぐ更新', updateDesc: 'Clockomistryを常に最新の状態に保つ',
         clearData: '全データを削除', clearDataDesc: 'このデバイスのすべての設定、記録、キャッシュを削除します。元に戻せません。', clearDataConfirm: 'すべてのデータを削除しますか？', clearDataDone: 'データを削除しました。再読込み中…', clearDataBtn: 'データを削除',
         "Taipei": "台北", "Tokyo": "東京", "Seoul": "ソウル", "Shanghai": "上海", "Hong Kong": "香港",
         "Singapore": "シンガポール", "Bangkok": "バンコク", "Dubai": "ドバイ", "Kolkata": "コルカタ", "Ho Chi Minh": "ホーチミン",
@@ -1007,6 +1012,44 @@ function App() {
         }
     };
 
+    const [updateStatus, setUpdateStatus] = useState(null); // null | 'checking' | 'latest' | 'new'
+    const [latestVersion, setLatestVersion] = useState(null);
+    const handleCheckUpdate = async () => {
+        setUpdateStatus('checking');
+        try {
+            // Fetch package.json or use release tag from GitHub API
+            const res = await fetch('https://api.github.com/repos/unkoalatw/clockomistry/releases/latest');
+            if (!res.ok) throw new Error('Network error');
+            const data = await res.json();
+            const remoteTag = data.tag_name?.replace(/^v/, '') || '';
+            setLatestVersion(remoteTag);
+            if (remoteTag && remoteTag !== APP_VERSION) {
+                setUpdateStatus('new');
+            } else {
+                setUpdateStatus('latest');
+                setTimeout(() => setUpdateStatus(null), 3000);
+            }
+        } catch (err) {
+            // If no release exists yet, try to force-refresh SW
+            setUpdateStatus('latest');
+            setTimeout(() => setUpdateStatus(null), 3000);
+        }
+    };
+    const handleForceUpdate = async () => {
+        // 1. Force SW update
+        if ('serviceWorker' in navigator) {
+            const regs = await navigator.serviceWorker.getRegistrations();
+            await Promise.all(regs.map(r => r.update()));
+        }
+        // 2. Clear caches
+        if ('caches' in window) {
+            const keys = await caches.keys();
+            await Promise.all(keys.map(k => caches.delete(k)));
+        }
+        // 3. Hard reload
+        window.location.reload(true);
+    };
+
     const formatDate = (date) => date.toLocaleDateString(t('locale'), { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
     const getWorldTime = (timezone) => {
@@ -1268,6 +1311,38 @@ function App() {
                                         <Download size={18} className={isDownloadingApp ? 'animate-bounce' : ''} />
                                         {isDownloadingApp ? t('downloadingApp') : t('downloadApp')}
                                     </button>
+                                </div>
+                            </section>
+
+                            <section className="space-y-6">
+                                <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><RefreshCw size={24} className="text-emerald-400" /> {t('updateTitle')}</h3>
+                                <div className="p-6 rounded-2xl bg-emerald-500/5 border border-emerald-500/20">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <span className="text-sm opacity-60">{t('currentVersion')}</span>
+                                        <span className="text-sm font-mono font-bold bg-white/10 px-3 py-1 rounded-full">v{APP_VERSION}</span>
+                                    </div>
+                                    <p className="text-sm opacity-60 mb-6 leading-relaxed">{t('updateDesc')}</p>
+                                    {updateStatus === 'new' ? (
+                                        <button
+                                            onClick={handleForceUpdate}
+                                            className="w-full py-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold tracking-wide active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
+                                        >
+                                            <Download size={18} />
+                                            {t('updateNow')} (v{latestVersion})
+                                        </button>
+                                    ) : (
+                                        <button
+                                            onClick={handleCheckUpdate}
+                                            disabled={updateStatus === 'checking'}
+                                            className={`w-full py-4 rounded-xl border font-medium active:scale-95 transition-all flex items-center justify-center gap-2 ${updateStatus === 'latest'
+                                                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                                                : 'bg-white/5 border-white/20 hover:bg-white/10'
+                                                }`}
+                                        >
+                                            <RefreshCw size={18} className={updateStatus === 'checking' ? 'animate-spin' : ''} />
+                                            {updateStatus === 'checking' ? t('checking') : updateStatus === 'latest' ? t('upToDate') : t('checkUpdate')}
+                                        </button>
+                                    )}
                                 </div>
                             </section>
 
