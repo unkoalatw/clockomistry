@@ -1352,7 +1352,7 @@ function App() {
                                 <div className="flex flex-col items-center w-full animate-fade-in">
                                     <div className="text-[14vw] md:text-[80px] font-bold tracking-tighter tabular-nums drop-shadow-2xl flex items-baseline gap-1 md:gap-2 mb-6">
                                         <span className={timerInput.slice(0, 2) === '00' ? 'opacity-30' : ''}>{timerInput.slice(0, 2)}<span className="text-xl md:text-2xl opacity-50 ml-1">h</span></span>
-                                        <span className={timerInput.slice(0, 4) === '0000' ? 'opacity-30' : ''}>{timerInput.slice(2, 4)}<span className="text-xl md:text-2xl opacity-50 ml-1">m</span></span>
+                                        <span className={timerInput.slice(0, 4) === '0000' ? 'opacity-30' : ''}>{timerInput.slice(2, 4)}<span className="text-xl md:text-2xl opacity-50 ml-1">min</span></span>
                                         <span className={timerInput === '000000' ? 'opacity-30' : ''}>{timerInput.slice(4, 6)}<span className="text-xl md:text-2xl opacity-50 ml-1">s</span></span>
                                     </div>
                                     <div className="grid grid-cols-3 gap-3 sm:gap-4 w-full max-w-[280px]">
@@ -1395,7 +1395,7 @@ function App() {
                                         }}
                                     >
                                         {timerSeconds >= 3600 && <span>{Math.floor(timerSeconds / 3600).toString().padStart(2, '0')}<span className="text-[6vw] md:text-[40px] opacity-50 ml-1">h</span></span>}
-                                        <span>{Math.floor((timerSeconds % 3600) / 60).toString().padStart(2, '0')}<span className="text-[6vw] md:text-[40px] opacity-50 ml-1">m</span></span>
+                                        <span>{Math.floor((timerSeconds % 3600) / 60).toString().padStart(2, '0')}<span className="text-[6vw] md:text-[40px] opacity-50 ml-1">min</span></span>
                                         <span>{(timerSeconds % 60).toString().padStart(2, '0')}<span className="text-[6vw] md:text-[40px] opacity-50 ml-1">s</span></span>
                                     </div>
                                 </div>
@@ -1449,7 +1449,7 @@ function App() {
                             })}
                             <div className={`flex flex-wrap justify-center gap-3 pt-4 ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
                                 {[1, 3, 5, 10, 15, 30].map(m => (
-                                    <button key={m} onClick={() => addMultiTimer(m)} className="px-4 py-2 rounded-full bg-white/10 border border-white/10 hover:bg-white/20 text-sm transition-all">+{m}m</button>
+                                    <button key={m} onClick={() => addMultiTimer(m)} className="px-4 py-2 rounded-full bg-white/10 border border-white/10 hover:bg-white/20 text-sm transition-all">+{m}min</button>
                                 ))}
                             </div>
                         </div>
@@ -1466,7 +1466,7 @@ function App() {
                         <div className={`relative flex justify-center items-center w-full mt-4 p-8 flex-col ${ringPosition === 'left' ? 'md:flex-row' : ringPosition === 'right' ? 'md:flex-row-reverse' : 'md:flex-col'}`}>
                             {showProgressRing && <ProgressRing progress={(pomoSeconds / (pomoMode === 'work' ? 25 * 60 : pomoMode === 'short' ? 5 * 60 : 15 * 60)) * 100} accent={theme === 'custom' ? 'custom-accent text-white' : currentTheme.accent} position={ringPosition} />}
                             <div className="text-[15vw] md:text-[120px] font-bold tracking-tighter tabular-nums drop-shadow-2xl z-10 flex items-baseline gap-1 md:gap-2">
-                                <span>{Math.floor(pomoSeconds / 60).toString().padStart(2, '0')}<span className="text-[6vw] md:text-[40px] opacity-50 ml-1">m</span></span>
+                                <span>{Math.floor(pomoSeconds / 60).toString().padStart(2, '0')}<span className="text-[6vw] md:text-[40px] opacity-50 ml-1">min</span></span>
                                 <span>{(pomoSeconds % 60).toString().padStart(2, '0')}<span className="text-[6vw] md:text-[40px] opacity-50 ml-1">s</span></span>
                             </div>
                         </div>

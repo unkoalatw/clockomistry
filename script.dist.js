@@ -2083,7 +2083,7 @@ function App() {
     className: timerInput.slice(0, 4) === '0000' ? 'opacity-30' : ''
   }, timerInput.slice(2, 4), /*#__PURE__*/React.createElement("span", {
     className: "text-xl md:text-2xl opacity-50 ml-1"
-  }, "m")), /*#__PURE__*/React.createElement("span", {
+  }, "min")), /*#__PURE__*/React.createElement("span", {
     className: timerInput === '000000' ? 'opacity-30' : ''
   }, timerInput.slice(4, 6), /*#__PURE__*/React.createElement("span", {
     className: "text-xl md:text-2xl opacity-50 ml-1"
@@ -2137,7 +2137,7 @@ function App() {
     className: "text-[6vw] md:text-[40px] opacity-50 ml-1"
   }, "h")), /*#__PURE__*/React.createElement("span", null, Math.floor(timerSeconds % 3600 / 60).toString().padStart(2, '0'), /*#__PURE__*/React.createElement("span", {
     className: "text-[6vw] md:text-[40px] opacity-50 ml-1"
-  }, "m")), /*#__PURE__*/React.createElement("span", null, (timerSeconds % 60).toString().padStart(2, '0'), /*#__PURE__*/React.createElement("span", {
+  }, "min")), /*#__PURE__*/React.createElement("span", null, (timerSeconds % 60).toString().padStart(2, '0'), /*#__PURE__*/React.createElement("span", {
     className: "text-[6vw] md:text-[40px] opacity-50 ml-1"
   }, "s"))))), /*#__PURE__*/React.createElement("div", {
     className: "mt-8 flex gap-6 z-50 ".concat(isEditingTimer ? 'hidden' : '', " ").concat(isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100')
@@ -2216,7 +2216,7 @@ function App() {
     key: m,
     onClick: () => addMultiTimer(m),
     className: "px-4 py-2 rounded-full bg-white/10 border border-white/10 hover:bg-white/20 text-sm transition-all"
-  }, "+", m, "m"))))), mode === 'pomodoro' && /*#__PURE__*/React.createElement("div", {
+  }, "+", m, "min"))))), mode === 'pomodoro' && /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col items-center select-none mt-12"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex gap-4 mb-4"
@@ -2239,7 +2239,7 @@ function App() {
     className: "text-[15vw] md:text-[120px] font-bold tracking-tighter tabular-nums drop-shadow-2xl z-10 flex items-baseline gap-1 md:gap-2"
   }, /*#__PURE__*/React.createElement("span", null, Math.floor(pomoSeconds / 60).toString().padStart(2, '0'), /*#__PURE__*/React.createElement("span", {
     className: "text-[6vw] md:text-[40px] opacity-50 ml-1"
-  }, "m")), /*#__PURE__*/React.createElement("span", null, (pomoSeconds % 60).toString().padStart(2, '0'), /*#__PURE__*/React.createElement("span", {
+  }, "min")), /*#__PURE__*/React.createElement("span", null, (pomoSeconds % 60).toString().padStart(2, '0'), /*#__PURE__*/React.createElement("span", {
     className: "text-[6vw] md:text-[40px] opacity-50 ml-1"
   }, "s")))), /*#__PURE__*/React.createElement("div", {
     className: "mt-8 flex gap-6 z-50 ".concat(isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100')
