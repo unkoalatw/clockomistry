@@ -810,9 +810,9 @@ const NavigationBar = /*#__PURE__*/React.memo(_ref4 => {
     t
   } = _ref4;
   return /*#__PURE__*/React.createElement("div", {
-    className: "hide-on-export fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 flex items-center justify-between sm:justify-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-[2rem] sm:rounded-full backdrop-blur-xl bg-white/5 border border-white/20 shadow-2xl transition-all duration-500 z-50 w-[92vw] max-w-2xl sm:w-auto ".concat(showControls && !isCleanMode ? 'translate-y-0 opacity-100' : 'translate-y-32 opacity-0 pointer-events-none')
+    className: "hide-on-export fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 flex items-center justify-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-[2rem] sm:rounded-full backdrop-blur-xl bg-white/5 border border-white/20 shadow-2xl transition-all duration-500 z-50 w-max max-w-[96vw] sm:max-w-2xl sm:w-auto ".concat(showControls && !isCleanMode ? 'translate-y-0 opacity-100' : 'translate-y-32 opacity-0 pointer-events-none')
   }, /*#__PURE__*/React.createElement("style", null, ".hide-scroll::-webkit-scrollbar { display: none; }"), /*#__PURE__*/React.createElement("div", {
-    className: "flex bg-white/5 rounded-full p-1 gap-1 flex-1 sm:flex-none overflow-x-auto overflow-y-hidden snap-x snap-mandatory hide-scroll",
+    className: "flex bg-white/5 rounded-full p-1 gap-1 flex-none overflow-x-auto overflow-y-hidden snap-x snap-mandatory hide-scroll max-w-[65vw] sm:max-w-none",
     style: {
       scrollbarWidth: 'none',
       msOverflowStyle: 'none',
@@ -1526,7 +1526,7 @@ function App() {
     ref: containerRef,
     onMouseMove: handleMouseMove,
     style: containerStyle,
-    className: "h-screen w-full flex flex-col items-center justify-center transition-all duration-1000 ".concat(theme !== 'custom' && !isCleanMode ? "bg-gradient-to-br ".concat(currentTheme.gradient, " ").concat(currentTheme.text) : '', " ").concat(isCleanMode ? 'bg-transparent text-white' : '', " overflow-hidden relative selection:bg-pink-500 selection:text-white")
+    className: "h-[100dvh] w-full flex flex-col items-center py-8 transition-all duration-1000 ".concat(theme !== 'custom' && !isCleanMode ? "bg-gradient-to-br ".concat(currentTheme.gradient, " ").concat(currentTheme.text) : '', " ").concat(isCleanMode ? 'bg-transparent text-white' : '', " overflow-x-hidden overflow-y-auto relative custom-scrollbar selection:bg-pink-500 selection:text-white")
   }, theme === 'custom' && /*#__PURE__*/React.createElement("style", null, "\n                .custom-accent { color: ".concat(customColors.accent, "; }\n                .custom-card { background: ").concat(customColors.bg1, "33; border-color: ").concat(customColors.text, "1a; box-shadow: 0 8px 32px 0 rgba(0,0,0,0.36); }\n                .custom-settings { background: ").concat(customColors.bg1, "e6; backdrop-filter: blur(64px); }\n            ")), /*#__PURE__*/React.createElement("div", {
     className: "hide-on-export fixed top-8 left-1/2 -translate-x-1/2 z-[100] transition-all duration-300 ".concat(errorMsg ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none')
   }, /*#__PURE__*/React.createElement("div", {
@@ -1987,7 +1987,7 @@ function App() {
   }), /*#__PURE__*/React.createElement("div", {
     className: "absolute bottom-[10%] right-[10%] w-[50vw] h-[50vw] rounded-full blur-[80px] opacity-10 bg-purple-500/30"
   })), /*#__PURE__*/React.createElement("div", {
-    className: "relative z-10 w-full max-w-[90vw] md:max-w-4xl p-8 sm:p-12 rounded-[3rem] transition-all duration-700 ".concat(!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0', " flex flex-col items-center justify-center min-h-[50vh] ").concat(isZenMode ? 'scale-110' : '', " ").concat(isCleanMode ? 'scale-[0.85] !p-0' : '')
+    className: "relative z-10 w-full my-auto shrink-0 max-w-[95vw] md:max-w-4xl p-6 pb-32 sm:p-12 sm:pb-12 rounded-[3rem] transition-all duration-700 ".concat(!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0', " flex flex-col items-center justify-center min-h-[50vh] ").concat(isZenMode ? 'scale-110' : '', " ").concat(isCleanMode ? 'scale-[0.85] !p-0' : '')
   }, ['timer', 'pomodoro', 'stopwatch'].includes(mode) && /*#__PURE__*/React.createElement("div", {
     className: "flex justify-center gap-2 bg-black/20 p-1.5 rounded-full border border-white/5 w-max animate-fade-in z-50 mb-8 mt-[-1rem] ".concat(isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:opacity-100'),
     style: {
@@ -2120,13 +2120,13 @@ function App() {
     size: 32,
     className: currentTheme.accent
   })))) : /*#__PURE__*/React.createElement("div", {
-    className: "relative flex justify-center items-center w-full mt-4 p-8 ".concat(ringPosition === 'left' ? 'flex-row' : ringPosition === 'right' ? 'flex-row-reverse' : 'flex-col')
+    className: "relative flex justify-center items-center w-full mt-4 p-8 flex-col ".concat(ringPosition === 'left' ? 'md:flex-row' : ringPosition === 'right' ? 'md:flex-row-reverse' : 'md:flex-col')
   }, showProgressRing && /*#__PURE__*/React.createElement(ProgressRing, {
     progress: timerInitial > 0 ? timerSeconds / timerInitial * 100 : 0,
     accent: theme === 'custom' ? 'custom-accent text-white' : currentTheme.accent,
     position: ringPosition
   }), /*#__PURE__*/React.createElement("div", {
-    className: "text-[18vw] md:text-[120px] font-bold tracking-tighter tabular-nums drop-shadow-2xl cursor-pointer hover:opacity-80 transition-opacity flex items-baseline gap-1 md:gap-2 z-10",
+    className: "text-[15vw] md:text-[120px] font-bold tracking-tighter tabular-nums drop-shadow-2xl cursor-pointer hover:opacity-80 transition-opacity flex items-baseline gap-1 md:gap-2 z-10",
     onClick: () => {
       if (!isTimerRunning) {
         setIsEditingTimer(true);
@@ -2170,7 +2170,7 @@ function App() {
   }, /*#__PURE__*/React.createElement(RotateCcw, {
     size: 32
   }))), /*#__PURE__*/React.createElement("div", {
-    className: "w-full max-h-[40vh] overflow-y-auto custom-scrollbar space-y-3 p-2 border-t border-white/10 pt-8"
+    className: "w-full max-h-[30vh] sm:max-h-[40vh] overflow-y-auto custom-scrollbar space-y-3 p-2 border-t border-white/10 pt-6"
   }, multiTimers.map(timer => {
     const mins = Math.floor(timer.remaining / 60).toString().padStart(2, '0');
     const secs = (timer.remaining % 60).toString().padStart(2, '0');
@@ -2230,13 +2230,13 @@ function App() {
     onClick: () => resetPomo('long'),
     className: "px-4 py-1 rounded-full text-sm border transition-all ".concat(pomoMode === 'long' ? "bg-white/10 border-white/50 ".concat(currentTheme.accent) : 'border-transparent opacity-50')
   }, t('long'))), /*#__PURE__*/React.createElement("div", {
-    className: "relative flex justify-center items-center w-full mt-4 p-8 ".concat(ringPosition === 'left' ? 'flex-row' : ringPosition === 'right' ? 'flex-row-reverse' : 'flex-col')
+    className: "relative flex justify-center items-center w-full mt-4 p-8 flex-col ".concat(ringPosition === 'left' ? 'md:flex-row' : ringPosition === 'right' ? 'md:flex-row-reverse' : 'md:flex-col')
   }, showProgressRing && /*#__PURE__*/React.createElement(ProgressRing, {
     progress: pomoSeconds / (pomoMode === 'work' ? 25 * 60 : pomoMode === 'short' ? 5 * 60 : 15 * 60) * 100,
     accent: theme === 'custom' ? 'custom-accent text-white' : currentTheme.accent,
     position: ringPosition
   }), /*#__PURE__*/React.createElement("div", {
-    className: "text-[18vw] md:text-[120px] font-bold tracking-tighter tabular-nums drop-shadow-2xl z-10 flex items-baseline gap-1 md:gap-2"
+    className: "text-[15vw] md:text-[120px] font-bold tracking-tighter tabular-nums drop-shadow-2xl z-10 flex items-baseline gap-1 md:gap-2"
   }, /*#__PURE__*/React.createElement("span", null, Math.floor(pomoSeconds / 60).toString().padStart(2, '0'), /*#__PURE__*/React.createElement("span", {
     className: "text-[6vw] md:text-[40px] opacity-50 ml-1"
   }, "m")), /*#__PURE__*/React.createElement("span", null, (pomoSeconds % 60).toString().padStart(2, '0'), /*#__PURE__*/React.createElement("span", {
@@ -2308,7 +2308,7 @@ function App() {
   })))), mode === 'stopwatch' && /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col items-center select-none w-full min-w-[300px] mt-12"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "text-[18vw] md:text-[120px] font-bold tracking-tighter tabular-nums flex items-baseline"
+    className: "text-[15vw] md:text-[120px] font-bold tracking-tighter tabular-nums flex items-baseline"
   }, /*#__PURE__*/React.createElement("span", null, stopwatch.m), /*#__PURE__*/React.createElement("span", {
     className: "opacity-50 mx-1"
   }, ":"), /*#__PURE__*/React.createElement("span", null, stopwatch.s), /*#__PURE__*/React.createElement("span", {
@@ -2595,7 +2595,9 @@ function App() {
         title: "Week ".concat(i + 1)
       });
     })));
-  })()))), /*#__PURE__*/React.createElement(NavigationBar, {
+  })()))), /*#__PURE__*/React.createElement("div", {
+    className: "w-full h-32 shrink-0"
+  }), /*#__PURE__*/React.createElement(NavigationBar, {
     mode: mode,
     setMode: setMode,
     isZenMode: isZenMode,

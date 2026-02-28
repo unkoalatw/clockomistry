@@ -321,9 +321,9 @@ const ClockDisplay = React.memo(({ h, m, s, ms, showMillis, accent, dateLabel })
 
 const NavigationBar = React.memo(({ mode, setMode, isZenMode, accent, showControls, toggleFullscreen, setShowSettings, setIsZenMode, isCleanMode, setIsMiniMode, t }) => {
     return (
-        <div className={`hide-on-export fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 flex items-center justify-between sm:justify-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-[2rem] sm:rounded-full backdrop-blur-xl bg-white/5 border border-white/20 shadow-2xl transition-all duration-500 z-50 w-[92vw] max-w-2xl sm:w-auto ${showControls && !isCleanMode ? 'translate-y-0 opacity-100' : 'translate-y-32 opacity-0 pointer-events-none'}`}>
+        <div className={`hide-on-export fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 flex items-center justify-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-[2rem] sm:rounded-full backdrop-blur-xl bg-white/5 border border-white/20 shadow-2xl transition-all duration-500 z-50 w-max max-w-[96vw] sm:max-w-2xl sm:w-auto ${showControls && !isCleanMode ? 'translate-y-0 opacity-100' : 'translate-y-32 opacity-0 pointer-events-none'}`}>
             <style>{`.hide-scroll::-webkit-scrollbar { display: none; }`}</style>
-            <div className="flex bg-white/5 rounded-full p-1 gap-1 flex-1 sm:flex-none overflow-x-auto overflow-y-hidden snap-x snap-mandatory hide-scroll" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
+            <div className="flex bg-white/5 rounded-full p-1 gap-1 flex-none overflow-x-auto overflow-y-hidden snap-x snap-mandatory hide-scroll max-w-[65vw] sm:max-w-none" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
                 {[
                     { m: 'clock', icon: Clock }, { m: 'world', icon: Globe },
                     { m: 'calendar', icon: CalendarDays }, { m: 'pomodoro', icon: Timer }
@@ -941,7 +941,7 @@ function App() {
             ref={containerRef}
             onMouseMove={handleMouseMove}
             style={containerStyle}
-            className={`h-screen w-full flex flex-col items-center justify-center transition-all duration-1000 ${theme !== 'custom' && !isCleanMode ? `bg-gradient-to-br ${currentTheme.gradient} ${currentTheme.text}` : ''} ${isCleanMode ? 'bg-transparent text-white' : ''} overflow-hidden relative selection:bg-pink-500 selection:text-white`}
+            className={`h-[100dvh] w-full flex flex-col items-center py-8 transition-all duration-1000 ${theme !== 'custom' && !isCleanMode ? `bg-gradient-to-br ${currentTheme.gradient} ${currentTheme.text}` : ''} ${isCleanMode ? 'bg-transparent text-white' : ''} overflow-x-hidden overflow-y-auto relative custom-scrollbar selection:bg-pink-500 selection:text-white`}
         >
             {theme === 'custom' && <style>{`
                 .custom-accent { color: ${customColors.accent}; }
@@ -1289,7 +1289,7 @@ function App() {
             </div>
 
             {/* Main Card */}
-            <div className={`relative z-10 w-full max-w-[90vw] md:max-w-4xl p-8 sm:p-12 rounded-[3rem] transition-all duration-700 ${!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0'} flex flex-col items-center justify-center min-h-[50vh] ${isZenMode ? 'scale-110' : ''} ${isCleanMode ? 'scale-[0.85] !p-0' : ''}`}>
+            <div className={`relative z-10 w-full my-auto shrink-0 max-w-[95vw] md:max-w-4xl p-6 pb-32 sm:p-12 sm:pb-12 rounded-[3rem] transition-all duration-700 ${!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0'} flex flex-col items-center justify-center min-h-[50vh] ${isZenMode ? 'scale-110' : ''} ${isCleanMode ? 'scale-[0.85] !p-0' : ''}`}>
 
                 {/* Sub-Navigation for Time Tools */}
                 {['timer', 'pomodoro', 'stopwatch'].includes(mode) && (
@@ -1383,10 +1383,10 @@ function App() {
                                     </div>
                                 </div>
                             ) : (
-                                <div className={`relative flex justify-center items-center w-full mt-4 p-8 ${ringPosition === 'left' ? 'flex-row' : ringPosition === 'right' ? 'flex-row-reverse' : 'flex-col'}`}>
+                                <div className={`relative flex justify-center items-center w-full mt-4 p-8 flex-col ${ringPosition === 'left' ? 'md:flex-row' : ringPosition === 'right' ? 'md:flex-row-reverse' : 'md:flex-col'}`}>
                                     {showProgressRing && <ProgressRing progress={timerInitial > 0 ? (timerSeconds / timerInitial) * 100 : 0} accent={theme === 'custom' ? 'custom-accent text-white' : currentTheme.accent} position={ringPosition} />}
                                     <div
-                                        className="text-[18vw] md:text-[120px] font-bold tracking-tighter tabular-nums drop-shadow-2xl cursor-pointer hover:opacity-80 transition-opacity flex items-baseline gap-1 md:gap-2 z-10"
+                                        className="text-[15vw] md:text-[120px] font-bold tracking-tighter tabular-nums drop-shadow-2xl cursor-pointer hover:opacity-80 transition-opacity flex items-baseline gap-1 md:gap-2 z-10"
                                         onClick={() => {
                                             if (!isTimerRunning) {
                                                 setIsEditingTimer(true);
@@ -1424,7 +1424,7 @@ function App() {
                         </div>
 
                         {/* Integrated Multi-Timers */}
-                        <div className="w-full max-h-[40vh] overflow-y-auto custom-scrollbar space-y-3 p-2 border-t border-white/10 pt-8">
+                        <div className="w-full max-h-[30vh] sm:max-h-[40vh] overflow-y-auto custom-scrollbar space-y-3 p-2 border-t border-white/10 pt-6">
                             {multiTimers.map(timer => {
                                 const mins = Math.floor(timer.remaining / 60).toString().padStart(2, '0');
                                 const secs = (timer.remaining % 60).toString().padStart(2, '0');
@@ -1463,9 +1463,9 @@ function App() {
                             <button onClick={() => resetPomo('short')} className={`px-4 py-1 rounded-full text-sm border transition-all ${pomoMode === 'short' ? `bg-white/10 border-white/50 ${currentTheme.accent}` : 'border-transparent opacity-50'}`}>{t('break')}</button>
                             <button onClick={() => resetPomo('long')} className={`px-4 py-1 rounded-full text-sm border transition-all ${pomoMode === 'long' ? `bg-white/10 border-white/50 ${currentTheme.accent}` : 'border-transparent opacity-50'}`}>{t('long')}</button>
                         </div>
-                        <div className={`relative flex justify-center items-center w-full mt-4 p-8 ${ringPosition === 'left' ? 'flex-row' : ringPosition === 'right' ? 'flex-row-reverse' : 'flex-col'}`}>
+                        <div className={`relative flex justify-center items-center w-full mt-4 p-8 flex-col ${ringPosition === 'left' ? 'md:flex-row' : ringPosition === 'right' ? 'md:flex-row-reverse' : 'md:flex-col'}`}>
                             {showProgressRing && <ProgressRing progress={(pomoSeconds / (pomoMode === 'work' ? 25 * 60 : pomoMode === 'short' ? 5 * 60 : 15 * 60)) * 100} accent={theme === 'custom' ? 'custom-accent text-white' : currentTheme.accent} position={ringPosition} />}
-                            <div className="text-[18vw] md:text-[120px] font-bold tracking-tighter tabular-nums drop-shadow-2xl z-10 flex items-baseline gap-1 md:gap-2">
+                            <div className="text-[15vw] md:text-[120px] font-bold tracking-tighter tabular-nums drop-shadow-2xl z-10 flex items-baseline gap-1 md:gap-2">
                                 <span>{Math.floor(pomoSeconds / 60).toString().padStart(2, '0')}<span className="text-[6vw] md:text-[40px] opacity-50 ml-1">m</span></span>
                                 <span>{(pomoSeconds % 60).toString().padStart(2, '0')}<span className="text-[6vw] md:text-[40px] opacity-50 ml-1">s</span></span>
                             </div>
@@ -1512,7 +1512,7 @@ function App() {
 
                 {mode === 'stopwatch' && (
                     <div className="flex flex-col items-center select-none w-full min-w-[300px] mt-12">
-                        <div className="text-[18vw] md:text-[120px] font-bold tracking-tighter tabular-nums flex items-baseline">
+                        <div className="text-[15vw] md:text-[120px] font-bold tracking-tighter tabular-nums flex items-baseline">
                             <span>{stopwatch.m}</span><span className="opacity-50 mx-1">:</span><span>{stopwatch.s}</span>
                             <span className={`text-[8vw] md:text-[60px] ml-1 md:ml-2 ${currentTheme.accent}`}>.{stopwatch.cs}</span>
                         </div>
@@ -1728,6 +1728,9 @@ function App() {
                     </div>
                 )}
             </div>
+
+            {/* Spacer for Navigation Bar offset on Mobile/Desktop */}
+            <div className="w-full h-32 shrink-0"></div>
 
             {/* Bottom Control */}
             <NavigationBar
