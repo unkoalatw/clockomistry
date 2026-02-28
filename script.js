@@ -336,7 +336,6 @@ const NavigationBar = React.memo(({ mode, setMode, isZenMode, accent, showContro
             <div className="flex gap-1 pr-1 sm:pr-0">
                 <button onClick={() => setShowSettings(true)} className="p-3 rounded-full opacity-80 hover:opacity-100 hover:rotate-90 transition-all"><Settings size={20} /></button>
                 <button onClick={() => setIsZenMode(!isZenMode)} className={`p-3 rounded-full ${isZenMode ? accent : 'opacity-80'}`}><Monitor size={20} /></button>
-                <button onClick={() => setIsMiniMode(true)} className={`p-3 rounded-full opacity-80 hover:opacity-100`} title={t?.('miniMode') || 'Mini Mode'}><LayoutPanelTop size={20} /></button>
                 <button onClick={toggleFullscreen} className="p-3 rounded-full opacity-80 hover:opacity-100 hidden sm:block"><Maximize2 size={20} /></button>
             </div>
         </div>
@@ -451,15 +450,14 @@ function App() {
 
     // Life Calendar & Mini Mode
     const [birthDate, setBirthDate] = useLocalString('clock_birthdate', '2000-01-01');
-    const [isMiniMode, setIsMiniMode] = useState(false);
 
     // Auto-detect OBS
     const isOBS = useMemo(() => typeof window.obsstudio !== 'undefined', []);
 
-    // If OBS or mini mode, the UI becomes super clean
-    const isCleanMode = isMiniMode || isOBS;
+    // If OBS, the UI becomes super clean
+    const isCleanMode = isOBS;
 
-    // Apply transparent bg if OBS or Mini Mode (for PIP)
+    // Apply transparent bg if OBS
     useEffect(() => {
         if (isCleanMode) {
             document.body.style.backgroundColor = 'transparent';
@@ -1703,16 +1701,6 @@ function App() {
                 )}
             </div>
 
-            {isMiniMode && !isOBS && (
-                <button
-                    onClick={() => setIsMiniMode(false)}
-                    className="fixed top-4 right-4 z-[9999] p-3 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md opacity-30 hover:opacity-100 transition-all text-white border border-white/10"
-                    title={t('exitMiniMode')}
-                >
-                    <Maximize2 size={18} />
-                </button>
-            )}
-
             {/* Bottom Control */}
             <NavigationBar
                 mode={mode}
@@ -1724,7 +1712,6 @@ function App() {
                 setShowSettings={setShowSettings}
                 setIsZenMode={setIsZenMode}
                 isCleanMode={isCleanMode}
-                setIsMiniMode={setIsMiniMode}
                 t={t}
             />
         </div>
