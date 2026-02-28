@@ -1625,7 +1625,7 @@ function App() {
                     </div>
                 )}
 
-                {mode === 'calendar' && (() => {
+                {mode === 'calendar' && useMemo(() => {
                     const year = calendarDate.getFullYear();
                     const month = calendarDate.getMonth();
                     const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -1727,7 +1727,7 @@ function App() {
                             </div>
                         </div>
                     );
-                })()}
+                }, [calendarDate, currentTheme, lang, mode])}
 
 
                 {mode === 'anniversary' && (
@@ -1790,7 +1790,7 @@ function App() {
                                 <span className="uppercase tracking-widest text-white/50">{t('birthDate')}</span>
                                 <input type="date" value={birthDate} onChange={e => setBirthDate(e.target.value)} className="bg-white/10 border border-white/20 rounded-xl px-4 py-2 outline-none text-white text-lg w-full max-w-xs transition-all hover:bg-white/20 focus:bg-white/20 focus:border-white/40 font-mono tracking-widest" style={{ colorScheme: 'dark' }} />
                             </label>
-                            {(() => {
+                            {useMemo(() => {
                                 const weeksPerYear = 52;
                                 const years = 80;
                                 const totalWeeksCount = weeksPerYear * years;
@@ -1815,7 +1815,7 @@ function App() {
                                         </div>
                                     </div>
                                 )
-                            })()}
+                            }, [birthDate, lang, currentTheme, mode])}
                         </div>
                     </div>
                 )}

@@ -2427,7 +2427,7 @@ function App() {
       key: i,
       className: "flex justify-between px-6 py-2 border-b border-white/5 opacity-80"
     }, /*#__PURE__*/React.createElement("span", null, t('lap'), " ", laps.length - i), /*#__PURE__*/React.createElement("span", null, d.m, ":", d.s, ".", d.cs));
-  }))), mode === 'calendar' && (() => {
+  }))), mode === 'calendar' && useMemo(() => {
     const year = calendarDate.getFullYear();
     const month = calendarDate.getMonth();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -2576,7 +2576,7 @@ function App() {
         }
       }, cell.day));
     })));
-  })(), mode === 'anniversary' && /*#__PURE__*/React.createElement("div", {
+  }, [calendarDate, currentTheme, lang, mode]), mode === 'anniversary' && /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col items-center select-none w-full max-w-lg mt-12"
   }, /*#__PURE__*/React.createElement("div", {
     className: "w-full max-h-[50vh] overflow-y-auto custom-scrollbar space-y-4 p-2"
@@ -2644,7 +2644,7 @@ function App() {
     style: {
       colorScheme: 'dark'
     }
-  })), (() => {
+  })), useMemo(() => {
     const weeksPerYear = 52;
     const years = 80;
     const totalWeeksCount = weeksPerYear * years;
@@ -2679,7 +2679,7 @@ function App() {
         title: "Week ".concat(i + 1)
       });
     })));
-  })()))), /*#__PURE__*/React.createElement("div", {
+  }, [birthDate, lang, currentTheme, mode])))), /*#__PURE__*/React.createElement("div", {
     className: "w-full h-32 shrink-0"
   }), /*#__PURE__*/React.createElement(NavigationBar, {
     mode: mode,

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'clockomistry-v6';
+const CACHE_NAME = 'clockomistry-v7';
 const ASSETS = [
     './',
     './index.html',
