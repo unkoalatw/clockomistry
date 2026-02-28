@@ -10,7 +10,7 @@
     "watch:css": "tailwindcss -i ./input.css -o ./output.css --watch",
     "watch:js": "babel script.js --out-file script.dist.js --watch",
     "watch": "concurrently \"npm run watch:css\" \"npm run watch:js\"",
-    "start": "python index.py"
+    "start": "npx -y serve . -p 8000"
   },
   "keywords": [],
   "author": "",

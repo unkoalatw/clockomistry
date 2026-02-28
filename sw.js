@@ -1,9 +1,11 @@
-const CACHE_NAME = 'clockomistry-v4';
+const CACHE_NAME = 'clockomistry-v6';
 const ASSETS = [
     './',
     './index.html',
+    './manifest.json',
     './output.css',
     './script.dist.js',
+    './favicon.ico',
     './icons/icon-192.png',
     './icons/icon-512.png',
     './public/audio/beep.ogg',
