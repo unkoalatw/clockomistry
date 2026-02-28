@@ -8,7 +8,8 @@ import {
     Type, Upload, Palette, ArrowLeft, Coffee, Brain,
     CalendarDays, Languages, Trash2, ChevronLeft, ChevronRight,
     Calendar, CloudSun, Share2, Download, LayoutTemplate, Sparkles, Delete,
-    Camera, CheckSquare, BarChart2, Sliders, Target
+    Camera, CheckSquare, BarChart2, Sliders, Target,
+    Sunrise, Sunset, LayoutGrid, LayoutPanelTop
 } from 'lucide-react';
 
 // --- IndexedDB 管理 (用於儲存大體積字型) ---
@@ -57,7 +58,9 @@ const I18N = {
         calendar: '月曆', multiTimer: '多計時器',
         addTimer: '新增計時器', noTimers: '點擊 + 新增計時器',
         mon: '一', tue: '二', wed: '三', thu: '四', fri: '五', sat: '六', sun: '日',
-        today: '今天',
+        today: '今天', sunrise: '日出', sunset: '日落',
+        memento: '生命日曆', birthDate: '您的出生日期', livedWeeks: '已度過的週數', totalWeeks: '總週數 (約 80 年)',
+        miniMode: '懸浮/迷你模式', exitMiniMode: '退出迷你模式',
         months: ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'],
         anniversary: '倒數日', addEvent: '新增事件', eventName: '事件名稱', date: '日期',
         weather: '天氣', temp: '溫度', shareTheme: '分享主題', export: '匯出', import: '導入',
@@ -100,7 +103,9 @@ const I18N = {
         calendar: 'Calendar', multiTimer: 'Multi Timer',
         addTimer: 'Add Timer', noTimers: 'Tap + to add a timer',
         mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun',
-        today: 'Today',
+        today: 'Today', sunrise: 'Sunrise', sunset: 'Sunset',
+        memento: 'Life Calendar', birthDate: 'Your Birth Date', livedWeeks: 'Weeks Lived', totalWeeks: 'Total Weeks (~80 yrs)',
+        miniMode: 'PIP / Mini Mode', exitMiniMode: 'Exit Mini Mode',
         months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
         anniversary: 'Anniversary', addEvent: 'Add Event', eventName: 'Event Name', date: 'Date',
         weather: 'Weather', temp: 'Temp', shareTheme: 'Share Theme', export: 'Export', import: 'Import',
@@ -143,7 +148,9 @@ const I18N = {
         calendar: 'カレンダー', multiTimer: 'マルチタイマー',
         addTimer: 'タイマーを追加', noTimers: '+ でタイマーを追加',
         mon: '月', tue: '火', wed: '水', thu: '木', fri: '金', sat: '土', sun: '日',
-        today: '今日',
+        today: '今日', sunrise: '日の出', sunset: '日の入り',
+        memento: 'ライフカレンダー', birthDate: 'あなたの生年月日', livedWeeks: '過ごした週', totalWeeks: '合計 (約80年)',
+        miniMode: 'ミニモード', exitMiniMode: 'ミニモードを終了',
         months: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
         anniversary: 'お祝い', addEvent: 'イベント追加', eventName: '名目', date: '日付',
         weather: '天氣', temp: '溫度', shareTheme: 'テーマ共有', export: '書き出し', import: '読み込み',
@@ -280,11 +287,17 @@ const ProgressRing = React.memo(({ progress, accent, position }) => {
 });
 
 const WeatherWidget = React.memo(({ weather, accent }) => (
-    <div className="mb-8 flex items-center gap-4 px-6 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm animate-fade-in opacity-60 hover:opacity-100 transition-opacity">
-        <CloudSun size={18} className={accent} />
-        <div className="text-sm font-medium">
-            {weather.city} · {weather.temp}°C · {weather.condition}
+    <div className="mb-8 flex flex-wrap items-center justify-center gap-4 px-6 py-3 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm animate-fade-in opacity-60 hover:opacity-100 transition-opacity">
+        <div className="flex items-center gap-2">
+            <CloudSun size={18} className={accent} />
+            <span className="text-sm font-medium">{weather.city} · {weather.temp}°C · {weather.condition}</span>
         </div>
+        {(weather.sunrise || weather.sunset) && (
+            <div className={`flex items-center gap-3 text-xs opacity-80 border-l border-white/20 pl-4`}>
+                <span className="flex items-center gap-1.5"><Sunrise size={14} className="text-orange-400" />{weather.sunrise}</span>
+                <span className="flex items-center gap-1.5"><Sunset size={14} className="text-purple-400" />{weather.sunset}</span>
+            </div>
+        )}
     </div>
 ));
 
@@ -303,16 +316,16 @@ const ClockDisplay = React.memo(({ h, m, s, ms, showMillis, accent, dateLabel })
     </div>
 ));
 
-const NavigationBar = React.memo(({ mode, setMode, isZenMode, accent, showControls, toggleFullscreen, setShowSettings, setIsZenMode }) => {
+const NavigationBar = React.memo(({ mode, setMode, isZenMode, accent, showControls, toggleFullscreen, setShowSettings, setIsZenMode, isCleanMode, setIsMiniMode, t }) => {
     return (
-        <div className={`hide-on-export fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 flex items-center justify-between sm:justify-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-[2rem] sm:rounded-full backdrop-blur-xl bg-white/5 border border-white/20 shadow-2xl transition-all duration-500 z-50 w-[92vw] max-w-2xl sm:w-auto ${showControls ? 'translate-y-0 opacity-100' : 'translate-y-32 opacity-0'}`}>
+        <div className={`hide-on-export fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 flex items-center justify-between sm:justify-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-[2rem] sm:rounded-full backdrop-blur-xl bg-white/5 border border-white/20 shadow-2xl transition-all duration-500 z-50 w-[92vw] max-w-2xl sm:w-auto ${showControls && !isCleanMode ? 'translate-y-0 opacity-100' : 'translate-y-32 opacity-0 pointer-events-none'}`}>
             <style>{`.hide-scroll::-webkit-scrollbar { display: none; }`}</style>
             <div className="flex bg-white/5 rounded-full p-1 gap-1 flex-1 sm:flex-none overflow-x-auto overflow-y-hidden snap-x snap-mandatory hide-scroll" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
                 {[
                     { m: 'clock', icon: Clock }, { m: 'world', icon: Globe },
                     { m: 'calendar', icon: CalendarDays }, { m: 'anniversary', icon: Calendar },
                     { m: 'timer', icon: Timer }, { m: 'pomodoro', icon: Brain },
-                    { m: 'stopwatch', icon: StopCircle }
+                    { m: 'stopwatch', icon: StopCircle }, { m: 'memento', icon: LayoutGrid }
                 ].map(({ m, icon: Icon }) => (
                     <button key={m} onClick={() => setMode(m)} className={`p-3 rounded-full transition-all snap-center flex-shrink-0 ${mode === m ? 'bg-white/20 scale-105 shadow-sm' : 'opacity-60 hover:bg-white/10'}`}>
                         <Icon size={20} className={mode === m ? accent : ''} />
@@ -323,6 +336,7 @@ const NavigationBar = React.memo(({ mode, setMode, isZenMode, accent, showContro
             <div className="flex gap-1 pr-1 sm:pr-0">
                 <button onClick={() => setShowSettings(true)} className="p-3 rounded-full opacity-80 hover:opacity-100 hover:rotate-90 transition-all"><Settings size={20} /></button>
                 <button onClick={() => setIsZenMode(!isZenMode)} className={`p-3 rounded-full ${isZenMode ? accent : 'opacity-80'}`}><Monitor size={20} /></button>
+                <button onClick={() => setIsMiniMode(true)} className={`p-3 rounded-full opacity-80 hover:opacity-100`} title={t?.('miniMode') || 'Mini Mode'}><LayoutPanelTop size={20} /></button>
                 <button onClick={toggleFullscreen} className="p-3 rounded-full opacity-80 hover:opacity-100 hidden sm:block"><Maximize2 size={20} /></button>
             </div>
         </div>
@@ -433,7 +447,26 @@ function App() {
     const [meetingOffset, setMeetingOffset] = useState(0);
 
     // Weather 狀態
-    const [weather, setWeather] = useState({ temp: '--', condition: '', city: '--' });
+    const [weather, setWeather] = useState({ temp: '--', condition: '', city: '--', sunrise: null, sunset: null });
+
+    // Life Calendar & Mini Mode
+    const [birthDate, setBirthDate] = useLocalString('clock_birthdate', '2000-01-01');
+    const [isMiniMode, setIsMiniMode] = useState(false);
+
+    // Auto-detect OBS
+    const isOBS = useMemo(() => typeof window.obsstudio !== 'undefined', []);
+
+    // If OBS or mini mode, the UI becomes super clean
+    const isCleanMode = isMiniMode || isOBS;
+
+    // Apply transparent bg if OBS or Mini Mode (for PIP)
+    useEffect(() => {
+        if (isCleanMode) {
+            document.body.style.backgroundColor = 'transparent';
+        } else {
+            document.body.style.backgroundColor = '';
+        }
+    }, [isCleanMode]);
 
     // Screen Saver 狀態
     const [isScreenSaverActive, setIsScreenSaverActive] = useState(false);
@@ -579,10 +612,12 @@ function App() {
             const loc = await locRes.json();
             const { latitude, longitude, city } = loc;
 
-            // 使用 Open-Meteo 獲取天氣
-            const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`);
+            // 使用 Open-Meteo 獲取天氣與日出日落
+            const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&daily=sunrise,sunset&timezone=auto`);
             const wData = await wRes.json();
             const code = wData.current_weather.weathercode;
+            const sunriseStr = wData.daily?.sunrise?.[0];
+            const sunsetStr = wData.daily?.sunset?.[0];
 
             // 簡易天氣代碼轉中文/英文
             const conditionMap = {
@@ -591,10 +626,18 @@ function App() {
                 71: 'Snow', 95: 'Storm'
             };
 
+            const formatHm = (isoStr) => {
+                if (!isoStr) return null;
+                const d = new Date(isoStr);
+                return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+            };
+
             setWeather({
                 temp: Math.round(wData.current_weather.temperature),
                 condition: conditionMap[code] || 'Cloudy',
-                city: city
+                city: city,
+                sunrise: formatHm(sunriseStr),
+                sunset: formatHm(sunsetStr)
             });
         } catch (e) { console.error('Weather fetch error:', e); }
     };
@@ -877,7 +920,7 @@ function App() {
     const { h, m, s, ms } = formatTime(time);
     const stopwatch = formatDuration(stopwatchTime);
     const currentFontStyle = useMemo(() => (font === 'custom' && hasCustomFont) ? { fontFamily: 'CustomFont' } : (DEFAULT_FONTS[font]?.style || {}), [font, hasCustomFont]);
-    const containerStyle = theme === 'custom' ? {
+    const containerStyle = theme === 'custom' && !isCleanMode ? {
         ...currentFontStyle,
         background: customBgImage
             ? `linear-gradient(${customColors.bg1}cc, ${customColors.bg1}cc), url(${customBgImage}) center/cover no-repeat fixed`
@@ -890,7 +933,7 @@ function App() {
             ref={containerRef}
             onMouseMove={handleMouseMove}
             style={containerStyle}
-            className={`h-screen w-full flex flex-col items-center justify-center transition-all duration-1000 ${theme !== 'custom' ? `bg-gradient-to-br ${currentTheme.gradient} ${currentTheme.text}` : ''} overflow-hidden relative selection:bg-pink-500 selection:text-white`}
+            className={`h-screen w-full flex flex-col items-center justify-center transition-all duration-1000 ${theme !== 'custom' && !isCleanMode ? `bg-gradient-to-br ${currentTheme.gradient} ${currentTheme.text}` : ''} ${isCleanMode ? 'bg-transparent text-white' : ''} overflow-hidden relative selection:bg-pink-500 selection:text-white`}
         >
             {theme === 'custom' && <style>{`
                 .custom-accent { color: ${customColors.accent}; }
@@ -1238,7 +1281,7 @@ function App() {
             </div>
 
             {/* Main Card */}
-            <div className={`relative z-10 w-full max-w-[90vw] md:max-w-4xl p-8 sm:p-12 rounded-[3rem] transition-all duration-700 ${currentTheme.card} border-t border-l flex flex-col items-center justify-center min-h-[50vh] ${isZenMode ? 'scale-110 shadow-none bg-transparent !border-transparent backdrop-blur-0' : ''}`}>
+            <div className={`relative z-10 w-full max-w-[90vw] md:max-w-4xl p-8 sm:p-12 rounded-[3rem] transition-all duration-700 ${!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0'} flex flex-col items-center justify-center min-h-[50vh] ${isZenMode ? 'scale-110' : ''} ${isCleanMode ? 'scale-[0.85] !p-0' : ''}`}>
 
                 {mode === 'clock' && (
                     <div className="flex flex-col items-center select-none">
@@ -1619,7 +1662,56 @@ function App() {
                         </button>
                     </div>
                 )}
+
+
+                {mode === 'memento' && (
+                    <div className="flex flex-col items-center select-none w-full max-w-2xl animate-fade-in relative">
+                        <div className="flex flex-col mb-8 text-center bg-black/40 backdrop-blur-md px-12 py-6 rounded-[2rem] border border-white/10 w-full pb-8">
+                            <h2 className="text-3xl font-black tracking-widest uppercase mb-6 mt-2">{t('memento')}</h2>
+                            <label className="text-sm opacity-80 flex flex-col items-center gap-3 w-full">
+                                <span className="uppercase tracking-widest text-white/50">{t('birthDate')}</span>
+                                <input type="date" value={birthDate} onChange={e => setBirthDate(e.target.value)} className="bg-white/10 border border-white/20 rounded-xl px-4 py-2 outline-none text-white text-lg w-full max-w-xs transition-all hover:bg-white/20 focus:bg-white/20 focus:border-white/40 font-mono tracking-widest" style={{ colorScheme: 'dark' }} />
+                            </label>
+                            {(() => {
+                                const weeksPerYear = 52;
+                                const years = 80;
+                                const totalWeeksCount = weeksPerYear * years;
+                                let livedWeeksCount = 0;
+                                if (birthDate) {
+                                    const livedMillis = Date.now() - new Date(birthDate).getTime();
+                                    livedWeeksCount = Math.max(0, Math.floor(livedMillis / (1000 * 60 * 60 * 24 * 7)));
+                                }
+                                const pct = birthDate ? Math.min(100, Math.floor((livedWeeksCount / totalWeeksCount) * 100)) : 0;
+
+                                return (
+                                    <div className="w-full mt-8">
+                                        <div className="flex justify-between text-xs opacity-60 mb-4 px-2 font-mono uppercase tracking-[0.2em]">
+                                            <span>{t('livedWeeks')} : {livedWeeksCount}</span>
+                                            <span>{pct}% - {t('totalWeeks')}</span>
+                                        </div>
+                                        <div className="relative w-full rounded-2xl overflow-hidden bg-black/50 border flex border-white/5 p-4 sm:p-6" style={{ display: 'grid', gridTemplateColumns: `repeat(${weeksPerYear}, 1fr)`, gap: '2px', alignContent: 'start' }}>
+                                            {Array.from({ length: totalWeeksCount }).map((_, i) => {
+                                                const isLived = i < livedWeeksCount;
+                                                return <div key={i} className={`w-full aspect-square rounded-[1px] ${isLived ? 'bg-indigo-400' : 'bg-white/10'}`} style={{ opacity: isLived ? 0.9 : 0.2 }} title={`Week ${i + 1}`} />;
+                                            })}
+                                        </div>
+                                    </div>
+                                )
+                            })()}
+                        </div>
+                    </div>
+                )}
             </div>
+
+            {isMiniMode && !isOBS && (
+                <button
+                    onClick={() => setIsMiniMode(false)}
+                    className="fixed top-4 right-4 z-[9999] p-3 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md opacity-30 hover:opacity-100 transition-all text-white border border-white/10"
+                    title={t('exitMiniMode')}
+                >
+                    <Maximize2 size={18} />
+                </button>
+            )}
 
             {/* Bottom Control */}
             <NavigationBar
@@ -1631,6 +1723,9 @@ function App() {
                 toggleFullscreen={toggleFullscreen}
                 setShowSettings={setShowSettings}
                 setIsZenMode={setIsZenMode}
+                isCleanMode={isCleanMode}
+                setIsMiniMode={setIsMiniMode}
+                t={t}
             />
         </div>
     );

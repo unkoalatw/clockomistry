@@ -6,7 +6,7 @@ function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { createRoot } from 'react-dom/client';
 import html2canvas from 'html2canvas';
-import { Maximize2, Minimize2, Timer, Clock, Monitor, Play, Pause, RotateCcw, AlertCircle, Globe, StopCircle, Settings, X, Check, Plus, Search, Type, Upload, Palette, ArrowLeft, Coffee, Brain, CalendarDays, Languages, Trash2, ChevronLeft, ChevronRight, Calendar, CloudSun, Share2, Download, LayoutTemplate, Sparkles, Delete, Camera, CheckSquare, BarChart2, Sliders, Target } from 'lucide-react';
+import { Maximize2, Minimize2, Timer, Clock, Monitor, Play, Pause, RotateCcw, AlertCircle, Globe, StopCircle, Settings, X, Check, Plus, Search, Type, Upload, Palette, ArrowLeft, Coffee, Brain, CalendarDays, Languages, Trash2, ChevronLeft, ChevronRight, Calendar, CloudSun, Share2, Download, LayoutTemplate, Sparkles, Delete, Camera, CheckSquare, BarChart2, Sliders, Target, Sunrise, Sunset, LayoutGrid, LayoutPanelTop } from 'lucide-react';
 
 // --- IndexedDB 管理 (用於儲存大體積字型) ---
 const DB_NAME = 'ClockomistryDB';
@@ -87,6 +87,14 @@ const I18N = {
     sat: '六',
     sun: '日',
     today: '今天',
+    sunrise: '日出',
+    sunset: '日落',
+    memento: '生命日曆',
+    birthDate: '您的出生日期',
+    livedWeeks: '已度過的週數',
+    totalWeeks: '總週數 (約 80 年)',
+    miniMode: '懸浮/迷你模式',
+    exitMiniMode: '退出迷你模式',
     months: ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'],
     anniversary: '倒數日',
     addEvent: '新增事件',
@@ -225,6 +233,14 @@ const I18N = {
     sat: 'Sat',
     sun: 'Sun',
     today: 'Today',
+    sunrise: 'Sunrise',
+    sunset: 'Sunset',
+    memento: 'Life Calendar',
+    birthDate: 'Your Birth Date',
+    livedWeeks: 'Weeks Lived',
+    totalWeeks: 'Total Weeks (~80 yrs)',
+    miniMode: 'PIP / Mini Mode',
+    exitMiniMode: 'Exit Mini Mode',
     months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
     anniversary: 'Anniversary',
     addEvent: 'Add Event',
@@ -363,6 +379,14 @@ const I18N = {
     sat: '土',
     sun: '日',
     today: '今日',
+    sunrise: '日の出',
+    sunset: '日の入り',
+    memento: 'ライフカレンダー',
+    birthDate: 'あなたの生年月日',
+    livedWeeks: '過ごした週',
+    totalWeeks: '合計 (約80年)',
+    miniMode: 'ミニモード',
+    exitMiniMode: 'ミニモードを終了',
     months: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
     anniversary: 'お祝い',
     addEvent: 'イベント追加',
@@ -701,13 +725,27 @@ const WeatherWidget = /*#__PURE__*/React.memo(_ref2 => {
     accent
   } = _ref2;
   return /*#__PURE__*/React.createElement("div", {
-    className: "mb-8 flex items-center gap-4 px-6 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm animate-fade-in opacity-60 hover:opacity-100 transition-opacity"
+    className: "mb-8 flex flex-wrap items-center justify-center gap-4 px-6 py-3 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm animate-fade-in opacity-60 hover:opacity-100 transition-opacity"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2"
   }, /*#__PURE__*/React.createElement(CloudSun, {
     size: 18,
     className: accent
-  }), /*#__PURE__*/React.createElement("div", {
+  }), /*#__PURE__*/React.createElement("span", {
     className: "text-sm font-medium"
-  }, weather.city, " \xB7 ", weather.temp, "\xB0C \xB7 ", weather.condition));
+  }, weather.city, " \xB7 ", weather.temp, "\xB0C \xB7 ", weather.condition)), (weather.sunrise || weather.sunset) && /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-3 text-xs opacity-80 border-l border-white/20 pl-4"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "flex items-center gap-1.5"
+  }, /*#__PURE__*/React.createElement(Sunrise, {
+    size: 14,
+    className: "text-orange-400"
+  }), weather.sunrise), /*#__PURE__*/React.createElement("span", {
+    className: "flex items-center gap-1.5"
+  }, /*#__PURE__*/React.createElement(Sunset, {
+    size: 14,
+    className: "text-purple-400"
+  }), weather.sunset)));
 });
 const ClockDisplay = /*#__PURE__*/React.memo(_ref3 => {
   let {
@@ -748,10 +786,13 @@ const NavigationBar = /*#__PURE__*/React.memo(_ref4 => {
     showControls,
     toggleFullscreen,
     setShowSettings,
-    setIsZenMode
+    setIsZenMode,
+    isCleanMode,
+    setIsMiniMode,
+    t
   } = _ref4;
   return /*#__PURE__*/React.createElement("div", {
-    className: "hide-on-export fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 flex items-center justify-between sm:justify-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-[2rem] sm:rounded-full backdrop-blur-xl bg-white/5 border border-white/20 shadow-2xl transition-all duration-500 z-50 w-[92vw] max-w-2xl sm:w-auto ".concat(showControls ? 'translate-y-0 opacity-100' : 'translate-y-32 opacity-0')
+    className: "hide-on-export fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 flex items-center justify-between sm:justify-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-[2rem] sm:rounded-full backdrop-blur-xl bg-white/5 border border-white/20 shadow-2xl transition-all duration-500 z-50 w-[92vw] max-w-2xl sm:w-auto ".concat(showControls && !isCleanMode ? 'translate-y-0 opacity-100' : 'translate-y-32 opacity-0 pointer-events-none')
   }, /*#__PURE__*/React.createElement("style", null, ".hide-scroll::-webkit-scrollbar { display: none; }"), /*#__PURE__*/React.createElement("div", {
     className: "flex bg-white/5 rounded-full p-1 gap-1 flex-1 sm:flex-none overflow-x-auto overflow-y-hidden snap-x snap-mandatory hide-scroll",
     style: {
@@ -780,6 +821,9 @@ const NavigationBar = /*#__PURE__*/React.memo(_ref4 => {
   }, {
     m: 'stopwatch',
     icon: StopCircle
+  }, {
+    m: 'memento',
+    icon: LayoutGrid
   }].map(_ref5 => {
     let {
       m,
@@ -806,6 +850,12 @@ const NavigationBar = /*#__PURE__*/React.memo(_ref4 => {
     onClick: () => setIsZenMode(!isZenMode),
     className: "p-3 rounded-full ".concat(isZenMode ? accent : 'opacity-80')
   }, /*#__PURE__*/React.createElement(Monitor, {
+    size: 20
+  })), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setIsMiniMode(true),
+    className: "p-3 rounded-full opacity-80 hover:opacity-100",
+    title: (t === null || t === void 0 ? void 0 : t('miniMode')) || 'Mini Mode'
+  }, /*#__PURE__*/React.createElement(LayoutPanelTop, {
     size: 20
   })), /*#__PURE__*/React.createElement("button", {
     onClick: toggleFullscreen,
@@ -931,8 +981,29 @@ function App() {
   const [weather, setWeather] = useState({
     temp: '--',
     condition: '',
-    city: '--'
+    city: '--',
+    sunrise: null,
+    sunset: null
   });
+
+  // Life Calendar & Mini Mode
+  const [birthDate, setBirthDate] = useLocalString('clock_birthdate', '2000-01-01');
+  const [isMiniMode, setIsMiniMode] = useState(false);
+
+  // Auto-detect OBS
+  const isOBS = useMemo(() => typeof window.obsstudio !== 'undefined', []);
+
+  // If OBS or mini mode, the UI becomes super clean
+  const isCleanMode = isMiniMode || isOBS;
+
+  // Apply transparent bg if OBS or Mini Mode (for PIP)
+  useEffect(() => {
+    if (isCleanMode) {
+      document.body.style.backgroundColor = 'transparent';
+    } else {
+      document.body.style.backgroundColor = '';
+    }
+  }, [isCleanMode]);
 
   // Screen Saver 狀態
   const [isScreenSaverActive, setIsScreenSaverActive] = useState(false);
@@ -1078,6 +1149,7 @@ function App() {
   // 天氣抓取
   const fetchWeather = async () => {
     try {
+      var _wData$daily, _wData$daily2;
       // 使用 IP-API 獲取大致位置
       const locRes = await fetch('https://ipapi.co/json/');
       const loc = await locRes.json();
@@ -1087,10 +1159,12 @@ function App() {
         city
       } = loc;
 
-      // 使用 Open-Meteo 獲取天氣
-      const wRes = await fetch("https://api.open-meteo.com/v1/forecast?latitude=".concat(latitude, "&longitude=").concat(longitude, "&current_weather=true"));
+      // 使用 Open-Meteo 獲取天氣與日出日落
+      const wRes = await fetch("https://api.open-meteo.com/v1/forecast?latitude=".concat(latitude, "&longitude=").concat(longitude, "&current_weather=true&daily=sunrise,sunset&timezone=auto"));
       const wData = await wRes.json();
       const code = wData.current_weather.weathercode;
+      const sunriseStr = (_wData$daily = wData.daily) === null || _wData$daily === void 0 || (_wData$daily = _wData$daily.sunrise) === null || _wData$daily === void 0 ? void 0 : _wData$daily[0];
+      const sunsetStr = (_wData$daily2 = wData.daily) === null || _wData$daily2 === void 0 || (_wData$daily2 = _wData$daily2.sunset) === null || _wData$daily2 === void 0 ? void 0 : _wData$daily2[0];
 
       // 簡易天氣代碼轉中文/英文
       const conditionMap = {
@@ -1105,10 +1179,17 @@ function App() {
         71: 'Snow',
         95: 'Storm'
       };
+      const formatHm = isoStr => {
+        if (!isoStr) return null;
+        const d = new Date(isoStr);
+        return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+      };
       setWeather({
         temp: Math.round(wData.current_weather.temperature),
         condition: conditionMap[code] || 'Cloudy',
-        city: city
+        city: city,
+        sunrise: formatHm(sunriseStr),
+        sunset: formatHm(sunsetStr)
       });
     } catch (e) {
       console.error('Weather fetch error:', e);
@@ -1435,7 +1516,7 @@ function App() {
       fontFamily: 'CustomFont'
     } : ((_DEFAULT_FONTS$font = DEFAULT_FONTS[font]) === null || _DEFAULT_FONTS$font === void 0 ? void 0 : _DEFAULT_FONTS$font.style) || {};
   }, [font, hasCustomFont]);
-  const containerStyle = theme === 'custom' ? _objectSpread(_objectSpread({}, currentFontStyle), {}, {
+  const containerStyle = theme === 'custom' && !isCleanMode ? _objectSpread(_objectSpread({}, currentFontStyle), {}, {
     background: customBgImage ? "linear-gradient(".concat(customColors.bg1, "cc, ").concat(customColors.bg1, "cc), url(").concat(customBgImage, ") center/cover no-repeat fixed") : "linear-gradient(135deg, ".concat(customColors.bg1, ", ").concat(customColors.bg2, ", ").concat(customColors.bg3, ")"),
     color: customColors.text
   }) : currentFontStyle;
@@ -1443,7 +1524,7 @@ function App() {
     ref: containerRef,
     onMouseMove: handleMouseMove,
     style: containerStyle,
-    className: "h-screen w-full flex flex-col items-center justify-center transition-all duration-1000 ".concat(theme !== 'custom' ? "bg-gradient-to-br ".concat(currentTheme.gradient, " ").concat(currentTheme.text) : '', " overflow-hidden relative selection:bg-pink-500 selection:text-white")
+    className: "h-screen w-full flex flex-col items-center justify-center transition-all duration-1000 ".concat(theme !== 'custom' && !isCleanMode ? "bg-gradient-to-br ".concat(currentTheme.gradient, " ").concat(currentTheme.text) : '', " ").concat(isCleanMode ? 'bg-transparent text-white' : '', " overflow-hidden relative selection:bg-pink-500 selection:text-white")
   }, theme === 'custom' && /*#__PURE__*/React.createElement("style", null, "\n                .custom-accent { color: ".concat(customColors.accent, "; }\n                .custom-card { background: ").concat(customColors.bg1, "33; border-color: ").concat(customColors.text, "1a; box-shadow: 0 8px 32px 0 rgba(0,0,0,0.36); }\n                .custom-settings { background: ").concat(customColors.bg1, "e6; backdrop-filter: blur(64px); }\n            ")), /*#__PURE__*/React.createElement("div", {
     className: "hide-on-export fixed top-8 left-1/2 -translate-x-1/2 z-[100] transition-all duration-300 ".concat(errorMsg ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none')
   }, /*#__PURE__*/React.createElement("div", {
@@ -1904,7 +1985,7 @@ function App() {
   }), /*#__PURE__*/React.createElement("div", {
     className: "absolute bottom-[10%] right-[10%] w-[50vw] h-[50vw] rounded-full blur-[80px] opacity-10 bg-purple-500/30"
   })), /*#__PURE__*/React.createElement("div", {
-    className: "relative z-10 w-full max-w-[90vw] md:max-w-4xl p-8 sm:p-12 rounded-[3rem] transition-all duration-700 ".concat(currentTheme.card, " border-t border-l flex flex-col items-center justify-center min-h-[50vh] ").concat(isZenMode ? 'scale-110 shadow-none bg-transparent !border-transparent backdrop-blur-0' : '')
+    className: "relative z-10 w-full max-w-[90vw] md:max-w-4xl p-8 sm:p-12 rounded-[3rem] transition-all duration-700 ".concat(!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0', " flex flex-col items-center justify-center min-h-[50vh] ").concat(isZenMode ? 'scale-110' : '', " ").concat(isCleanMode ? 'scale-[0.85] !p-0' : '')
   }, mode === 'clock' && /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col items-center select-none"
   }, /*#__PURE__*/React.createElement(WeatherWidget, {
@@ -2430,7 +2511,66 @@ function App() {
     className: "mt-8 px-8 py-3 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 flex items-center gap-2 transition-all"
   }, /*#__PURE__*/React.createElement(Plus, {
     size: 20
-  }), " ", t('addEvent')))), /*#__PURE__*/React.createElement(NavigationBar, {
+  }), " ", t('addEvent'))), mode === 'memento' && /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-col items-center select-none w-full max-w-2xl animate-fade-in relative"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-col mb-8 text-center bg-black/40 backdrop-blur-md px-12 py-6 rounded-[2rem] border border-white/10 w-full pb-8"
+  }, /*#__PURE__*/React.createElement("h2", {
+    className: "text-3xl font-black tracking-widest uppercase mb-6 mt-2"
+  }, t('memento')), /*#__PURE__*/React.createElement("label", {
+    className: "text-sm opacity-80 flex flex-col items-center gap-3 w-full"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "uppercase tracking-widest text-white/50"
+  }, t('birthDate')), /*#__PURE__*/React.createElement("input", {
+    type: "date",
+    value: birthDate,
+    onChange: e => setBirthDate(e.target.value),
+    className: "bg-white/10 border border-white/20 rounded-xl px-4 py-2 outline-none text-white text-lg w-full max-w-xs transition-all hover:bg-white/20 focus:bg-white/20 focus:border-white/40 font-mono tracking-widest",
+    style: {
+      colorScheme: 'dark'
+    }
+  })), (() => {
+    const weeksPerYear = 52;
+    const years = 80;
+    const totalWeeksCount = weeksPerYear * years;
+    let livedWeeksCount = 0;
+    if (birthDate) {
+      const livedMillis = Date.now() - new Date(birthDate).getTime();
+      livedWeeksCount = Math.max(0, Math.floor(livedMillis / (1000 * 60 * 60 * 24 * 7)));
+    }
+    const pct = birthDate ? Math.min(100, Math.floor(livedWeeksCount / totalWeeksCount * 100)) : 0;
+    return /*#__PURE__*/React.createElement("div", {
+      className: "w-full mt-8"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "flex justify-between text-xs opacity-60 mb-4 px-2 font-mono uppercase tracking-[0.2em]"
+    }, /*#__PURE__*/React.createElement("span", null, t('livedWeeks'), " : ", livedWeeksCount), /*#__PURE__*/React.createElement("span", null, pct, "% - ", t('totalWeeks'))), /*#__PURE__*/React.createElement("div", {
+      className: "relative w-full rounded-2xl overflow-hidden bg-black/50 border flex border-white/5 p-4 sm:p-6",
+      style: {
+        display: 'grid',
+        gridTemplateColumns: "repeat(".concat(weeksPerYear, ", 1fr)"),
+        gap: '2px',
+        alignContent: 'start'
+      }
+    }, Array.from({
+      length: totalWeeksCount
+    }).map((_, i) => {
+      const isLived = i < livedWeeksCount;
+      return /*#__PURE__*/React.createElement("div", {
+        key: i,
+        className: "w-full aspect-square rounded-[1px] ".concat(isLived ? 'bg-indigo-400' : 'bg-white/10'),
+        style: {
+          opacity: isLived ? 0.9 : 0.2
+        },
+        title: "Week ".concat(i + 1)
+      });
+    })));
+  })()))), isMiniMode && !isOBS && /*#__PURE__*/React.createElement("button", {
+    onClick: () => setIsMiniMode(false),
+    className: "fixed top-4 right-4 z-[9999] p-3 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md opacity-30 hover:opacity-100 transition-all text-white border border-white/10",
+    title: t('exitMiniMode')
+  }, /*#__PURE__*/React.createElement(Maximize2, {
+    size: 18
+  })), /*#__PURE__*/React.createElement(NavigationBar, {
     mode: mode,
     setMode: setMode,
     isZenMode: isZenMode,
@@ -2438,7 +2578,10 @@ function App() {
     showControls: showControls,
     toggleFullscreen: toggleFullscreen,
     setShowSettings: setShowSettings,
-    setIsZenMode: setIsZenMode
+    setIsZenMode: setIsZenMode,
+    isCleanMode: isCleanMode,
+    setIsMiniMode: setIsMiniMode,
+    t: t
   }));
 }
 createRoot(document.getElementById('root')).render(/*#__PURE__*/React.createElement(App, null));
