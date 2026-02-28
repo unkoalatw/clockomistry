@@ -861,7 +861,7 @@ const NavigationBar = /*#__PURE__*/React.memo(_ref4 => {
     t
   } = _ref4;
   return /*#__PURE__*/React.createElement("div", {
-    className: "hide-on-export fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 flex items-center justify-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-[2rem] sm:rounded-full backdrop-blur-xl bg-white/5 border border-white/20 shadow-2xl transition-all duration-500 z-50 w-max max-w-[96vw] sm:max-w-2xl sm:w-auto ".concat(showControls && !isCleanMode ? 'translate-y-0 opacity-100' : 'translate-y-32 opacity-0 pointer-events-none')
+    className: "hide-on-export fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 flex items-center justify-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-[2rem] sm:rounded-full backdrop-blur-xl bg-white/5 border border-white/20 shadow-2xl transition-all duration-500 z-40 w-max max-w-[96vw] sm:max-w-2xl sm:w-auto ".concat(showControls && !isCleanMode ? 'translate-y-0 opacity-100' : 'translate-y-32 opacity-0 pointer-events-none')
   }, /*#__PURE__*/React.createElement("style", null, ".hide-scroll::-webkit-scrollbar { display: none; }"), /*#__PURE__*/React.createElement("div", {
     className: "flex bg-white/5 rounded-full p-1 gap-1 flex-none overflow-x-auto overflow-y-hidden snap-x snap-mandatory hide-scroll max-w-[65vw] sm:max-w-none",
     style: {
@@ -2728,7 +2728,7 @@ function App() {
       });
     })));
   }, [birthDate, lang, currentTheme, mode])))), /*#__PURE__*/React.createElement("div", {
-    className: "w-full h-32 shrink-0"
+    className: "w-full h-40 shrink-0"
   }), /*#__PURE__*/React.createElement(NavigationBar, {
     mode: mode,
     setMode: setMode,
