@@ -109,7 +109,7 @@ const I18N = {
         "Mexico City": "墨西哥城", "Sydney": "雪梨", "Melbourne": "墨爾本", "Auckland": "奧克蘭",
         "Cairo": "開羅", "Johannesburg": "約翰尼斯堡",
         about: '關於本程式', system: '系統', features: '進階功能',
-        cancel: '取消', add: '新增'
+        cancel: '取消', add: '新增', clickToEdit: '點擊以編輯'
     },
     'en': {
         lang: 'English', locale: 'en-US',
@@ -146,7 +146,7 @@ const I18N = {
         fontModern: 'Modern', fontElegant: 'Elegant', fontTechnical: 'Tech', fontCyber: 'Future', fontCustom: 'Imported',
         alarmSound: 'Alarm Sound', notifications: 'Notifications', soundNone: 'None', soundBeep: 'Beep', soundDigital: 'Digital', soundBell: 'Bell', testSound: 'Test Sound',
         about: 'About App', system: 'System', features: 'Features',
-        cancel: 'Cancel', add: 'Add',
+        cancel: 'Cancel', add: 'Add', clickToEdit: 'Click to edit',
         showProgressRing: 'Progress Ring', enableMiniTask: 'Mini Task List', enableFocusAnalytics: 'Focus Analytics', enableMeetingPlanner: 'Meeting Planner', focusGoal: 'Current Goal', focusStats: 'Focus Stats', exportImage: 'Export as Image', exporting: 'Exporting...',
         ringPosition: 'Ring Position', ringLeft: 'Left of Number', ringRight: 'Right of Number', ringBackground: 'Background Centered',
         autoZenMode: 'Auto Zen Mode on Start',
@@ -1675,7 +1675,7 @@ function App() {
             </div>
 
             {/* Main Card */}
-            <div className={`relative z-10 w-full my-auto shrink max-h-[calc(100dvh-140px)] overflow-y-auto custom-scrollbar max-w-[95vw] md:max-w-4xl p-6 sm:p-12 rounded-[30px] sm:rounded-[48px] transition-all duration-700 flex flex-col items-center justify-start min-h-[40vh] ${!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0'} ${isZenMode ? 'scale-[1.05]' : ''} ${isCleanMode ? 'scale-[0.85] !p-0' : ''}`}>
+            <div className={`relative z-10 w-full my-auto shrink max-h-[calc(100dvh-80px)] overflow-y-auto custom-scrollbar max-w-[95vw] md:max-w-4xl p-6 sm:p-12 rounded-[30px] sm:rounded-[48px] transition-all duration-700 flex flex-col items-center justify-start min-h-[40vh] ${!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0'} ${isZenMode ? 'scale-[1.05]' : ''} ${isCleanMode ? 'scale-[0.85] !p-0' : ''}`}>
 
                 {/* Sub-Navigation for Time Tools */}
                 {['timer', 'pomodoro', 'stopwatch'].includes(mode) && (
@@ -1780,9 +1780,9 @@ function App() {
                                             }
                                         }}
                                     >
-                                        {timerSeconds >= 3600 && <span>{Math.floor(timerSeconds / 3600).toString().padStart(2, '0')}<span className="text-[6vw] md:text-[40px] opacity-50 ml-1">h</span></span>}
-                                        <span>{Math.floor((timerSeconds % 3600) / 60).toString().padStart(2, '0')}<span className="text-[6vw] md:text-[40px] opacity-50 ml-1">min</span></span>
-                                        <span>{(timerSeconds % 60).toString().padStart(2, '0')}<span className="text-[6vw] md:text-[40px] opacity-50 ml-1">s</span></span>
+                                        {timerSeconds >= 3600 && <span>{Math.floor(timerSeconds / 3600).toString().padStart(2, '0')}<span className="text-[4vw] md:text-[32px] font-light opacity-50 ml-1">h</span></span>}
+                                        <span>{Math.floor((timerSeconds % 3600) / 60).toString().padStart(2, '0')}<span className="text-[4vw] md:text-[32px] font-light opacity-50 ml-1">min</span></span>
+                                        <span>{(timerSeconds % 60).toString().padStart(2, '0')}<span className="text-[4vw] md:text-[32px] font-light opacity-50 ml-1">s</span></span>
                                     </div>
                                     {!isTimerRunning && (
                                         <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex items-center justify-center gap-2 text-sm opacity-50 transition-opacity pointer-events-none">
@@ -1857,8 +1857,8 @@ function App() {
                         <div className={`relative flex justify-center items-center w-full mt-2 sm:mt-4 p-4 sm:p-8 flex-col ${ringPosition === 'left' ? 'md:flex-row' : ringPosition === 'right' ? 'md:flex-row-reverse' : 'md:flex-col'}`}>
                             {showProgressRing && <ProgressRing progress={(pomoSeconds / (pomoMode === 'work' ? 25 * 60 : pomoMode === 'short' ? 5 * 60 : 15 * 60)) * 100} accent={theme === 'custom' ? 'custom-accent text-white' : currentTheme.accent} position={ringPosition} />}
                             <div className="text-[15vw] md:text-[120px] font-bold tracking-tighter tabular-nums drop-shadow-2xl z-10 flex items-baseline gap-1 md:gap-2">
-                                <span>{Math.floor(pomoSeconds / 60).toString().padStart(2, '0')}<span className="text-[6vw] md:text-[40px] opacity-50 ml-1">min</span></span>
-                                <span>{(pomoSeconds % 60).toString().padStart(2, '0')}<span className="text-[6vw] md:text-[40px] opacity-50 ml-1">s</span></span>
+                                <span>{Math.floor(pomoSeconds / 60).toString().padStart(2, '0')}<span className="text-[4vw] md:text-[32px] font-light opacity-50 ml-1">min</span></span>
+                                <span>{(pomoSeconds % 60).toString().padStart(2, '0')}<span className="text-[4vw] md:text-[32px] font-light opacity-50 ml-1">s</span></span>
                             </div>
                         </div>
                         <div className={`mt-4 sm:mt-8 flex gap-6 z-30 relative ${!showControls && !isCleanMode ? 'opacity-0 pointer-events-none' : 'opacity-100 transition-opacity duration-500'}`}>
