@@ -1904,7 +1904,7 @@ function App() {
     ref: containerRef,
     onMouseMove: handleMouseMove,
     style: containerStyle,
-    className: "h-[100dvh] w-full flex flex-col items-center py-8 transition-all duration-1000 ".concat(theme !== 'custom' && !isCleanMode ? "bg-gradient-to-br ".concat(currentTheme.gradient, " ").concat(currentTheme.text) : '', " ").concat(isCleanMode ? 'bg-transparent text-white' : '', " overflow-x-hidden overflow-y-auto relative custom-scrollbar selection:bg-pink-500 selection:text-white")
+    className: "h-[100dvh] w-full flex flex-col items-center pt-8 pb-[100px] sm:pb-12 transition-all duration-1000 ".concat(theme !== 'custom' && !isCleanMode ? "bg-gradient-to-br ".concat(currentTheme.gradient, " ").concat(currentTheme.text) : '', " ").concat(isCleanMode ? 'bg-transparent text-white' : '', " overflow-x-hidden overflow-y-auto relative custom-scrollbar selection:bg-pink-500 selection:text-white")
   }, theme === 'custom' && /*#__PURE__*/React.createElement("style", null, "\n                .custom-accent { color: ".concat(customColors.accent, "; }\n                .custom-card { background: ").concat(customColors.bg1, "33; border-color: ").concat(customColors.text, "1a; box-shadow: 0 8px 32px 0 rgba(0,0,0,0.36); }\n                .custom-settings { background: ").concat(customColors.bg1, "e6; backdrop-filter: blur(64px); }\n            ")), /*#__PURE__*/React.createElement("div", {
     className: "hide-on-export fixed top-8 left-1/2 -translate-x-1/2 z-[100] transition-all duration-300 ".concat(errorMsg ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none')
   }, /*#__PURE__*/React.createElement("div", {
@@ -2412,7 +2412,7 @@ function App() {
   }), /*#__PURE__*/React.createElement("div", {
     className: "ambient-blob-2 absolute bottom-[10%] right-[10%] w-[50vw] h-[50vw] rounded-full blur-[80px] opacity-20 bg-purple-500/40"
   })), /*#__PURE__*/React.createElement("div", {
-    className: "relative z-10 w-full my-auto shrink-0 max-w-[95vw] md:max-w-4xl p-6 pb-44 sm:p-12 sm:pb-16 rounded-[3rem] transition-all duration-700 ".concat(!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0', " flex flex-col items-center justify-center min-h-[50vh] ").concat(isZenMode ? 'scale-110' : '', " ").concat(isCleanMode ? 'scale-[0.85] !p-0' : '')
+    className: "relative z-10 w-full my-auto shrink-0 max-w-[95vw] md:max-w-4xl p-6 sm:p-12 rounded-[3rem] transition-all duration-700 ".concat(!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0', " flex flex-col items-center justify-center min-h-[50vh] ").concat(isZenMode ? 'scale-110' : '', " ").concat(isCleanMode ? 'scale-[0.85] !p-0' : '')
   }, ['timer', 'pomodoro', 'stopwatch'].includes(mode) && /*#__PURE__*/React.createElement("div", {
     className: "flex justify-center gap-2 bg-black/20 p-1.5 rounded-full border border-white/5 w-max animate-fade-in z-20 mb-8 mt-[-1rem] ".concat(isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:opacity-100'),
     style: {
@@ -2837,7 +2837,7 @@ function App() {
       colorScheme: 'dark'
     }
   })), mementoView))), /*#__PURE__*/React.createElement("div", {
-    className: "w-full h-40 shrink-0"
+    className: "w-full h-8 sm:h-24 shrink-0"
   }), /*#__PURE__*/React.createElement(NavigationBar, {
     mode: mode,
     setMode: setMode,

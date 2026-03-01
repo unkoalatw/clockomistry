@@ -1216,7 +1216,7 @@ function App() {
             ref={containerRef}
             onMouseMove={handleMouseMove}
             style={containerStyle}
-            className={`h-[100dvh] w-full flex flex-col items-center py-8 transition-all duration-1000 ${theme !== 'custom' && !isCleanMode ? `bg-gradient-to-br ${currentTheme.gradient} ${currentTheme.text}` : ''} ${isCleanMode ? 'bg-transparent text-white' : ''} overflow-x-hidden overflow-y-auto relative custom-scrollbar selection:bg-pink-500 selection:text-white`}
+            className={`h-[100dvh] w-full flex flex-col items-center pt-8 pb-[100px] sm:pb-12 transition-all duration-1000 ${theme !== 'custom' && !isCleanMode ? `bg-gradient-to-br ${currentTheme.gradient} ${currentTheme.text}` : ''} ${isCleanMode ? 'bg-transparent text-white' : ''} overflow-x-hidden overflow-y-auto relative custom-scrollbar selection:bg-pink-500 selection:text-white`}
         >
             {theme === 'custom' && <style>{`
                 .custom-accent { color: ${customColors.accent}; }
@@ -1628,7 +1628,7 @@ function App() {
             </div>
 
             {/* Main Card */}
-            <div className={`relative z-10 w-full my-auto shrink-0 max-w-[95vw] md:max-w-4xl p-6 pb-44 sm:p-12 sm:pb-16 rounded-[3rem] transition-all duration-700 ${!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0'} flex flex-col items-center justify-center min-h-[50vh] ${isZenMode ? 'scale-110' : ''} ${isCleanMode ? 'scale-[0.85] !p-0' : ''}`}>
+            <div className={`relative z-10 w-full my-auto shrink-0 max-w-[95vw] md:max-w-4xl p-6 sm:p-12 rounded-[3rem] transition-all duration-700 ${!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0'} flex flex-col items-center justify-center min-h-[50vh] ${isZenMode ? 'scale-110' : ''} ${isCleanMode ? 'scale-[0.85] !p-0' : ''}`}>
 
                 {/* Sub-Navigation for Time Tools */}
                 {['timer', 'pomodoro', 'stopwatch'].includes(mode) && (
@@ -1942,7 +1942,7 @@ function App() {
             </div>
 
             {/* Spacer for Navigation Bar offset on Mobile/Desktop */}
-            <div className="w-full h-40 shrink-0"></div>
+            <div className="w-full h-8 sm:h-24 shrink-0"></div>
 
             {/* Bottom Control */}
             <NavigationBar
