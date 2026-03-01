@@ -1078,6 +1078,139 @@ function App() {
         color: customColors.text
     } : currentFontStyle;
 
+    const calendarView = useMemo(() => {
+        if (mode !== 'calendar') return null;
+        const year = calendarDate.getFullYear();
+        const month = calendarDate.getMonth();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const today = new Date();
+        const isCurrentMonth = month === today.getMonth() && year === today.getFullYear();
+        const isTodayDate = (d) => d === today.getDate() && isCurrentMonth;
+
+        // Sunday-start like Google Calendar
+        const firstDayOfWeek = new Date(year, month, 1).getDay();
+        const prevMonthDays = new Date(year, month, 0).getDate();
+
+        // Build 6 rows × 7 cols = 42 cells
+        const cells = [];
+        for (let i = firstDayOfWeek - 1; i >= 0; i--) cells.push({ day: prevMonthDays - i, type: 'prev' });
+        for (let i = 1; i <= daysInMonth; i++) cells.push({ day: i, type: 'current' });
+        let nextDay = 1;
+        while (cells.length < 42) cells.push({ day: nextDay++, type: 'next' });
+
+        const dayLabels = [t('sun'), t('mon'), t('tue'), t('wed'), t('thu'), t('fri'), t('sat')];
+        const monthNames = (I18N[lang] || I18N['zh-TW']).months;
+        const grid7 = { display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' };
+
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', width: '100%', maxWidth: 540, userSelect: 'none', marginTop: '48px' }}>
+                {/* Top Bar — Google Calendar style */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+                    <button
+                        onClick={() => setCalendarDate(new Date())}
+                        style={{ padding: '8px 20px', borderRadius: 9999, border: '1px solid rgba(255,255,255,0.2)', fontSize: 14, fontWeight: 500, background: 'transparent', color: 'inherit', cursor: 'pointer' }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                        {t('today')}
+                    </button>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <button onClick={() => setCalendarDate(new Date(year, month - 1, 1))} style={{ padding: 6, borderRadius: '50%', background: 'transparent', border: 'none', color: 'inherit', cursor: 'pointer' }}><ChevronLeft size={22} /></button>
+                        <button onClick={() => setCalendarDate(new Date(year, month + 1, 1))} style={{ padding: 6, borderRadius: '50%', background: 'transparent', border: 'none', color: 'inherit', cursor: 'pointer' }}><ChevronRight size={22} /></button>
+                    </div>
+                </div>
+
+                <div style={{ fontSize: 24, fontWeight: 400, opacity: 0.9, letterSpacing: -0.5, marginBottom: 24 }}>
+                    <span style={{ fontWeight: 600, marginRight: 8, color: `var(--${currentTheme.accent})` }}>{year}</span>
+                    <span>{monthNames[month]}</span>
+                </div>
+
+                <div style={grid7}>
+                    {dayLabels.map((lbl, i) => (
+                        <div key={i} style={{ width: '100%', textAlign: 'center', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, paddingBottom: 12, color: 'rgba(255,255,255,0.4)', userSelect: 'none' }}>
+                            {lbl}
+                        </div>
+                    ))}
+
+                    <div style={{ ...grid7, gridColumn: '1 / -1', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                        {cells.map((cell, i) => {
+                            const isToday = cell.type === 'current' && isTodayDate(cell.day);
+                            const colIndex = i % 7;
+                            const isSun = colIndex === 0;
+                            const isSat = colIndex === 6;
+                            const borderStyle = '1px solid rgba(255,255,255,0.05)';
+
+                            return (
+                                <div
+                                    key={i}
+                                    style={{
+                                        position: 'relative',
+                                        minHeight: 56,
+                                        borderBottom: borderStyle,
+                                        borderRight: borderStyle,
+                                        borderLeft: colIndex === 0 ? borderStyle : 'none'
+                                    }}
+                                >
+                                    <div style={{
+                                        position: 'absolute',
+                                        top: 6,
+                                        left: '50%',
+                                        transform: 'translateX(-50%)',
+                                        width: 28,
+                                        height: 28,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: 13,
+                                        borderRadius: '50%',
+                                        fontWeight: isToday ? 700 : 400,
+                                        background: isToday ? '#3b82f6' : 'transparent',
+                                        color: isToday ? '#fff'
+                                            : cell.type !== 'current' ? 'rgba(255,255,255,0.2)'
+                                                : isSun ? 'rgba(248,113,113,0.8)'
+                                                    : isSat ? 'rgba(96,165,250,0.7)'
+                                                        : 'inherit',
+                                        transition: 'all 0.15s'
+                                    }}>
+                                        {cell.day}
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            </div>
+        );
+    }, [calendarDate, currentTheme, lang, mode]);
+
+    const mementoView = useMemo(() => {
+        if (mode !== 'memento') return null;
+        const weeksPerYear = 52;
+        const years = 80;
+        const totalWeeksCount = weeksPerYear * years;
+        let livedWeeksCount = 0;
+        if (birthDate) {
+            const livedMillis = Date.now() - new Date(birthDate).getTime();
+            livedWeeksCount = Math.max(0, Math.floor(livedMillis / (1000 * 60 * 60 * 24 * 7)));
+        }
+        const pct = birthDate ? Math.min(100, Math.floor((livedWeeksCount / totalWeeksCount) * 100)) : 0;
+
+        return (
+            <div className="w-full mt-8">
+                <div className="flex justify-between text-xs opacity-60 mb-4 px-2 font-mono uppercase tracking-[0.2em]">
+                    <span>{t('livedWeeks')} : {livedWeeksCount}</span>
+                    <span>{pct}% - {t('totalWeeks')}</span>
+                </div>
+                <div className="relative w-full rounded-2xl overflow-hidden bg-black/50 border flex border-white/5 p-4 sm:p-6" style={{ display: 'grid', gridTemplateColumns: `repeat(${weeksPerYear}, 1fr)`, gap: '2px', alignContent: 'start' }}>
+                    {Array.from({ length: totalWeeksCount }).map((_, i) => {
+                        const isLived = i < livedWeeksCount;
+                        return <div key={i} className={`w-full aspect-square rounded-[1px] ${isLived ? 'bg-indigo-400' : 'bg-white/10'}`} style={{ opacity: isLived ? 0.9 : 0.2 }} title={`Week ${i + 1}`} />;
+                    })}
+                </div>
+            </div>
+        )
+    }, [birthDate, lang, currentTheme, mode]);
+
     return (
         <div
             ref={containerRef}
@@ -1739,109 +1872,7 @@ function App() {
                     </div>
                 )}
 
-                {mode === 'calendar' && useMemo(() => {
-                    const year = calendarDate.getFullYear();
-                    const month = calendarDate.getMonth();
-                    const daysInMonth = new Date(year, month + 1, 0).getDate();
-                    const today = new Date();
-                    const isCurrentMonth = month === today.getMonth() && year === today.getFullYear();
-                    const isTodayDate = (d) => d === today.getDate() && isCurrentMonth;
-
-                    // Sunday-start like Google Calendar
-                    const firstDayOfWeek = new Date(year, month, 1).getDay();
-                    const prevMonthDays = new Date(year, month, 0).getDate();
-
-                    // Build 6 rows × 7 cols = 42 cells
-                    const cells = [];
-                    for (let i = firstDayOfWeek - 1; i >= 0; i--) cells.push({ day: prevMonthDays - i, type: 'prev' });
-                    for (let i = 1; i <= daysInMonth; i++) cells.push({ day: i, type: 'current' });
-                    let nextDay = 1;
-                    while (cells.length < 42) cells.push({ day: nextDay++, type: 'next' });
-
-                    const dayLabels = [t('sun'), t('mon'), t('tue'), t('wed'), t('thu'), t('fri'), t('sat')];
-                    const monthNames = (I18N[lang] || I18N['zh-TW']).months;
-                    const grid7 = { display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' };
-
-                    return (
-                        <div style={{ display: 'flex', flexDirection: 'column', width: '100%', maxWidth: 540, userSelect: 'none', marginTop: '48px' }}>
-                            {/* Top Bar — Google Calendar style */}
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-                                <button
-                                    onClick={() => setCalendarDate(new Date())}
-                                    style={{ padding: '8px 20px', borderRadius: 9999, border: '1px solid rgba(255,255,255,0.2)', fontSize: 14, fontWeight: 500, background: 'transparent', color: 'inherit', cursor: 'pointer' }}
-                                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
-                                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                                >
-                                    {t('today')}
-                                </button>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                    <button onClick={() => setCalendarDate(new Date(year, month - 1, 1))} style={{ padding: 6, borderRadius: '50%', background: 'transparent', border: 'none', color: 'inherit', cursor: 'pointer' }}><ChevronLeft size={22} /></button>
-                                    <button onClick={() => setCalendarDate(new Date(year, month + 1, 1))} style={{ padding: 6, borderRadius: '50%', background: 'transparent', border: 'none', color: 'inherit', cursor: 'pointer' }}><ChevronRight size={22} /></button>
-                                </div>
-                                <span style={{ fontSize: 20, fontWeight: 500, letterSpacing: '-0.02em' }}>
-                                    {monthNames[month]} {year}
-                                </span>
-                            </div>
-
-                            {/* Weekday Headers */}
-                            <div style={{ ...grid7, borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-                                {dayLabels.map((d, i) => (
-                                    <div key={d} style={{ textAlign: 'center', fontSize: 11, fontWeight: 500, padding: '8px 0', color: i === 0 ? 'rgba(248,113,113,0.7)' : i === 6 ? 'rgba(96,165,250,0.6)' : 'rgba(255,255,255,0.4)' }}>
-                                        {d}
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Date Grid */}
-                            <div style={grid7}>
-                                {cells.map((cell, i) => {
-                                    const colIndex = i % 7;
-                                    const isToday = cell.type === 'current' && isTodayDate(cell.day);
-                                    const isSun = colIndex === 0;
-                                    const isSat = colIndex === 6;
-                                    const borderStyle = '1px solid rgba(255,255,255,0.05)';
-
-                                    return (
-                                        <div
-                                            key={i}
-                                            style={{
-                                                position: 'relative',
-                                                minHeight: 56,
-                                                borderBottom: borderStyle,
-                                                borderRight: borderStyle,
-                                                borderLeft: colIndex === 0 ? borderStyle : 'none'
-                                            }}
-                                        >
-                                            <div style={{
-                                                position: 'absolute',
-                                                top: 6,
-                                                left: '50%',
-                                                transform: 'translateX(-50%)',
-                                                width: 28,
-                                                height: 28,
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                fontSize: 13,
-                                                borderRadius: '50%',
-                                                fontWeight: isToday ? 700 : 400,
-                                                background: isToday ? '#3b82f6' : 'transparent',
-                                                color: isToday ? '#fff'
-                                                    : cell.type !== 'current' ? 'rgba(255,255,255,0.2)'
-                                                        : isSun ? 'rgba(248,113,113,0.8)'
-                                                            : isSat ? 'rgba(96,165,250,0.7)'
-                                                                : 'inherit',
-                                                transition: 'all 0.15s'
-                                            }}>
-                                                {cell.day}
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    );
-                }, [calendarDate, currentTheme, lang, mode])}
+                {mode === 'calendar' && calendarView}
 
 
                 {mode === 'anniversary' && (
@@ -1904,32 +1935,7 @@ function App() {
                                 <span className="uppercase tracking-widest text-white/50">{t('birthDate')}</span>
                                 <input type="date" value={birthDate} onChange={e => setBirthDate(e.target.value)} className="bg-white/10 border border-white/20 rounded-xl px-4 py-2 outline-none text-white text-lg w-full max-w-xs transition-all hover:bg-white/20 focus:bg-white/20 focus:border-white/40 font-mono tracking-widest" style={{ colorScheme: 'dark' }} />
                             </label>
-                            {useMemo(() => {
-                                const weeksPerYear = 52;
-                                const years = 80;
-                                const totalWeeksCount = weeksPerYear * years;
-                                let livedWeeksCount = 0;
-                                if (birthDate) {
-                                    const livedMillis = Date.now() - new Date(birthDate).getTime();
-                                    livedWeeksCount = Math.max(0, Math.floor(livedMillis / (1000 * 60 * 60 * 24 * 7)));
-                                }
-                                const pct = birthDate ? Math.min(100, Math.floor((livedWeeksCount / totalWeeksCount) * 100)) : 0;
-
-                                return (
-                                    <div className="w-full mt-8">
-                                        <div className="flex justify-between text-xs opacity-60 mb-4 px-2 font-mono uppercase tracking-[0.2em]">
-                                            <span>{t('livedWeeks')} : {livedWeeksCount}</span>
-                                            <span>{pct}% - {t('totalWeeks')}</span>
-                                        </div>
-                                        <div className="relative w-full rounded-2xl overflow-hidden bg-black/50 border flex border-white/5 p-4 sm:p-6" style={{ display: 'grid', gridTemplateColumns: `repeat(${weeksPerYear}, 1fr)`, gap: '2px', alignContent: 'start' }}>
-                                            {Array.from({ length: totalWeeksCount }).map((_, i) => {
-                                                const isLived = i < livedWeeksCount;
-                                                return <div key={i} className={`w-full aspect-square rounded-[1px] ${isLived ? 'bg-indigo-400' : 'bg-white/10'}`} style={{ opacity: isLived ? 0.9 : 0.2 }} title={`Week ${i + 1}`} />;
-                                            })}
-                                        </div>
-                                    </div>
-                                )
-                            }, [birthDate, lang, currentTheme, mode])}
+                            {mementoView}
                         </div>
                     </div>
                 )}

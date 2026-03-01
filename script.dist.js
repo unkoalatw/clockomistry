@@ -1699,6 +1699,207 @@ function App() {
     background: customBgImage ? "linear-gradient(".concat(customColors.bg1, "cc, ").concat(customColors.bg1, "cc), url(").concat(customBgImage, ") center/cover no-repeat fixed") : "linear-gradient(135deg, ".concat(customColors.bg1, ", ").concat(customColors.bg2, ", ").concat(customColors.bg3, ")"),
     color: customColors.text
   }) : currentFontStyle;
+  const calendarView = useMemo(() => {
+    if (mode !== 'calendar') return null;
+    const year = calendarDate.getFullYear();
+    const month = calendarDate.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const today = new Date();
+    const isCurrentMonth = month === today.getMonth() && year === today.getFullYear();
+    const isTodayDate = d => d === today.getDate() && isCurrentMonth;
+
+    // Sunday-start like Google Calendar
+    const firstDayOfWeek = new Date(year, month, 1).getDay();
+    const prevMonthDays = new Date(year, month, 0).getDate();
+
+    // Build 6 rows × 7 cols = 42 cells
+    const cells = [];
+    for (let i = firstDayOfWeek - 1; i >= 0; i--) cells.push({
+      day: prevMonthDays - i,
+      type: 'prev'
+    });
+    for (let i = 1; i <= daysInMonth; i++) cells.push({
+      day: i,
+      type: 'current'
+    });
+    let nextDay = 1;
+    while (cells.length < 42) cells.push({
+      day: nextDay++,
+      type: 'next'
+    });
+    const dayLabels = [t('sun'), t('mon'), t('tue'), t('wed'), t('thu'), t('fri'), t('sat')];
+    const monthNames = (I18N[lang] || I18N['zh-TW']).months;
+    const grid7 = {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(7, 1fr)'
+    };
+    return /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        flexDirection: 'column',
+        width: '100%',
+        maxWidth: 540,
+        userSelect: 'none',
+        marginTop: '48px'
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        marginBottom: 20
+      }
+    }, /*#__PURE__*/React.createElement("button", {
+      onClick: () => setCalendarDate(new Date()),
+      style: {
+        padding: '8px 20px',
+        borderRadius: 9999,
+        border: '1px solid rgba(255,255,255,0.2)',
+        fontSize: 14,
+        fontWeight: 500,
+        background: 'transparent',
+        color: 'inherit',
+        cursor: 'pointer'
+      },
+      onMouseEnter: e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)',
+      onMouseLeave: e => e.currentTarget.style.background = 'transparent'
+    }, t('today')), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 2
+      }
+    }, /*#__PURE__*/React.createElement("button", {
+      onClick: () => setCalendarDate(new Date(year, month - 1, 1)),
+      style: {
+        padding: 6,
+        borderRadius: '50%',
+        background: 'transparent',
+        border: 'none',
+        color: 'inherit',
+        cursor: 'pointer'
+      }
+    }, /*#__PURE__*/React.createElement(ChevronLeft, {
+      size: 22
+    })), /*#__PURE__*/React.createElement("button", {
+      onClick: () => setCalendarDate(new Date(year, month + 1, 1)),
+      style: {
+        padding: 6,
+        borderRadius: '50%',
+        background: 'transparent',
+        border: 'none',
+        color: 'inherit',
+        cursor: 'pointer'
+      }
+    }, /*#__PURE__*/React.createElement(ChevronRight, {
+      size: 22
+    })))), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 24,
+        fontWeight: 400,
+        opacity: 0.9,
+        letterSpacing: -0.5,
+        marginBottom: 24
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontWeight: 600,
+        marginRight: 8,
+        color: "var(--".concat(currentTheme.accent, ")")
+      }
+    }, year), /*#__PURE__*/React.createElement("span", null, monthNames[month])), /*#__PURE__*/React.createElement("div", {
+      style: grid7
+    }, dayLabels.map((lbl, i) => /*#__PURE__*/React.createElement("div", {
+      key: i,
+      style: {
+        width: '100%',
+        textAlign: 'center',
+        fontSize: 11,
+        fontWeight: 600,
+        textTransform: 'uppercase',
+        letterSpacing: 1,
+        paddingBottom: 12,
+        color: 'rgba(255,255,255,0.4)',
+        userSelect: 'none'
+      }
+    }, lbl)), /*#__PURE__*/React.createElement("div", {
+      style: _objectSpread(_objectSpread({}, grid7), {}, {
+        gridColumn: '1 / -1',
+        borderTop: '1px solid rgba(255,255,255,0.1)'
+      })
+    }, cells.map((cell, i) => {
+      const isToday = cell.type === 'current' && isTodayDate(cell.day);
+      const colIndex = i % 7;
+      const isSun = colIndex === 0;
+      const isSat = colIndex === 6;
+      const borderStyle = '1px solid rgba(255,255,255,0.05)';
+      return /*#__PURE__*/React.createElement("div", {
+        key: i,
+        style: {
+          position: 'relative',
+          minHeight: 56,
+          borderBottom: borderStyle,
+          borderRight: borderStyle,
+          borderLeft: colIndex === 0 ? borderStyle : 'none'
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          position: 'absolute',
+          top: 6,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: 28,
+          height: 28,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 13,
+          borderRadius: '50%',
+          fontWeight: isToday ? 700 : 400,
+          background: isToday ? '#3b82f6' : 'transparent',
+          color: isToday ? '#fff' : cell.type !== 'current' ? 'rgba(255,255,255,0.2)' : isSun ? 'rgba(248,113,113,0.8)' : isSat ? 'rgba(96,165,250,0.7)' : 'inherit',
+          transition: 'all 0.15s'
+        }
+      }, cell.day));
+    }))));
+  }, [calendarDate, currentTheme, lang, mode]);
+  const mementoView = useMemo(() => {
+    if (mode !== 'memento') return null;
+    const weeksPerYear = 52;
+    const years = 80;
+    const totalWeeksCount = weeksPerYear * years;
+    let livedWeeksCount = 0;
+    if (birthDate) {
+      const livedMillis = Date.now() - new Date(birthDate).getTime();
+      livedWeeksCount = Math.max(0, Math.floor(livedMillis / (1000 * 60 * 60 * 24 * 7)));
+    }
+    const pct = birthDate ? Math.min(100, Math.floor(livedWeeksCount / totalWeeksCount * 100)) : 0;
+    return /*#__PURE__*/React.createElement("div", {
+      className: "w-full mt-8"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "flex justify-between text-xs opacity-60 mb-4 px-2 font-mono uppercase tracking-[0.2em]"
+    }, /*#__PURE__*/React.createElement("span", null, t('livedWeeks'), " : ", livedWeeksCount), /*#__PURE__*/React.createElement("span", null, pct, "% - ", t('totalWeeks'))), /*#__PURE__*/React.createElement("div", {
+      className: "relative w-full rounded-2xl overflow-hidden bg-black/50 border flex border-white/5 p-4 sm:p-6",
+      style: {
+        display: 'grid',
+        gridTemplateColumns: "repeat(".concat(weeksPerYear, ", 1fr)"),
+        gap: '2px',
+        alignContent: 'start'
+      }
+    }, Array.from({
+      length: totalWeeksCount
+    }).map((_, i) => {
+      const isLived = i < livedWeeksCount;
+      return /*#__PURE__*/React.createElement("div", {
+        key: i,
+        className: "w-full aspect-square rounded-[1px] ".concat(isLived ? 'bg-indigo-400' : 'bg-white/10'),
+        style: {
+          opacity: isLived ? 0.9 : 0.2
+        },
+        title: "Week ".concat(i + 1)
+      });
+    })));
+  }, [birthDate, lang, currentTheme, mode]);
   return /*#__PURE__*/React.createElement("div", {
     ref: containerRef,
     onMouseMove: handleMouseMove,
@@ -2567,156 +2768,7 @@ function App() {
       key: i,
       className: "flex justify-between px-6 py-2 border-b border-white/5 opacity-80"
     }, /*#__PURE__*/React.createElement("span", null, t('lap'), " ", laps.length - i), /*#__PURE__*/React.createElement("span", null, d.m, ":", d.s, ".", d.cs));
-  }))), mode === 'calendar' && useMemo(() => {
-    const year = calendarDate.getFullYear();
-    const month = calendarDate.getMonth();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const today = new Date();
-    const isCurrentMonth = month === today.getMonth() && year === today.getFullYear();
-    const isTodayDate = d => d === today.getDate() && isCurrentMonth;
-
-    // Sunday-start like Google Calendar
-    const firstDayOfWeek = new Date(year, month, 1).getDay();
-    const prevMonthDays = new Date(year, month, 0).getDate();
-
-    // Build 6 rows × 7 cols = 42 cells
-    const cells = [];
-    for (let i = firstDayOfWeek - 1; i >= 0; i--) cells.push({
-      day: prevMonthDays - i,
-      type: 'prev'
-    });
-    for (let i = 1; i <= daysInMonth; i++) cells.push({
-      day: i,
-      type: 'current'
-    });
-    let nextDay = 1;
-    while (cells.length < 42) cells.push({
-      day: nextDay++,
-      type: 'next'
-    });
-    const dayLabels = [t('sun'), t('mon'), t('tue'), t('wed'), t('thu'), t('fri'), t('sat')];
-    const monthNames = (I18N[lang] || I18N['zh-TW']).months;
-    const grid7 = {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(7, 1fr)'
-    };
-    return /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: 'flex',
-        flexDirection: 'column',
-        width: '100%',
-        maxWidth: 540,
-        userSelect: 'none',
-        marginTop: '48px'
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: 12,
-        marginBottom: 20
-      }
-    }, /*#__PURE__*/React.createElement("button", {
-      onClick: () => setCalendarDate(new Date()),
-      style: {
-        padding: '8px 20px',
-        borderRadius: 9999,
-        border: '1px solid rgba(255,255,255,0.2)',
-        fontSize: 14,
-        fontWeight: 500,
-        background: 'transparent',
-        color: 'inherit',
-        cursor: 'pointer'
-      },
-      onMouseEnter: e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)',
-      onMouseLeave: e => e.currentTarget.style.background = 'transparent'
-    }, t('today')), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: 2
-      }
-    }, /*#__PURE__*/React.createElement("button", {
-      onClick: () => setCalendarDate(new Date(year, month - 1, 1)),
-      style: {
-        padding: 6,
-        borderRadius: '50%',
-        background: 'transparent',
-        border: 'none',
-        color: 'inherit',
-        cursor: 'pointer'
-      }
-    }, /*#__PURE__*/React.createElement(ChevronLeft, {
-      size: 22
-    })), /*#__PURE__*/React.createElement("button", {
-      onClick: () => setCalendarDate(new Date(year, month + 1, 1)),
-      style: {
-        padding: 6,
-        borderRadius: '50%',
-        background: 'transparent',
-        border: 'none',
-        color: 'inherit',
-        cursor: 'pointer'
-      }
-    }, /*#__PURE__*/React.createElement(ChevronRight, {
-      size: 22
-    }))), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: 20,
-        fontWeight: 500,
-        letterSpacing: '-0.02em'
-      }
-    }, monthNames[month], " ", year)), /*#__PURE__*/React.createElement("div", {
-      style: _objectSpread(_objectSpread({}, grid7), {}, {
-        borderBottom: '1px solid rgba(255,255,255,0.1)'
-      })
-    }, dayLabels.map((d, i) => /*#__PURE__*/React.createElement("div", {
-      key: d,
-      style: {
-        textAlign: 'center',
-        fontSize: 11,
-        fontWeight: 500,
-        padding: '8px 0',
-        color: i === 0 ? 'rgba(248,113,113,0.7)' : i === 6 ? 'rgba(96,165,250,0.6)' : 'rgba(255,255,255,0.4)'
-      }
-    }, d))), /*#__PURE__*/React.createElement("div", {
-      style: grid7
-    }, cells.map((cell, i) => {
-      const colIndex = i % 7;
-      const isToday = cell.type === 'current' && isTodayDate(cell.day);
-      const isSun = colIndex === 0;
-      const isSat = colIndex === 6;
-      const borderStyle = '1px solid rgba(255,255,255,0.05)';
-      return /*#__PURE__*/React.createElement("div", {
-        key: i,
-        style: {
-          position: 'relative',
-          minHeight: 56,
-          borderBottom: borderStyle,
-          borderRight: borderStyle,
-          borderLeft: colIndex === 0 ? borderStyle : 'none'
-        }
-      }, /*#__PURE__*/React.createElement("div", {
-        style: {
-          position: 'absolute',
-          top: 6,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: 28,
-          height: 28,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: 13,
-          borderRadius: '50%',
-          fontWeight: isToday ? 700 : 400,
-          background: isToday ? '#3b82f6' : 'transparent',
-          color: isToday ? '#fff' : cell.type !== 'current' ? 'rgba(255,255,255,0.2)' : isSun ? 'rgba(248,113,113,0.8)' : isSat ? 'rgba(96,165,250,0.7)' : 'inherit',
-          transition: 'all 0.15s'
-        }
-      }, cell.day));
-    })));
-  }, [calendarDate, currentTheme, lang, mode]), mode === 'anniversary' && /*#__PURE__*/React.createElement("div", {
+  }))), mode === 'calendar' && calendarView, mode === 'anniversary' && /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col items-center select-none w-full max-w-lg mt-12"
   }, /*#__PURE__*/React.createElement("div", {
     className: "w-full max-h-[50vh] overflow-y-auto custom-scrollbar space-y-4 p-2"
@@ -2784,42 +2836,7 @@ function App() {
     style: {
       colorScheme: 'dark'
     }
-  })), useMemo(() => {
-    const weeksPerYear = 52;
-    const years = 80;
-    const totalWeeksCount = weeksPerYear * years;
-    let livedWeeksCount = 0;
-    if (birthDate) {
-      const livedMillis = Date.now() - new Date(birthDate).getTime();
-      livedWeeksCount = Math.max(0, Math.floor(livedMillis / (1000 * 60 * 60 * 24 * 7)));
-    }
-    const pct = birthDate ? Math.min(100, Math.floor(livedWeeksCount / totalWeeksCount * 100)) : 0;
-    return /*#__PURE__*/React.createElement("div", {
-      className: "w-full mt-8"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "flex justify-between text-xs opacity-60 mb-4 px-2 font-mono uppercase tracking-[0.2em]"
-    }, /*#__PURE__*/React.createElement("span", null, t('livedWeeks'), " : ", livedWeeksCount), /*#__PURE__*/React.createElement("span", null, pct, "% - ", t('totalWeeks'))), /*#__PURE__*/React.createElement("div", {
-      className: "relative w-full rounded-2xl overflow-hidden bg-black/50 border flex border-white/5 p-4 sm:p-6",
-      style: {
-        display: 'grid',
-        gridTemplateColumns: "repeat(".concat(weeksPerYear, ", 1fr)"),
-        gap: '2px',
-        alignContent: 'start'
-      }
-    }, Array.from({
-      length: totalWeeksCount
-    }).map((_, i) => {
-      const isLived = i < livedWeeksCount;
-      return /*#__PURE__*/React.createElement("div", {
-        key: i,
-        className: "w-full aspect-square rounded-[1px] ".concat(isLived ? 'bg-indigo-400' : 'bg-white/10'),
-        style: {
-          opacity: isLived ? 0.9 : 0.2
-        },
-        title: "Week ".concat(i + 1)
-      });
-    })));
-  }, [birthDate, lang, currentTheme, mode])))), /*#__PURE__*/React.createElement("div", {
+  })), mementoView))), /*#__PURE__*/React.createElement("div", {
     className: "w-full h-40 shrink-0"
   }), /*#__PURE__*/React.createElement(NavigationBar, {
     mode: mode,
