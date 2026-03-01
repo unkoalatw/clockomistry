@@ -1216,7 +1216,7 @@ function App() {
             ref={containerRef}
             onMouseMove={handleMouseMove}
             style={containerStyle}
-            className={`h-[100dvh] w-full flex flex-col items-center pt-8 pb-[140px] transition-all duration-1000 ${theme !== 'custom' && !isCleanMode ? `bg-gradient-to-br ${currentTheme.gradient} ${currentTheme.text}` : ''} ${isCleanMode ? 'bg-transparent text-white' : ''} overflow-x-hidden overflow-y-auto relative custom-scrollbar selection:bg-pink-500 selection:text-white`}
+            className={`h-[100dvh] w-full flex flex-col items-center pt-4 sm:pt-8 pb-32 transition-all duration-1000 ${theme !== 'custom' && !isCleanMode ? `bg-gradient-to-br ${currentTheme.gradient} ${currentTheme.text}` : ''} ${isCleanMode ? 'bg-transparent text-white' : ''} overflow-hidden relative selection:bg-pink-500 selection:text-white`}
         >
             {theme === 'custom' && <style>{`
                 .custom-accent { color: ${customColors.accent}; }
@@ -1628,7 +1628,7 @@ function App() {
             </div>
 
             {/* Main Card */}
-            <div className={`relative z-10 w-full my-auto shrink-0 max-w-[95vw] md:max-w-4xl p-6 sm:p-12 rounded-[3rem] transition-all duration-700 ${!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0'} flex flex-col items-center justify-center min-h-[50vh] ${isZenMode ? 'scale-110' : ''} ${isCleanMode ? 'scale-[0.85] !p-0' : ''}`}>
+            <div className={`relative z-10 w-full my-auto shrink max-h-[calc(100dvh-140px)] overflow-y-auto custom-scrollbar max-w-[95vw] md:max-w-4xl p-6 sm:p-12 rounded-[30px] sm:rounded-[48px] transition-all duration-700 flex flex-col items-center justify-center min-h-[40vh] ${!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0'} ${isZenMode ? 'scale-[1.05]' : ''} ${isCleanMode ? 'scale-[0.85] !p-0' : ''}`}>
 
                 {/* Sub-Navigation for Time Tools */}
                 {['timer', 'pomodoro', 'stopwatch'].includes(mode) && (
@@ -1685,8 +1685,8 @@ function App() {
                 )}
 
                 {mode === 'timer' && (
-                    <div className="flex flex-col items-center select-none w-full max-w-lg mt-12">
-                        <div className="flex flex-col items-center mb-12 w-full">
+                    <div className="flex flex-col items-center select-none w-full max-w-lg mt-4 sm:mt-8">
+                        <div className="flex flex-col items-center mb-6 sm:mb-12 w-full">
                             {isEditingTimer ? (
                                 <div className="flex flex-col items-center w-full animate-fade-in">
                                     <div className="text-[14vw] md:text-[80px] font-bold tracking-tighter tabular-nums drop-shadow-2xl flex items-baseline gap-1 md:gap-2 mb-6">
@@ -1694,9 +1694,9 @@ function App() {
                                         <span className={timerInput.slice(0, 4) === '0000' ? 'opacity-30' : ''}>{timerInput.slice(2, 4)}<span className="text-xl md:text-2xl opacity-50 ml-1">min</span></span>
                                         <span className={timerInput === '000000' ? 'opacity-30' : ''}>{timerInput.slice(4, 6)}<span className="text-xl md:text-2xl opacity-50 ml-1">s</span></span>
                                     </div>
-                                    <div className="grid grid-cols-3 gap-3 sm:gap-4 w-full max-w-[280px]">
+                                    <div className="grid grid-cols-3 gap-2 sm:gap-4 w-full max-w-[280px]">
                                         {['1', '2', '3', '4', '5', '6', '7', '8', '9', '00', '0', 'del'].map(btn => (
-                                            <button key={btn} onClick={() => handleTimerInput(btn)} className="h-16 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 flex items-center justify-center text-2xl font-medium transition-all active:scale-95">
+                                            <button key={btn} onClick={() => handleTimerInput(btn)} className="h-[clamp(3.5rem,7vh,4rem)] rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 flex items-center justify-center text-xl sm:text-2xl font-medium transition-all active:scale-95">
                                                 {btn === 'del' ? <Delete size={24} /> : btn}
                                             </button>
                                         ))}
@@ -1801,20 +1801,20 @@ function App() {
                 )}
 
                 {mode === 'pomodoro' && (
-                    <div className="flex flex-col items-center select-none mt-12">
+                    <div className="flex flex-col items-center select-none mt-2 sm:mt-12">
                         <div className="flex gap-4 mb-4">
                             <button onClick={() => resetPomo('work')} className={`px-4 py-1 rounded-full text-sm border transition-all ${pomoMode === 'work' ? `bg-white/10 border-white/50 ${currentTheme.accent}` : 'border-transparent opacity-50'}`}>{t('work')}</button>
                             <button onClick={() => resetPomo('short')} className={`px-4 py-1 rounded-full text-sm border transition-all ${pomoMode === 'short' ? `bg-white/10 border-white/50 ${currentTheme.accent}` : 'border-transparent opacity-50'}`}>{t('break')}</button>
                             <button onClick={() => resetPomo('long')} className={`px-4 py-1 rounded-full text-sm border transition-all ${pomoMode === 'long' ? `bg-white/10 border-white/50 ${currentTheme.accent}` : 'border-transparent opacity-50'}`}>{t('long')}</button>
                         </div>
-                        <div className={`relative flex justify-center items-center w-full mt-4 p-8 flex-col ${ringPosition === 'left' ? 'md:flex-row' : ringPosition === 'right' ? 'md:flex-row-reverse' : 'md:flex-col'}`}>
+                        <div className={`relative flex justify-center items-center w-full mt-2 sm:mt-4 p-4 sm:p-8 flex-col ${ringPosition === 'left' ? 'md:flex-row' : ringPosition === 'right' ? 'md:flex-row-reverse' : 'md:flex-col'}`}>
                             {showProgressRing && <ProgressRing progress={(pomoSeconds / (pomoMode === 'work' ? 25 * 60 : pomoMode === 'short' ? 5 * 60 : 15 * 60)) * 100} accent={theme === 'custom' ? 'custom-accent text-white' : currentTheme.accent} position={ringPosition} />}
                             <div className="text-[15vw] md:text-[120px] font-bold tracking-tighter tabular-nums drop-shadow-2xl z-10 flex items-baseline gap-1 md:gap-2">
                                 <span>{Math.floor(pomoSeconds / 60).toString().padStart(2, '0')}<span className="text-[6vw] md:text-[40px] opacity-50 ml-1">min</span></span>
                                 <span>{(pomoSeconds % 60).toString().padStart(2, '0')}<span className="text-[6vw] md:text-[40px] opacity-50 ml-1">s</span></span>
                             </div>
                         </div>
-                        <div className={`mt-8 flex gap-6 z-30 relative ${!showControls && !isCleanMode ? 'opacity-0 pointer-events-none' : 'opacity-100 transition-opacity duration-500'}`}>
+                        <div className={`mt-4 sm:mt-8 flex gap-6 z-30 relative ${!showControls && !isCleanMode ? 'opacity-0 pointer-events-none' : 'opacity-100 transition-opacity duration-500'}`}>
                             <button onClick={() => {
                                 if (!isPomoRunning && pomoSeconds <= 0) resetPomo(pomoMode);
                                 if (!isPomoRunning && autoZenMode && !isZenMode) setIsZenMode(true);
@@ -1855,7 +1855,7 @@ function App() {
                 )}
 
                 {mode === 'stopwatch' && (
-                    <div className="flex flex-col items-center select-none w-full min-w-[300px] mt-12">
+                    <div className="flex flex-col items-center select-none w-full min-w-[300px] mt-2 sm:mt-12">
                         <div className="text-[15vw] md:text-[120px] font-bold tracking-tighter tabular-nums flex items-baseline">
                             <span>{stopwatch.m}</span><span className="opacity-50 mx-1">:</span><span>{stopwatch.s}</span>
                             <span className={`text-[8vw] md:text-[60px] ml-1 md:ml-2 ${currentTheme.accent}`}>.{stopwatch.cs}</span>

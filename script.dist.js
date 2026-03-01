@@ -1904,7 +1904,7 @@ function App() {
     ref: containerRef,
     onMouseMove: handleMouseMove,
     style: containerStyle,
-    className: "h-[100dvh] w-full flex flex-col items-center pt-8 pb-[140px] transition-all duration-1000 ".concat(theme !== 'custom' && !isCleanMode ? "bg-gradient-to-br ".concat(currentTheme.gradient, " ").concat(currentTheme.text) : '', " ").concat(isCleanMode ? 'bg-transparent text-white' : '', " overflow-x-hidden overflow-y-auto relative custom-scrollbar selection:bg-pink-500 selection:text-white")
+    className: "h-[100dvh] w-full flex flex-col items-center pt-4 sm:pt-8 pb-32 transition-all duration-1000 ".concat(theme !== 'custom' && !isCleanMode ? "bg-gradient-to-br ".concat(currentTheme.gradient, " ").concat(currentTheme.text) : '', " ").concat(isCleanMode ? 'bg-transparent text-white' : '', " overflow-hidden relative selection:bg-pink-500 selection:text-white")
   }, theme === 'custom' && /*#__PURE__*/React.createElement("style", null, "\n                .custom-accent { color: ".concat(customColors.accent, "; }\n                .custom-card { background: ").concat(customColors.bg1, "33; border-color: ").concat(customColors.text, "1a; box-shadow: 0 8px 32px 0 rgba(0,0,0,0.36); }\n                .custom-settings { background: ").concat(customColors.bg1, "e6; backdrop-filter: blur(64px); }\n            ")), /*#__PURE__*/React.createElement("div", {
     className: "hide-on-export fixed top-8 left-1/2 -translate-x-1/2 z-[100] transition-all duration-300 ".concat(errorMsg ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none')
   }, /*#__PURE__*/React.createElement("div", {
@@ -2412,7 +2412,7 @@ function App() {
   }), /*#__PURE__*/React.createElement("div", {
     className: "ambient-blob-2 absolute bottom-[10%] right-[10%] w-[50vw] h-[50vw] rounded-full blur-[80px] opacity-20 bg-purple-500/40"
   })), /*#__PURE__*/React.createElement("div", {
-    className: "relative z-10 w-full my-auto shrink-0 max-w-[95vw] md:max-w-4xl p-6 sm:p-12 rounded-[3rem] transition-all duration-700 ".concat(!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0', " flex flex-col items-center justify-center min-h-[50vh] ").concat(isZenMode ? 'scale-110' : '', " ").concat(isCleanMode ? 'scale-[0.85] !p-0' : '')
+    className: "relative z-10 w-full my-auto shrink max-h-[calc(100dvh-140px)] overflow-y-auto custom-scrollbar max-w-[95vw] md:max-w-4xl p-6 sm:p-12 rounded-[30px] sm:rounded-[48px] transition-all duration-700 flex flex-col items-center justify-center min-h-[40vh] ".concat(!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0', " ").concat(isZenMode ? 'scale-[1.05]' : '', " ").concat(isCleanMode ? 'scale-[0.85] !p-0' : '')
   }, ['timer', 'pomodoro', 'stopwatch'].includes(mode) && /*#__PURE__*/React.createElement("div", {
     className: "flex justify-center gap-2 bg-black/20 p-1.5 rounded-full border border-white/5 w-max animate-fade-in z-20 mb-8 mt-[-1rem] ".concat(isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:opacity-100'),
     style: {
@@ -2493,9 +2493,9 @@ function App() {
   }, /*#__PURE__*/React.createElement(Settings, {
     size: 14
   }), " ", t('addEditZones'))), mode === 'timer' && /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-col items-center select-none w-full max-w-lg mt-12"
+    className: "flex flex-col items-center select-none w-full max-w-lg mt-4 sm:mt-8"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-col items-center mb-12 w-full"
+    className: "flex flex-col items-center mb-6 sm:mb-12 w-full"
   }, isEditingTimer ? /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col items-center w-full animate-fade-in"
   }, /*#__PURE__*/React.createElement("div", {
@@ -2513,11 +2513,11 @@ function App() {
   }, timerInput.slice(4, 6), /*#__PURE__*/React.createElement("span", {
     className: "text-xl md:text-2xl opacity-50 ml-1"
   }, "s"))), /*#__PURE__*/React.createElement("div", {
-    className: "grid grid-cols-3 gap-3 sm:gap-4 w-full max-w-[280px]"
+    className: "grid grid-cols-3 gap-2 sm:gap-4 w-full max-w-[280px]"
   }, ['1', '2', '3', '4', '5', '6', '7', '8', '9', '00', '0', 'del'].map(btn => /*#__PURE__*/React.createElement("button", {
     key: btn,
     onClick: () => handleTimerInput(btn),
-    className: "h-16 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 flex items-center justify-center text-2xl font-medium transition-all active:scale-95"
+    className: "h-[clamp(3.5rem,7vh,4rem)] rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 flex items-center justify-center text-xl sm:text-2xl font-medium transition-all active:scale-95"
   }, btn === 'del' ? /*#__PURE__*/React.createElement(Delete, {
     size: 24
   }) : btn))), /*#__PURE__*/React.createElement("div", {
@@ -2646,7 +2646,7 @@ function App() {
     onClick: () => addMultiTimer(m),
     className: "px-4 py-2 rounded-full bg-white/10 border border-white/10 hover:bg-white/20 text-sm transition-all"
   }, "+", m, "min"))))), mode === 'pomodoro' && /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-col items-center select-none mt-12"
+    className: "flex flex-col items-center select-none mt-2 sm:mt-12"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex gap-4 mb-4"
   }, /*#__PURE__*/React.createElement("button", {
@@ -2659,7 +2659,7 @@ function App() {
     onClick: () => resetPomo('long'),
     className: "px-4 py-1 rounded-full text-sm border transition-all ".concat(pomoMode === 'long' ? "bg-white/10 border-white/50 ".concat(currentTheme.accent) : 'border-transparent opacity-50')
   }, t('long'))), /*#__PURE__*/React.createElement("div", {
-    className: "relative flex justify-center items-center w-full mt-4 p-8 flex-col ".concat(ringPosition === 'left' ? 'md:flex-row' : ringPosition === 'right' ? 'md:flex-row-reverse' : 'md:flex-col')
+    className: "relative flex justify-center items-center w-full mt-2 sm:mt-4 p-4 sm:p-8 flex-col ".concat(ringPosition === 'left' ? 'md:flex-row' : ringPosition === 'right' ? 'md:flex-row-reverse' : 'md:flex-col')
   }, showProgressRing && /*#__PURE__*/React.createElement(ProgressRing, {
     progress: pomoSeconds / (pomoMode === 'work' ? 25 * 60 : pomoMode === 'short' ? 5 * 60 : 15 * 60) * 100,
     accent: theme === 'custom' ? 'custom-accent text-white' : currentTheme.accent,
@@ -2671,7 +2671,7 @@ function App() {
   }, "min")), /*#__PURE__*/React.createElement("span", null, (pomoSeconds % 60).toString().padStart(2, '0'), /*#__PURE__*/React.createElement("span", {
     className: "text-[6vw] md:text-[40px] opacity-50 ml-1"
   }, "s")))), /*#__PURE__*/React.createElement("div", {
-    className: "mt-8 flex gap-6 z-30 relative ".concat(!showControls && !isCleanMode ? 'opacity-0 pointer-events-none' : 'opacity-100 transition-opacity duration-500')
+    className: "mt-4 sm:mt-8 flex gap-6 z-30 relative ".concat(!showControls && !isCleanMode ? 'opacity-0 pointer-events-none' : 'opacity-100 transition-opacity duration-500')
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       if (!isPomoRunning && pomoSeconds <= 0) resetPomo(pomoMode);
@@ -2735,7 +2735,7 @@ function App() {
       title: ds ? "".concat(ds, ": ").concat(Math.floor(val / 60), "m") : ''
     });
   })))), mode === 'stopwatch' && /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-col items-center select-none w-full min-w-[300px] mt-12"
+    className: "flex flex-col items-center select-none w-full min-w-[300px] mt-2 sm:mt-12"
   }, /*#__PURE__*/React.createElement("div", {
     className: "text-[15vw] md:text-[120px] font-bold tracking-tighter tabular-nums flex items-baseline"
   }, /*#__PURE__*/React.createElement("span", null, stopwatch.m), /*#__PURE__*/React.createElement("span", {
