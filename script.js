@@ -29,7 +29,7 @@ import {
     Type, Upload, Palette, ArrowLeft, Coffee, Brain,
     CalendarDays, Languages, Trash2, ChevronLeft, ChevronRight,
     Calendar, CloudSun, Share2, Download, LayoutTemplate, Sparkles, Delete,
-    Camera, CheckSquare, BarChart2, Sliders, Target,
+    Camera, CheckSquare, BarChart2, Sliders, Target, Edit3,
     Sunrise, Sunset, LayoutGrid, LayoutPanelTop, RefreshCw
 } from 'lucide-react';
 
@@ -1216,7 +1216,7 @@ function App() {
             ref={containerRef}
             onMouseMove={handleMouseMove}
             style={containerStyle}
-            className={`h-[100dvh] w-full flex flex-col items-center pt-8 pb-[100px] sm:pb-12 transition-all duration-1000 ${theme !== 'custom' && !isCleanMode ? `bg-gradient-to-br ${currentTheme.gradient} ${currentTheme.text}` : ''} ${isCleanMode ? 'bg-transparent text-white' : ''} overflow-x-hidden overflow-y-auto relative custom-scrollbar selection:bg-pink-500 selection:text-white`}
+            className={`h-[100dvh] w-full flex flex-col items-center pt-8 pb-[140px] transition-all duration-1000 ${theme !== 'custom' && !isCleanMode ? `bg-gradient-to-br ${currentTheme.gradient} ${currentTheme.text}` : ''} ${isCleanMode ? 'bg-transparent text-white' : ''} overflow-x-hidden overflow-y-auto relative custom-scrollbar selection:bg-pink-500 selection:text-white`}
         >
             {theme === 'custom' && <style>{`
                 .custom-accent { color: ${customColors.accent}; }
@@ -1737,11 +1737,16 @@ function App() {
                                         <span>{Math.floor((timerSeconds % 3600) / 60).toString().padStart(2, '0')}<span className="text-[6vw] md:text-[40px] opacity-50 ml-1">min</span></span>
                                         <span>{(timerSeconds % 60).toString().padStart(2, '0')}<span className="text-[6vw] md:text-[40px] opacity-50 ml-1">s</span></span>
                                     </div>
+                                    {!isTimerRunning && (
+                                        <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex items-center justify-center gap-2 text-sm opacity-50 transition-opacity pointer-events-none">
+                                            <Edit3 size={16} /> <span>{t('clickToEdit') || 'Click to edit'}</span>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>
 
-                        <div className={`mt-8 flex gap-6 z-30 relative ${isEditingTimer ? 'hidden' : ''} ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+                        <div className={`mt-8 flex gap-6 z-30 relative ${isEditingTimer ? 'hidden' : ''} ${!showControls && !isCleanMode ? 'opacity-0 pointer-events-none' : 'opacity-100 transition-opacity duration-500'}`}>
                             <button onClick={() => {
                                 if (!isTimerRunning && timerSeconds <= 0) {
                                     if (timerInitial > 0) {
@@ -1809,7 +1814,7 @@ function App() {
                                 <span>{(pomoSeconds % 60).toString().padStart(2, '0')}<span className="text-[6vw] md:text-[40px] opacity-50 ml-1">s</span></span>
                             </div>
                         </div>
-                        <div className={`mt-8 flex gap-6 z-30 relative ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+                        <div className={`mt-8 flex gap-6 z-30 relative ${!showControls && !isCleanMode ? 'opacity-0 pointer-events-none' : 'opacity-100 transition-opacity duration-500'}`}>
                             <button onClick={() => {
                                 if (!isPomoRunning && pomoSeconds <= 0) resetPomo(pomoMode);
                                 if (!isPomoRunning && autoZenMode && !isZenMode) setIsZenMode(true);
@@ -1855,7 +1860,7 @@ function App() {
                             <span>{stopwatch.m}</span><span className="opacity-50 mx-1">:</span><span>{stopwatch.s}</span>
                             <span className={`text-[8vw] md:text-[60px] ml-1 md:ml-2 ${currentTheme.accent}`}>.{stopwatch.cs}</span>
                         </div>
-                        <div className={`mt-8 flex gap-6 z-30 relative ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+                        <div className={`mt-8 flex gap-6 z-30 relative ${!showControls && !isCleanMode ? 'opacity-0 pointer-events-none' : 'opacity-100 transition-opacity duration-500'}`}>
                             <button onClick={() => setIsStopwatchRunning(!isStopwatchRunning)} className="p-4 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition-all">
                                 {isStopwatchRunning ? <Pause size={32} /> : <Play size={32} className={currentTheme.accent} />}
                             </button>
@@ -1942,7 +1947,7 @@ function App() {
             </div>
 
             {/* Spacer for Navigation Bar offset on Mobile/Desktop */}
-            <div className="w-full h-8 sm:h-24 shrink-0"></div>
+            <div className="w-full h-4 shrink-0"></div>
 
             {/* Bottom Control */}
             <NavigationBar

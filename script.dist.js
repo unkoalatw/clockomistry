@@ -27,7 +27,7 @@ const triggerSuccess = () => {
     disableForReducedMotion: true
   });
 };
-import { Maximize2, Minimize2, Timer, Clock, Monitor, Play, Pause, RotateCcw, AlertCircle, Globe, StopCircle, Settings, X, Check, Plus, Search, Type, Upload, Palette, ArrowLeft, Coffee, Brain, CalendarDays, Languages, Trash2, ChevronLeft, ChevronRight, Calendar, CloudSun, Share2, Download, LayoutTemplate, Sparkles, Delete, Camera, CheckSquare, BarChart2, Sliders, Target, Sunrise, Sunset, LayoutGrid, LayoutPanelTop, RefreshCw } from 'lucide-react';
+import { Maximize2, Minimize2, Timer, Clock, Monitor, Play, Pause, RotateCcw, AlertCircle, Globe, StopCircle, Settings, X, Check, Plus, Search, Type, Upload, Palette, ArrowLeft, Coffee, Brain, CalendarDays, Languages, Trash2, ChevronLeft, ChevronRight, Calendar, CloudSun, Share2, Download, LayoutTemplate, Sparkles, Delete, Camera, CheckSquare, BarChart2, Sliders, Target, Edit3, Sunrise, Sunset, LayoutGrid, LayoutPanelTop, RefreshCw } from 'lucide-react';
 const APP_VERSION = '1.3.0';
 
 // --- IndexedDB 管理 (用於儲存大體積字型) ---
@@ -1904,7 +1904,7 @@ function App() {
     ref: containerRef,
     onMouseMove: handleMouseMove,
     style: containerStyle,
-    className: "h-[100dvh] w-full flex flex-col items-center pt-8 pb-[100px] sm:pb-12 transition-all duration-1000 ".concat(theme !== 'custom' && !isCleanMode ? "bg-gradient-to-br ".concat(currentTheme.gradient, " ").concat(currentTheme.text) : '', " ").concat(isCleanMode ? 'bg-transparent text-white' : '', " overflow-x-hidden overflow-y-auto relative custom-scrollbar selection:bg-pink-500 selection:text-white")
+    className: "h-[100dvh] w-full flex flex-col items-center pt-8 pb-[140px] transition-all duration-1000 ".concat(theme !== 'custom' && !isCleanMode ? "bg-gradient-to-br ".concat(currentTheme.gradient, " ").concat(currentTheme.text) : '', " ").concat(isCleanMode ? 'bg-transparent text-white' : '', " overflow-x-hidden overflow-y-auto relative custom-scrollbar selection:bg-pink-500 selection:text-white")
   }, theme === 'custom' && /*#__PURE__*/React.createElement("style", null, "\n                .custom-accent { color: ".concat(customColors.accent, "; }\n                .custom-card { background: ").concat(customColors.bg1, "33; border-color: ").concat(customColors.text, "1a; box-shadow: 0 8px 32px 0 rgba(0,0,0,0.36); }\n                .custom-settings { background: ").concat(customColors.bg1, "e6; backdrop-filter: blur(64px); }\n            ")), /*#__PURE__*/React.createElement("div", {
     className: "hide-on-export fixed top-8 left-1/2 -translate-x-1/2 z-[100] transition-all duration-300 ".concat(errorMsg ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none')
   }, /*#__PURE__*/React.createElement("div", {
@@ -2564,8 +2564,12 @@ function App() {
     className: "text-[6vw] md:text-[40px] opacity-50 ml-1"
   }, "min")), /*#__PURE__*/React.createElement("span", null, (timerSeconds % 60).toString().padStart(2, '0'), /*#__PURE__*/React.createElement("span", {
     className: "text-[6vw] md:text-[40px] opacity-50 ml-1"
-  }, "s"))))), /*#__PURE__*/React.createElement("div", {
-    className: "mt-8 flex gap-6 z-30 relative ".concat(isEditingTimer ? 'hidden' : '', " ").concat(isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100')
+  }, "s"))), !isTimerRunning && /*#__PURE__*/React.createElement("div", {
+    className: "absolute -bottom-8 left-1/2 -translate-x-1/2 flex items-center justify-center gap-2 text-sm opacity-50 transition-opacity pointer-events-none"
+  }, /*#__PURE__*/React.createElement(Edit3, {
+    size: 16
+  }), " ", /*#__PURE__*/React.createElement("span", null, t('clickToEdit') || 'Click to edit')))), /*#__PURE__*/React.createElement("div", {
+    className: "mt-8 flex gap-6 z-30 relative ".concat(isEditingTimer ? 'hidden' : '', " ").concat(!showControls && !isCleanMode ? 'opacity-0 pointer-events-none' : 'opacity-100 transition-opacity duration-500')
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       if (!isTimerRunning && timerSeconds <= 0) {
@@ -2667,7 +2671,7 @@ function App() {
   }, "min")), /*#__PURE__*/React.createElement("span", null, (pomoSeconds % 60).toString().padStart(2, '0'), /*#__PURE__*/React.createElement("span", {
     className: "text-[6vw] md:text-[40px] opacity-50 ml-1"
   }, "s")))), /*#__PURE__*/React.createElement("div", {
-    className: "mt-8 flex gap-6 z-30 relative ".concat(isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100')
+    className: "mt-8 flex gap-6 z-30 relative ".concat(!showControls && !isCleanMode ? 'opacity-0 pointer-events-none' : 'opacity-100 transition-opacity duration-500')
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       if (!isPomoRunning && pomoSeconds <= 0) resetPomo(pomoMode);
@@ -2739,7 +2743,7 @@ function App() {
   }, ":"), /*#__PURE__*/React.createElement("span", null, stopwatch.s), /*#__PURE__*/React.createElement("span", {
     className: "text-[8vw] md:text-[60px] ml-1 md:ml-2 ".concat(currentTheme.accent)
   }, ".", stopwatch.cs)), /*#__PURE__*/React.createElement("div", {
-    className: "mt-8 flex gap-6 z-30 relative ".concat(isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100')
+    className: "mt-8 flex gap-6 z-30 relative ".concat(!showControls && !isCleanMode ? 'opacity-0 pointer-events-none' : 'opacity-100 transition-opacity duration-500')
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => setIsStopwatchRunning(!isStopwatchRunning),
     className: "p-4 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition-all"
@@ -2837,7 +2841,7 @@ function App() {
       colorScheme: 'dark'
     }
   })), mementoView))), /*#__PURE__*/React.createElement("div", {
-    className: "w-full h-8 sm:h-24 shrink-0"
+    className: "w-full h-4 shrink-0"
   }), /*#__PURE__*/React.createElement(NavigationBar, {
     mode: mode,
     setMode: setMode,
