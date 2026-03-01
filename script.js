@@ -107,7 +107,9 @@ const I18N = {
         "Amsterdam": "阿姆斯特丹", "Zurich": "蘇黎世", "New York": "紐約", "Los Angeles": "洛杉磯",
         "Chicago": "芝加哥", "Toronto": "多倫多", "Vancouver": "溫哥華", "São Paulo": "聖保羅",
         "Mexico City": "墨西哥城", "Sydney": "雪梨", "Melbourne": "墨爾本", "Auckland": "奧克蘭",
-        "Cairo": "開羅", "Johannesburg": "約翰尼斯堡"
+        "Cairo": "開羅", "Johannesburg": "約翰尼斯堡",
+        about: '關於本程式', system: '系統', features: '進階功能',
+        cancel: '取消', add: '新增'
     },
     'en': {
         lang: 'English', locale: 'en-US',
@@ -143,6 +145,8 @@ const I18N = {
         themeModern: 'Midnight', themeLight: 'Optical', themeCyber: 'Cyber', themeForest: 'Crystal', themeCustom: 'Custom',
         fontModern: 'Modern', fontElegant: 'Elegant', fontTechnical: 'Tech', fontCyber: 'Future', fontCustom: 'Imported',
         alarmSound: 'Alarm Sound', notifications: 'Notifications', soundNone: 'None', soundBeep: 'Beep', soundDigital: 'Digital', soundBell: 'Bell', testSound: 'Test Sound',
+        about: 'About App', system: 'System', features: 'Features',
+        cancel: 'Cancel', add: 'Add',
         showProgressRing: 'Progress Ring', enableMiniTask: 'Mini Task List', enableFocusAnalytics: 'Focus Analytics', enableMeetingPlanner: 'Meeting Planner', focusGoal: 'Current Goal', focusStats: 'Focus Stats', exportImage: 'Export as Image', exporting: 'Exporting...',
         ringPosition: 'Ring Position', ringLeft: 'Left of Number', ringRight: 'Right of Number', ringBackground: 'Background Centered',
         autoZenMode: 'Auto Zen Mode on Start',
@@ -473,6 +477,7 @@ function App() {
     const [isZenMode, setIsZenMode] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
     const [showSettings, setShowSettings] = useState(false);
+    const [activeSettingsTab, setActiveSettingsTab] = useState('appearance');
     const [searchQuery, setSearchQuery] = useState('');
     const [hasCustomFont, setHasCustomFont] = useState(false);
     const [hasAgreed, setHasAgreed] = useLocalBoolean('clock_agreed', false);
@@ -489,6 +494,9 @@ function App() {
 
     // Anniversary 狀態
     const [anniversaries, setAnniversaries] = useLocalJSON('clock_anniversaries', []);
+    const [isAddingEvent, setIsAddingEvent] = useState(false);
+    const [newEventName, setNewEventName] = useState('');
+    const [newEventDate, setNewEventDate] = useState('');
 
     // Advance Features 狀態
     const [focusGoal, setFocusGoal] = useLocalString('clock_focusGoal', '');
@@ -1234,375 +1242,414 @@ function App() {
             {/* Settings Overlay */}
             {showSettings && (
                 <div className={`fixed inset-0 z-[60] ${currentTheme.settingsBg} backdrop-blur-3xl animate-in fade-in duration-300 flex flex-col md:flex-row overflow-hidden`}>
-                    <div className="md:w-1/3 lg:w-1/4 p-8 md:p-12 border-b md:border-b-0 md:border-r border-white/10">
-                        <button onClick={() => setShowSettings(false)} className="mb-8 p-2 -ml-2 hover:bg-white/10 rounded-full flex items-center gap-2 opacity-60 hover:opacity-100 group">
+                    <div className="md:w-1/3 lg:w-1/4 p-8 md:p-12 border-b md:border-b-0 md:border-r border-white/10 flex flex-col">
+                        <button onClick={() => setShowSettings(false)} className="mb-4 sm:mb-8 p-2 -ml-2 hover:bg-white/10 rounded-full flex items-center gap-2 opacity-60 hover:opacity-100 group w-max">
                             <ArrowLeft size={24} className="group-hover:-translate-x-1 transition-transform" />
                             <span>{t('back')}</span>
                         </button>
                         <h2 className="text-4xl font-bold tracking-wider mb-2">{t('settings')}</h2>
-                        <p className="opacity-50 text-lg">{t('settingsDesc')}</p>
-                    </div>
+                        <p className="opacity-50 text-lg mb-8">{t('settingsDesc')}</p>
 
-                    <div className="flex-1 overflow-y-auto custom-scrollbar p-8 md:p-12">
-                        <div className="max-w-3xl mx-auto space-y-12 pb-20">
-                            <section className="space-y-6">
-                                <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><Palette size={24} /> {t('appearance')}</h3>
-                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                                    {Object.entries(DEFAULT_THEMES).map(([key, thm]) => (
-                                        <button key={key} onClick={() => setTheme(key)} className={`flex flex-col items-center gap-4 p-6 rounded-3xl transition-all border ${theme === key ? `bg-white/10 border-white/50 scale-105` : 'border-white/5 hover:bg-white/5'}`}>
-                                            <div className={`w-12 h-12 rounded-full ${thm.bg.includes('gray-50') ? 'bg-gray-300' : thm.bg}`}></div>
-                                            <span className="text-sm">{t(thm.name)}</span>
-                                        </button>
-                                    ))}
-                                    <button onClick={() => setTheme('custom')} className={`flex flex-col items-center gap-4 p-6 rounded-3xl transition-all border ${theme === 'custom' ? 'bg-white/10 border-white/50 scale-105' : 'border-white/5 hover:bg-white/5'}`}>
-                                        <div className="w-12 h-12 rounded-full border border-white/20" style={{ background: `linear-gradient(135deg, ${customColors.bg1}, ${customColors.bg2}, ${customColors.bg3})` }}></div>
-                                        <span className="text-sm">{t('custom')}</span>
-                                    </button>
-                                </div>
-                                {theme === 'custom' && (
-                                    <div className="mt-6 p-6 rounded-2xl bg-white/5 border border-white/10" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-                                        <div>
-                                            <span className="text-sm font-medium opacity-80" style={{ display: 'block', marginBottom: 12 }}>{t('bgGradient')}</span>
-                                            <div className="flex gap-4 items-center">
-                                                {[['bg1', t('color1')], ['bg2', t('color2')], ['bg3', t('color3')]].map(([k, l]) => (
-                                                    <label key={k} className="flex flex-col items-center gap-1 cursor-pointer">
-                                                        <input type="color" value={customColors[k]} onChange={(e) => updateCustomColor(k, e.target.value)} style={{ width: 40, height: 40, border: 'none', borderRadius: 8, cursor: 'pointer', background: 'transparent' }} />
-                                                        <span className="opacity-50" style={{ fontSize: 10 }}>{l}</span>
-                                                    </label>
-                                                ))}
-                                                <div className="flex-1 rounded-lg border border-white/10" style={{ height: 40, background: `linear-gradient(135deg, ${customColors.bg1}, ${customColors.bg2}, ${customColors.bg3})` }}></div>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <span className="text-sm font-medium opacity-80" style={{ display: 'block', marginBottom: 12 }}>{t('textAccent')}</span>
-                                            <div className="flex gap-4 items-center">
-                                                {[['text', t('text')], ['accent', t('accent')]].map(([k, l]) => (
-                                                    <label key={k} className="flex flex-col items-center gap-1 cursor-pointer">
-                                                        <input type="color" value={customColors[k]} onChange={(e) => updateCustomColor(k, e.target.value)} style={{ width: 40, height: 40, border: 'none', borderRadius: 8, cursor: 'pointer', background: 'transparent' }} />
-                                                        <span className="opacity-50" style={{ fontSize: 10 }}>{l}</span>
-                                                    </label>
-                                                ))}
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <span className="text-sm font-medium opacity-80" style={{ display: 'block', marginBottom: 12 }}>{t('bgImage')}</span>
-                                            <div className="flex gap-3 items-center">
-                                                <button onClick={() => bgImageInputRef.current.click()} className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm"><Upload size={14} /> {t('uploadImage')}</button>
-                                                {customBgImage && <button onClick={() => setCustomBgImage('')} className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm opacity-60 hover:opacity-100"><X size={14} /> {t('remove')}</button>}
-                                                <input type="file" ref={bgImageInputRef} className="hidden" accept="image/*" onChange={handleBgImageUpload} />
-                                            </div>
-                                            {customBgImage && <div className="w-full rounded-xl overflow-hidden border border-white/10" style={{ height: 96, marginTop: 12 }}><img src={customBgImage} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6 }} /></div>}
-                                        </div>
-                                    </div>
-                                )}
-                                <div className="pt-6">
-                                    <div className="flex justify-between items-center mb-4">
-                                        <span className="text-lg opacity-80">{t('fonts')}</span>
-                                        <button onClick={() => fileInputRef.current.click()} className="text-sm flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10"><Upload size={14} /> {t('importFont')}</button>
-                                        <input type="file" ref={fileInputRef} className="hidden" accept=".ttf,.otf,.woff" onChange={handleFontUpload} />
-                                    </div>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        {Object.entries(DEFAULT_FONTS).map(([key, f]) => (
-                                            <button key={key} onClick={() => setFont(key)} style={f.style} className={`p-4 rounded-2xl border ${font === key ? `bg-white/10 border-white/30 shadow-lg` : 'border-white/10 hover:bg-white/5'}`}>{t(f.name)}</button>
-                                        ))}
-                                        {hasCustomFont && <button onClick={() => setFont('custom')} className={`p-4 rounded-2xl border col-span-full ${font === 'custom' ? `bg-white/10 border-white/30 shadow-lg` : 'border-white/10 hover:bg-white/5'}`}>{t('imported')}</button>}
-                                    </div>
-                                </div>
-                            </section>
-
-                            <section className="space-y-6">
-                                <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><Globe size={24} /> {t('worldClock')}</h3>
-                                <div className="relative">
-                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 opacity-50" size={18} />
-                                    <input
-                                        type="text"
-                                        placeholder={t('searchCity')}
-                                        value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-12 pr-4 outline-none focus:bg-white/10 transition-colors"
-                                    />
-                                </div>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto custom-scrollbar p-1">
-                                    {filteredZones.map(zone => {
-                                        const isSelected = selectedZones.some(z => z.id === zone.id);
-                                        return (
-                                            <button
-                                                key={zone.id}
-                                                onClick={() => {
-                                                    if (isSelected) {
-                                                        setSelectedZones(prev => prev.filter(z => z.id !== zone.id));
-                                                    } else {
-                                                        setSelectedZones(prev => [...prev, zone]);
-                                                    }
-                                                }}
-                                                className={`p-3 rounded-lg text-left flex justify-between items-center transition-all ${isSelected ? 'bg-blue-500/20 border border-blue-500/50' : 'bg-white/5 hover:bg-white/10 border border-transparent'}`}
-                                            >
-                                                <span className="text-sm">{t(zone.label)}</span>
-                                                {isSelected && <Check size={16} className="text-blue-400" />}
-                                            </button>
-                                        )
-                                    })}
-                                </div>
-                            </section>
-                            <section className="space-y-6">
-                                <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><Settings size={24} /> {t('general')}</h3>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    {[['showMillis', showMillis, setShowMillis],
-                                    ['notifications', notificationsEnabled, handleToggleNotifications],
-                                    ['autoZenMode', autoZenMode, setAutoZenMode],
-                                    ['showProgressRing', showProgressRing, setShowProgressRing],
-                                    ['enableMiniTask', enableMiniTask, setEnableMiniTask],
-                                    ['enableFocusAnalytics', enableFocusAnalytics, setEnableFocusAnalytics],
-                                    ['enableMeetingPlanner', enableMeetingPlanner, setEnableMeetingPlanner]].map(([k, val, setVal]) => (
-                                        <label key={k} className="flex items-center justify-between p-6 rounded-2xl bg-white/5 cursor-pointer hover:bg-white/10 transition-colors">
-                                            <span>{t(k)}</span>
-                                            <div onClick={() => k === 'notifications' ? handleToggleNotifications() : setVal(!val)} className={`w-14 h-8 rounded-full relative transition-colors ${val ? 'bg-blue-500' : 'bg-slate-600'}`}>
-                                                <div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all ${val ? 'left-7' : 'left-1'}`} />
-                                            </div>
-                                        </label>
-                                    ))}
-                                </div>
-
-                                <div className="pt-2">
-                                    <div className="flex justify-between items-center mb-4">
-                                        <span className="text-sm font-medium opacity-80">{t('ringPosition')}</span>
-                                    </div>
-                                    <div className="grid grid-cols-3 gap-3">
-                                        {['left', 'right', 'background'].map(sk => (
-                                            <button
-                                                key={sk}
-                                                onClick={() => setRingPosition(sk)}
-                                                className={`p-4 rounded-xl text-center text-sm transition-all border ${ringPosition === sk ? 'bg-white/10 border-white/50 shadow-lg scale-105' : 'bg-white/5 border-transparent hover:bg-white/10'}`}
-                                            >
-                                                {t(`ring${sk.charAt(0).toUpperCase() + sk.slice(1)}`)}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div className="pt-2">
-                                    <div className="flex justify-between items-center mb-4">
-                                        <span className="text-sm font-medium opacity-80">{t('alarmSound')}</span>
-                                        <button onClick={playAlarm} className="text-xs px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 transition-colors">{t('testSound')}</button>
-                                    </div>
-                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                        {['none', 'beep', 'digital', 'bell'].map(sk => (
-                                            <button
-                                                key={sk}
-                                                onClick={() => setAlarmSound(sk)}
-                                                className={`p-4 rounded-xl text-center text-sm transition-all border ${alarmSound === sk ? 'bg-white/10 border-white/50 scale-105' : 'bg-white/5 border-transparent hover:bg-white/10'}`}
-                                            >
-                                                {t(`sound${sk.charAt(0).toUpperCase() + sk.slice(1)}`)}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            </section>
-
-                            <section className="space-y-6">
-                                <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><Languages size={24} /> {t('language')}</h3>
-                                <div className="grid grid-cols-3 gap-4">
-                                    {Object.entries(I18N).map(([key, val]) => (
-                                        <button key={key} onClick={() => setLang(key)} className={`p-4 rounded-2xl border text-center text-sm transition-all ${lang === key ? 'bg-white/10 border-white/50 scale-105' : 'border-white/5 hover:bg-white/5'}`}>{val.lang}</button>
-                                    ))}
-                                </div>
-                            </section>
-
-                            <section className="space-y-6">
-                                <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><Share2 size={24} /> {t('shareTheme')}</h3>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <button onClick={exportTheme} className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 flex flex-col items-center gap-2 transition-all">
-                                        <Download size={20} />
-                                        <span>{t('export')}</span>
-                                    </button>
-                                    <button onClick={handleExportImage} disabled={isExporting} className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 flex flex-col items-center gap-2 transition-all">
-                                        <Camera size={20} className={isExporting ? 'animate-pulse' : ''} />
-                                        <span>{isExporting ? t('exporting') : t('exportImage')}</span>
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            const code = prompt(t('importPrompt'));
-                                            importTheme(code);
-                                        }}
-                                        className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 flex flex-col items-center gap-2 transition-all"
-                                    >
-                                        <LayoutTemplate size={20} />
-                                        <span>{t('import')}</span>
-                                    </button>
-                                </div>
-                            </section>
-
-                            <section className="space-y-6">
-                                <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><Download size={24} className="text-blue-400" /> {t('downloadApp')}</h3>
-                                <div className="p-6 rounded-2xl bg-blue-500/10 border border-blue-500/20">
-                                    <p className="text-sm opacity-80 mb-6 leading-relaxed text-blue-100">{t('appDesc')}</p>
-                                    <button
-                                        onClick={handleDownloadApp}
-                                        disabled={isDownloadingApp}
-                                        className="w-full py-4 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-bold tracking-wide active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20"
-                                    >
-                                        <Download size={18} className={isDownloadingApp ? 'animate-bounce' : ''} />
-                                        {isDownloadingApp ? t('downloadingApp') : t('downloadApp')}
-                                    </button>
-                                </div>
-                            </section>
-
-                            <section className="space-y-6">
-                                <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><RefreshCw size={24} className="text-emerald-400" /> {t('updateTitle')}</h3>
-                                <div className="p-6 rounded-2xl bg-emerald-500/5 border border-emerald-500/20">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <span className="text-sm opacity-60">{t('currentVersion')}</span>
-                                        <span className="text-sm font-mono font-bold bg-white/10 px-3 py-1 rounded-full">v{APP_VERSION}</span>
-                                    </div>
-                                    <p className="text-sm opacity-60 mb-6 leading-relaxed">{t('updateDesc')}</p>
-                                    {updateStatus === 'new' ? (
-                                        <button
-                                            onClick={handleForceUpdate}
-                                            className="w-full py-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold tracking-wide active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
-                                        >
-                                            <Download size={18} />
-                                            {t('updateNow')} (v{latestVersion})
-                                        </button>
-                                    ) : (
-                                        <button
-                                            onClick={handleCheckUpdate}
-                                            disabled={updateStatus === 'checking'}
-                                            className={`w-full py-4 rounded-xl border font-medium active:scale-95 transition-all flex items-center justify-center gap-2 ${updateStatus === 'latest'
-                                                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-                                                : 'bg-white/5 border-white/20 hover:bg-white/10'
-                                                }`}
-                                        >
-                                            <RefreshCw size={18} className={updateStatus === 'checking' ? 'animate-spin' : ''} />
-                                            {updateStatus === 'checking' ? t('checking') : updateStatus === 'latest' ? t('upToDate') : t('checkUpdate')}
-                                        </button>
-                                    )}
-                                </div>
-                            </section>
-
-                            <section className="space-y-6">
-                                <h3 className="text-xl font-medium flex items-center gap-3 border-b border-red-500/30 pb-4 text-red-400"><Trash2 size={24} /> {t('clearData')}</h3>
-                                <div className="p-6 rounded-2xl bg-red-500/5 border border-red-500/20">
-                                    <p className="text-sm opacity-60 mb-6 leading-relaxed">{t('clearDataDesc')}</p>
-                                    <button
-                                        onClick={handleClearData}
-                                        className="w-full py-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 font-medium hover:bg-red-500/25 hover:border-red-500/60 active:scale-95 transition-all flex items-center justify-center gap-2"
-                                    >
-                                        <Trash2 size={18} />
-                                        {t('clearDataBtn')}
-                                    </button>
-                                </div>
-                            </section>
-
-                            <section className="space-y-6">
-                                <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><AlertCircle size={24} /> {t('legal')}</h3>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <a href="privacy.html" className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-center text-sm transition-all">{t('privacy')}</a>
-                                    <a href="terms.html" className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-center text-sm transition-all">{t('terms')}</a>
-                                    <a href="cookies.html" className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-center text-sm transition-all">{t('cookies')}</a>
-                                    <a href="disclaimer.html" className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-center text-sm transition-all">{t('disclaimer')}</a>
-                                </div>
-                            </section>
+                        <div className="flex flex-row md:flex-col gap-2 overflow-x-auto hide-scroll pb-2 md:pb-0">
+                            {[
+                                { id: 'appearance', icon: Palette, label: t('appearance') },
+                                { id: 'general', icon: Settings, label: t('general') },
+                                { id: 'features', icon: Globe, label: t('features') },
+                                { id: 'system', icon: Download, label: t('system') },
+                                { id: 'about', icon: AlertCircle, label: t('about') }
+                            ].map(tab => (
+                                <button key={tab.id} onClick={() => setActiveSettingsTab(tab.id)} className={`flex items-center gap-3 px-5 py-4 rounded-2xl transition-all whitespace-nowrap text-left ${activeSettingsTab === tab.id ? 'bg-white/10 font-bold text-white shadow-lg' : 'opacity-60 hover:opacity-100 hover:bg-white/5'}`}>
+                                    <tab.icon size={20} className={activeSettingsTab === tab.id ? currentTheme.accent : ''} />
+                                    {tab.label}
+                                </button>
+                            ))}
                         </div>
                     </div>
-                </div>
-            )}
+
+                    <div className="flex-1 overflow-y-auto custom-scrollbar p-6 md:p-12">
+                        <div className="max-w-3xl mx-auto space-y-12 pb-24">
+                            {activeSettingsTab === 'appearance' && (
+                                <section className="space-y-6 animate-fade-in">
+                                    <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><Palette size={24} /> {t('appearance')}</h3>
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                        {Object.entries(DEFAULT_THEMES).map(([key, thm]) => (
+                                            <button key={key} onClick={() => setTheme(key)} className={`flex flex-col items-center gap-4 p-6 rounded-3xl transition-all border ${theme === key ? `bg-white/10 border-white/50 scale-105` : 'border-white/5 hover:bg-white/5'}`}>
+                                                <div className={`w-12 h-12 rounded-full ${thm.bg.includes('gray-50') ? 'bg-gray-300' : thm.bg}`}></div>
+                                                <span className="text-sm">{t(thm.name)}</span>
+                                            </button>
+                                        ))}
+                                        <button onClick={() => setTheme('custom')} className={`flex flex-col items-center gap-4 p-6 rounded-3xl transition-all border ${theme === 'custom' ? 'bg-white/10 border-white/50 scale-105' : 'border-white/5 hover:bg-white/5'}`}>
+                                            <div className="w-12 h-12 rounded-full border border-white/20" style={{ background: `linear-gradient(135deg, ${customColors.bg1}, ${customColors.bg2}, ${customColors.bg3})` }}></div>
+                                            <span className="text-sm">{t('custom')}</span>
+                                        </button>
+                                    </div>
+                                    {theme === 'custom' && (
+                                        <div className="mt-6 p-6 rounded-2xl bg-white/5 border border-white/10" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                                            <div>
+                                                <span className="text-sm font-medium opacity-80" style={{ display: 'block', marginBottom: 12 }}>{t('bgGradient')}</span>
+                                                <div className="flex gap-4 items-center">
+                                                    {[['bg1', t('color1')], ['bg2', t('color2')], ['bg3', t('color3')]].map(([k, l]) => (
+                                                        <label key={k} className="flex flex-col items-center gap-1 cursor-pointer">
+                                                            <input type="color" value={customColors[k]} onChange={(e) => updateCustomColor(k, e.target.value)} style={{ width: 40, height: 40, border: 'none', borderRadius: 8, cursor: 'pointer', background: 'transparent' }} />
+                                                            <span className="opacity-50" style={{ fontSize: 10 }}>{l}</span>
+                                                        </label>
+                                                    ))}
+                                                    <div className="flex-1 rounded-lg border border-white/10" style={{ height: 40, background: `linear-gradient(135deg, ${customColors.bg1}, ${customColors.bg2}, ${customColors.bg3})` }}></div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <span className="text-sm font-medium opacity-80" style={{ display: 'block', marginBottom: 12 }}>{t('textAccent')}</span>
+                                                <div className="flex gap-4 items-center">
+                                                    {[['text', t('text')], ['accent', t('accent')]].map(([k, l]) => (
+                                                        <label key={k} className="flex flex-col items-center gap-1 cursor-pointer">
+                                                            <input type="color" value={customColors[k]} onChange={(e) => updateCustomColor(k, e.target.value)} style={{ width: 40, height: 40, border: 'none', borderRadius: 8, cursor: 'pointer', background: 'transparent' }} />
+                                                            <span className="opacity-50" style={{ fontSize: 10 }}>{l}</span>
+                                                        </label>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <span className="text-sm font-medium opacity-80" style={{ display: 'block', marginBottom: 12 }}>{t('bgImage')}</span>
+                                                <div className="flex gap-3 items-center">
+                                                    <button onClick={() => bgImageInputRef.current.click()} className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm"><Upload size={14} /> {t('uploadImage')}</button>
+                                                    {customBgImage && <button onClick={() => setCustomBgImage('')} className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm opacity-60 hover:opacity-100"><X size={14} /> {t('remove')}</button>}
+                                                    <input type="file" ref={bgImageInputRef} className="hidden" accept="image/*" onChange={handleBgImageUpload} />
+                                                </div>
+                                                {customBgImage && <div className="w-full rounded-xl overflow-hidden border border-white/10" style={{ height: 96, marginTop: 12 }}><img src={customBgImage} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6 }} /></div>}
+                                            </div>
+                                        </div>
+                                    )}
+                                    <div className="pt-6">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <span className="text-lg opacity-80">{t('fonts')}</span>
+                                            <button onClick={() => fileInputRef.current.click()} className="text-sm flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10"><Upload size={14} /> {t('importFont')}</button>
+                                            <input type="file" ref={fileInputRef} className="hidden" accept=".ttf,.otf,.woff" onChange={handleFontUpload} />
+                                        </div>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            {Object.entries(DEFAULT_FONTS).map(([key, f]) => (
+                                                <button key={key} onClick={() => setFont(key)} style={f.style} className={`p-4 rounded-2xl border ${font === key ? `bg-white/10 border-white/30 shadow-lg` : 'border-white/10 hover:bg-white/5'}`}>{t(f.name)}</button>
+                                            ))}
+                                            {hasCustomFont && <button onClick={() => setFont('custom')} className={`p-4 rounded-2xl border col-span-full ${font === 'custom' ? `bg-white/10 border-white/30 shadow-lg` : 'border-white/10 hover:bg-white/5'}`}>{t('imported')}</button>}
+                                        </div>
+                                    </div>
+                                </section>
+                            )}
+
+                            {activeSettingsTab === 'features' && (
+                                <section className="space-y-12 animate-fade-in">
+                                    <div className="space-y-6">
+                                        <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><Globe size={24} /> {t('worldClock')}</h3>
+                                        <div className="relative">
+                                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 opacity-50" size={18} />
+                                            <input
+                                                type="text"
+                                                placeholder={t('searchCity')}
+                                                value={searchQuery}
+                                                onChange={(e) => setSearchQuery(e.target.value)}
+                                                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-12 pr-4 outline-none focus:bg-white/10 transition-colors"
+                                            />
+                                        </div>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto custom-scrollbar p-1">
+                                            {filteredZones.map(zone => {
+                                                const isSelected = selectedZones.some(z => z.id === zone.id);
+                                                return (
+                                                    <button
+                                                        key={zone.id}
+                                                        onClick={() => {
+                                                            if (isSelected) {
+                                                                setSelectedZones(prev => prev.filter(z => z.id !== zone.id));
+                                                            } else {
+                                                                setSelectedZones(prev => [...prev, zone]);
+                                                            }
+                                                        }}
+                                                        className={`p-3 rounded-lg text-left flex justify-between items-center transition-all ${isSelected ? 'bg-blue-500/20 border border-blue-500/50' : 'bg-white/5 hover:bg-white/10 border border-transparent'}`}
+                                                    >
+                                                        <span className="text-sm">{t(zone.label)}</span>
+                                                        {isSelected && <Check size={16} className="text-blue-400" />}
+                                                    </button>
+                                                )
+                                            })}
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-6">
+                                        <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><Languages size={24} /> {t('language')}</h3>
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                            {Object.entries(I18N).map(([key, val]) => (
+                                                <button key={key} onClick={() => setLang(key)} className={`p-4 rounded-2xl border text-center text-sm transition-all ${lang === key ? 'bg-white/10 border-white/50 shadow-lg scale-105' : 'border-white/5 hover:bg-white/5'}`}>{val.lang}</button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </section>
+                            )}
+
+                            {activeSettingsTab === 'general' && (
+                                <section className="space-y-12 animate-fade-in">
+                                    <div className="space-y-6">
+                                        <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><Settings size={24} /> {t('general')}</h3>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            {[['showMillis', showMillis, setShowMillis],
+                                            ['notifications', notificationsEnabled, handleToggleNotifications],
+                                            ['autoZenMode', autoZenMode, setAutoZenMode],
+                                            ['showProgressRing', showProgressRing, setShowProgressRing],
+                                            ['enableMiniTask', enableMiniTask, setEnableMiniTask],
+                                            ['enableFocusAnalytics', enableFocusAnalytics, setEnableFocusAnalytics],
+                                            ['enableMeetingPlanner', enableMeetingPlanner, setEnableMeetingPlanner]].map(([k, val, setVal]) => (
+                                                <label key={k} className="flex items-center justify-between p-6 rounded-2xl bg-white/5 cursor-pointer hover:bg-white/10 transition-colors">
+                                                    <span>{t(k)}</span>
+                                                    <div onClick={() => k === 'notifications' ? handleToggleNotifications() : setVal(!val)} className={`w-14 h-8 rounded-full relative transition-colors ${val ? 'bg-blue-500' : 'bg-slate-600'}`}>
+                                                        <div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all ${val ? 'left-7' : 'left-1'}`} />
+                                                    </div>
+                                                </label>
+                                            ))}
+                                        </div>
+
+                                        <div className="pt-2">
+                                            <div className="flex justify-between items-center mb-4">
+                                                <span className="text-sm font-medium opacity-80">{t('ringPosition')}</span>
+                                            </div>
+                                            <div className="grid grid-cols-3 gap-3">
+                                                {['left', 'right', 'background'].map(sk => (
+                                                    <button
+                                                        key={sk}
+                                                        onClick={() => setRingPosition(sk)}
+                                                        className={`p-4 rounded-xl text-center text-sm transition-all border ${ringPosition === sk ? 'bg-white/10 border-white/50 shadow-lg scale-105' : 'bg-white/5 border-transparent hover:bg-white/10'}`}
+                                                    >
+                                                        {t(`ring${sk.charAt(0).toUpperCase() + sk.slice(1)}`)}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        <div className="pt-2">
+                                            <div className="flex justify-between items-center mb-4">
+                                                <span className="text-sm font-medium opacity-80">{t('alarmSound')}</span>
+                                                <button onClick={playAlarm} className="text-xs px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 transition-colors">{t('testSound')}</button>
+                                            </div>
+                                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                                {['none', 'beep', 'digital', 'bell'].map(sk => (
+                                                    <button
+                                                        key={sk}
+                                                        onClick={() => setAlarmSound(sk)}
+                                                        className={`p-4 rounded-xl text-center text-sm transition-all border ${alarmSound === sk ? 'bg-white/10 border-white/50 scale-105' : 'bg-white/5 border-transparent hover:bg-white/10'}`}
+                                                    >
+                                                        {t(`sound${sk.charAt(0).toUpperCase() + sk.slice(1)}`)}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                            )}
+
+                            {activeSettingsTab === 'about' && (
+                                <section className="space-y-12 animate-fade-in">
+                                    <div className="space-y-6">
+                                        <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><Share2 size={24} /> {t('shareTheme')}</h3>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <button onClick={exportTheme} className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 flex flex-col items-center gap-2 transition-all">
+                                                <Download size={20} />
+                                                <span>{t('export')}</span>
+                                            </button>
+                                            <button onClick={handleExportImage} disabled={isExporting} className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 flex flex-col items-center gap-2 transition-all">
+                                                <Camera size={20} className={isExporting ? 'animate-pulse' : ''} />
+                                                <span>{isExporting ? t('exporting') : t('exportImage')}</span>
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    const code = prompt(t('importPrompt'));
+                                                    importTheme(code);
+                                                }}
+                                                className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 flex flex-col items-center gap-2 transition-all"
+                                            >
+                                                <LayoutTemplate size={20} />
+                                                <span>{t('import')}</span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-6">
+                                        <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><AlertCircle size={24} /> {t('legal')}</h3>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <a href="privacy.html" className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-center text-sm transition-all">{t('privacy')}</a>
+                                            <a href="terms.html" className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-center text-sm transition-all">{t('terms')}</a>
+                                            <a href="cookies.html" className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-center text-sm transition-all">{t('cookies')}</a>
+                                            <a href="disclaimer.html" className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-center text-sm transition-all">{t('disclaimer')}</a>
+                                        </div>
+                                    </div>
+                                </section>
+                            )}
+
+                            {activeSettingsTab === 'system' && (
+                                <section className="space-y-12 animate-fade-in">
+                                    <div className="space-y-6">
+                                        <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><Download size={24} className="text-blue-400" /> {t('downloadApp')}</h3>
+                                        <div className="p-6 rounded-2xl bg-blue-500/10 border border-blue-500/20">
+                                            <p className="text-sm opacity-80 mb-6 leading-relaxed text-blue-100">{t('appDesc')}</p>
+                                            <button
+                                                onClick={handleDownloadApp}
+                                                disabled={isDownloadingApp}
+                                                className="w-full py-4 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-bold tracking-wide active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20"
+                                            >
+                                                <Download size={18} className={isDownloadingApp ? 'animate-bounce' : ''} />
+                                                {isDownloadingApp ? t('downloadingApp') : t('downloadApp')}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-6">
+                                        <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><RefreshCw size={24} className="text-emerald-400" /> {t('updateTitle')}</h3>
+                                        <div className="p-6 rounded-2xl bg-emerald-500/5 border border-emerald-500/20">
+                                            <div className="flex items-center justify-between mb-4">
+                                                <span className="text-sm opacity-60">{t('currentVersion')}</span>
+                                                <span className="text-sm font-mono font-bold bg-white/10 px-3 py-1 rounded-full">v{APP_VERSION}</span>
+                                            </div>
+                                            <p className="text-sm opacity-60 mb-6 leading-relaxed">{t('updateDesc')}</p>
+                                            {updateStatus === 'new' ? (
+                                                <button
+                                                    onClick={handleForceUpdate}
+                                                    className="w-full py-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold tracking-wide active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
+                                                >
+                                                    <Download size={18} />
+                                                    {t('updateNow')} (v{latestVersion})
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    onClick={handleCheckUpdate}
+                                                    disabled={updateStatus === 'checking'}
+                                                    className={`w-full py-4 rounded-xl border font-medium active:scale-95 transition-all flex items-center justify-center gap-2 ${updateStatus === 'latest'
+                                                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                                                        : 'bg-white/5 border-white/20 hover:bg-white/10'
+                                                        }`}
+                                                >
+                                                    <RefreshCw size={18} className={updateStatus === 'checking' ? 'animate-spin' : ''} />
+                                                    {updateStatus === 'checking' ? t('checking') : updateStatus === 'latest' ? t('upToDate') : t('checkUpdate')}
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-6">
+                                        <h3 className="text-xl font-medium flex items-center gap-3 border-b border-red-500/30 pb-4 text-red-400"><Trash2 size={24} /> {t('clearData')}</h3>
+                                        <div className="p-6 rounded-2xl bg-red-500/5 border border-red-500/20">
+                                            <p className="text-sm opacity-60 mb-6 leading-relaxed">{t('clearDataDesc')}</p>
+                                            <button
+                                                onClick={handleClearData}
+                                                className="w-full py-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 font-medium hover:bg-red-500/25 hover:border-red-500/60 active:scale-95 transition-all flex items-center justify-center gap-2"
+                                            >
+                                                <Trash2 size={18} />
+                                                {t('clearDataBtn')}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </section>
+                            )}
+                        </div>
+                    </div>
+                </div >
+            )
+            }
 
             {/* Full-Screen Welcome Splash */}
-            {!hasAgreed && (
-                <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden select-none" style={{ background: 'linear-gradient(160deg, #020420 0%, #0a1628 30%, #111d3a 50%, #0d1a2f 70%, #040812 100%)' }}>
-                    {/* Animated gradient orbs */}
-                    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                        <div className="absolute w-[80vw] h-[80vw] rounded-full bg-blue-600/8 blur-[120px] -top-[20%] -left-[20%] animate-pulse" />
-                        <div className="absolute w-[60vw] h-[60vw] rounded-full bg-indigo-500/8 blur-[100px] -bottom-[10%] -right-[10%] animate-pulse" style={{ animationDelay: '2s' }} />
-                        <div className="absolute w-[40vw] h-[40vw] rounded-full bg-cyan-500/5 blur-[80px] top-[40%] left-[50%] -translate-x-1/2 animate-pulse" style={{ animationDelay: '4s' }} />
-                    </div>
-
-                    {/* Subtle grid pattern overlay */}
-                    <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
-
-                    {/* Main Content */}
-                    <div className="relative flex flex-col items-center text-center px-8 max-w-xl space-y-10">
-
-                        {/* Logo / Brand Mark */}
-                        <div className="relative mb-2">
-                            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-500/20 to-cyan-400/10 border border-white/10 flex items-center justify-center backdrop-blur-sm shadow-2xl shadow-blue-500/10">
-                                <Clock size={36} className="text-blue-400 drop-shadow-[0_0_20px_rgba(96,165,250,0.4)]" />
-                            </div>
+            {
+                !hasAgreed && (
+                    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden select-none" style={{ background: 'linear-gradient(160deg, #020420 0%, #0a1628 30%, #111d3a 50%, #0d1a2f 70%, #040812 100%)' }}>
+                        {/* Animated gradient orbs */}
+                        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                            <div className="absolute w-[80vw] h-[80vw] rounded-full bg-blue-600/8 blur-[120px] -top-[20%] -left-[20%] animate-pulse" />
+                            <div className="absolute w-[60vw] h-[60vw] rounded-full bg-indigo-500/8 blur-[100px] -bottom-[10%] -right-[10%] animate-pulse" style={{ animationDelay: '2s' }} />
+                            <div className="absolute w-[40vw] h-[40vw] rounded-full bg-cyan-500/5 blur-[80px] top-[40%] left-[50%] -translate-x-1/2 animate-pulse" style={{ animationDelay: '4s' }} />
                         </div>
 
-                        {/* Title */}
-                        <div className="space-y-4">
-                            <h1 className="text-5xl sm:text-7xl font-black text-white tracking-tight leading-[0.9]">
-                                Clock<span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500">omistry</span>
-                            </h1>
+                        {/* Subtle grid pattern overlay */}
+                        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
-                            {/* Splash Language Toggle */}
-                            <div className="flex gap-2 justify-center mt-6">
-                                {Object.entries(I18N).map(([key, val]) => (
-                                    <button
-                                        key={key}
-                                        onClick={() => setLang(key)}
-                                        className={`px-3 py-1 rounded-full text-[10px] uppercase tracking-widest border transition-all ${lang === key ? 'bg-white/10 border-white/40' : 'border-transparent opacity-40 hover:opacity-100'}`}
+                        {/* Main Content */}
+                        <div className="relative flex flex-col items-center text-center px-8 max-w-xl space-y-10">
+
+                            {/* Logo / Brand Mark */}
+                            <div className="relative mb-2">
+                                <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-500/20 to-cyan-400/10 border border-white/10 flex items-center justify-center backdrop-blur-sm shadow-2xl shadow-blue-500/10">
+                                    <Clock size={36} className="text-blue-400 drop-shadow-[0_0_20px_rgba(96,165,250,0.4)]" />
+                                </div>
+                            </div>
+
+                            {/* Title */}
+                            <div className="space-y-4">
+                                <h1 className="text-5xl sm:text-7xl font-black text-white tracking-tight leading-[0.9]">
+                                    Clock<span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500">omistry</span>
+                                </h1>
+
+                                {/* Splash Language Toggle */}
+                                <div className="flex gap-2 justify-center mt-6">
+                                    {Object.entries(I18N).map(([key, val]) => (
+                                        <button
+                                            key={key}
+                                            onClick={() => setLang(key)}
+                                            className={`px-3 py-1 rounded-full text-[10px] uppercase tracking-widest border transition-all ${lang === key ? 'bg-white/10 border-white/40' : 'border-transparent opacity-40 hover:opacity-100'}`}
+                                        >
+                                            {val.lang}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <p className="text-base sm:text-lg text-slate-400 leading-relaxed max-w-md mx-auto font-light mt-6">
+                                    {t('splashDesc')}<br className="hidden sm:block" />{t('splashTerms')}
+                                </p>
+                            </div>
+
+                            {/* Legal Links Row */}
+                            <div className="flex flex-wrap justify-center gap-3">
+                                {[
+                                    { label: t('privacy'), href: 'privacy.html' },
+                                    { label: t('terms'), href: 'terms.html' },
+                                    { label: t('cookies'), href: 'cookies.html' },
+                                    { label: t('disclaimer'), href: 'disclaimer.html' }
+                                ].map((item, i) => (
+                                    <a
+                                        key={i}
+                                        href={item.href}
+                                        className="px-5 py-2.5 rounded-full bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.08] hover:border-white/[0.15] text-xs font-medium text-slate-500 hover:text-slate-300 transition-all duration-300"
                                     >
-                                        {val.lang}
-                                    </button>
+                                        {item.label}
+                                    </a>
                                 ))}
                             </div>
 
-                            <p className="text-base sm:text-lg text-slate-400 leading-relaxed max-w-md mx-auto font-light mt-6">
-                                {t('splashDesc')}<br className="hidden sm:block" />{t('splashTerms')}
-                            </p>
+                            {/* CTA Button */}
+                            <button
+                                onClick={() => setHasAgreed(true)}
+                                className="group relative px-12 py-5 rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold text-base tracking-wide transition-all duration-300 hover:shadow-[0_0_60px_-12px_rgba(59,130,246,0.5)] hover:scale-105 active:scale-95"
+                            >
+                                <div className="absolute inset-0 rounded-full bg-white/0 group-hover:bg-white/10 transition-colors duration-300" />
+                                <span className="relative">{t('agree')}</span>
+                            </button>
                         </div>
 
-                        {/* Legal Links Row */}
-                        <div className="flex flex-wrap justify-center gap-3">
-                            {[
-                                { label: t('privacy'), href: 'privacy.html' },
-                                { label: t('terms'), href: 'terms.html' },
-                                { label: t('cookies'), href: 'cookies.html' },
-                                { label: t('disclaimer'), href: 'disclaimer.html' }
-                            ].map((item, i) => (
-                                <a
-                                    key={i}
-                                    href={item.href}
-                                    className="px-5 py-2.5 rounded-full bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.08] hover:border-white/[0.15] text-xs font-medium text-slate-500 hover:text-slate-300 transition-all duration-300"
-                                >
-                                    {item.label}
-                                </a>
-                            ))}
+                        {/* Bottom attribution */}
+                        <div className="absolute bottom-8 text-[10px] text-slate-600 tracking-[0.3em] uppercase">
+                            {t('splashBottom')}
                         </div>
-
-                        {/* CTA Button */}
-                        <button
-                            onClick={() => setHasAgreed(true)}
-                            className="group relative px-12 py-5 rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold text-base tracking-wide transition-all duration-300 hover:shadow-[0_0_60px_-12px_rgba(59,130,246,0.5)] hover:scale-105 active:scale-95"
-                        >
-                            <div className="absolute inset-0 rounded-full bg-white/0 group-hover:bg-white/10 transition-colors duration-300" />
-                            <span className="relative">{t('agree')}</span>
-                        </button>
                     </div>
-
-                    {/* Bottom attribution */}
-                    <div className="absolute bottom-8 text-[10px] text-slate-600 tracking-[0.3em] uppercase">
-                        {t('splashBottom')}
-                    </div>
-                </div>
-            )}
+                )
+            }
 
             {/* Screen Saver Overaly */}
-            {isScreenSaverActive && (
-                <div className="fixed inset-0 z-[200] bg-black select-none cursor-none flex items-center justify-center">
-                    <div
-                        className="absolute flex flex-col items-center transition-all duration-[4000ms] ease-linear"
-                        style={{ left: `${ssPos.x}%`, top: `${ssPos.y}%` }}
-                    >
-                        <div className="text-8xl sm:text-[120px] font-bold tracking-tighter opacity-80">
-                            {h}<span className="animate-pulse">:</span>{m}
+            {
+                isScreenSaverActive && (
+                    <div className="fixed inset-0 z-[200] bg-black select-none cursor-none flex items-center justify-center">
+                        <div
+                            className="absolute flex flex-col items-center transition-all duration-[4000ms] ease-linear"
+                            style={{ left: `${ssPos.x}%`, top: `${ssPos.y}%` }}
+                        >
+                            <div className="text-8xl sm:text-[120px] font-bold tracking-tighter opacity-80">
+                                {h}<span className="animate-pulse">:</span>{m}
+                            </div>
+                            <div className="mt-4 text-sm opacity-20 tracking-[1em] uppercase">{t('ssHint')}</div>
                         </div>
-                        <div className="mt-4 text-sm opacity-20 tracking-[1em] uppercase">{t('ssHint')}</div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* Decor - Optimized blurs with Ambient Animations */}
             <div className={`absolute inset-0 overflow-hidden pointer-events-none transition-opacity duration-1000 ${isZenMode ? 'opacity-20' : 'opacity-100'}`}>
@@ -1918,16 +1965,23 @@ function App() {
                                 );
                             })}
                         </div>
-                        <button
-                            onClick={() => {
-                                const label = prompt(t('eventName'));
-                                const date = prompt(t('date'), '2026-01-01');
-                                if (label && date) setAnniversaries([...anniversaries, { id: Date.now(), label, date }]);
-                            }}
-                            className="mt-8 px-8 py-3 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 flex items-center gap-2 transition-all"
-                        >
-                            <Plus size={20} /> {t('addEvent')}
-                        </button>
+                        {isAddingEvent ? (
+                            <div className="mt-8 p-6 rounded-3xl bg-white/10 border border-white/20 w-full animate-in fade-in zoom-in-95 duration-300">
+                                <input type="text" placeholder={t('eventName')} value={newEventName} onChange={e => setNewEventName(e.target.value)} className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 mb-3 outline-none focus:border-white/30" />
+                                <input type="date" value={newEventDate} onChange={e => setNewEventDate(e.target.value)} className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 mb-4 outline-none focus:border-white/30" />
+                                <div className="flex gap-3">
+                                    <button onClick={() => setIsAddingEvent(false)} className="flex-1 py-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors uppercase tracking-widest text-xs font-bold">{t('cancel') || 'Cancel'}</button>
+                                    <button onClick={() => { if (newEventName && newEventDate) { setAnniversaries([...anniversaries, { id: Date.now(), label: newEventName, date: newEventDate }]); setIsAddingEvent(false); setNewEventName(''); setNewEventDate(''); } }} className="flex-1 py-3 rounded-xl bg-blue-500 hover:bg-blue-600 transition-colors uppercase tracking-widest text-xs font-bold">{t('add') || 'Add'}</button>
+                                </div>
+                            </div>
+                        ) : (
+                            <button
+                                onClick={() => setIsAddingEvent(true)}
+                                className="mt-8 px-8 py-3 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 flex items-center gap-2 transition-all"
+                            >
+                                <Plus size={20} /> {t('addEvent')}
+                            </button>
+                        )}
                     </div>
                 )}
 
@@ -1962,7 +2016,7 @@ function App() {
                 isCleanMode={isCleanMode}
                 t={t}
             />
-        </div>
+        </div >
     );
 }
 createRoot(document.getElementById('root')).render(<App />);
