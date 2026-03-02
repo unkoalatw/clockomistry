@@ -1679,7 +1679,7 @@ function App() {
 
                 {/* Sub-Navigation for Time Tools */}
                 {['timer', 'pomodoro', 'stopwatch'].includes(mode) && (
-                    <div className={`flex justify-center gap-2 bg-black/20 p-1.5 rounded-full border border-white/5 w-max animate-fade-in z-20 mb-8 mt-[-1rem] ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:opacity-100'}`} style={{ transition: 'opacity 0.3s ease' }}>
+                    <div className={`sticky top-0 flex justify-center gap-2 bg-black/60 backdrop-blur-md p-1.5 rounded-full border border-white/10 w-max animate-fade-in z-[60] mb-8 mt-[-1rem] shadow-lg shadow-black/20 ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:opacity-100'}`} style={{ transition: 'opacity 0.3s ease' }}>
                         <button onClick={() => setMode('pomodoro')} className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ${mode === 'pomodoro' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100'}`}>{t('tabPomodoro')}</button>
                         <button onClick={() => setMode('timer')} className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ${mode === 'timer' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100'}`}>{t('tabTimer')}</button>
                         <button onClick={() => setMode('stopwatch')} className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ${mode === 'stopwatch' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100'}`}>{t('tabStopwatch')}</button>
@@ -1688,7 +1688,7 @@ function App() {
 
                 {/* Sub-Navigation for Calendar Tools */}
                 {['calendar', 'anniversary', 'memento'].includes(mode) && (
-                    <div className={`flex justify-center gap-2 bg-black/20 p-1.5 rounded-full border border-white/5 w-max animate-fade-in z-20 mb-8 mt-[-1rem] ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:opacity-100'}`} style={{ transition: 'opacity 0.3s ease' }}>
+                    <div className={`sticky top-0 flex justify-center gap-2 bg-black/60 backdrop-blur-md p-1.5 rounded-full border border-white/10 w-max animate-fade-in z-[60] mb-8 mt-[-1rem] shadow-lg shadow-black/20 ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:opacity-100'}`} style={{ transition: 'opacity 0.3s ease' }}>
                         <button onClick={() => setMode('calendar')} className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ${mode === 'calendar' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100'}`}>{t('tabMonthly')}</button>
                         <button onClick={() => setMode('anniversary')} className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ${mode === 'anniversary' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100'}`}>{t('tabEvents')}</button>
                         <button onClick={() => setMode('memento')} className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ${mode === 'memento' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100'}`}>{t('tabLife')}</button>
