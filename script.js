@@ -348,18 +348,18 @@ const WeatherWidget = React.memo(({ weather, accent }) => (
     </div>
 ));
 
-const ClockDisplay = React.memo(({ h, m, s, ms, showMillis, accent, dateLabel }) => (
+const ClockDisplay = React.memo(({ h, m, s, ms, showMillis, accent, dateLabel, isZenMode }) => (
     <div className="flex flex-col items-center select-none">
-        <div className="flex items-baseline font-bold tracking-tighter tabular-nums drop-shadow-2xl">
-            <span className="text-[22vw] md:text-[150px] leading-none">{h}</span>
-            <span className={`text-[22vw] md:text-[150px] leading-none animate-pulse ${accent}`}>:</span>
-            <span className="text-[22vw] md:text-[150px] leading-none">{m}</span>
-            <div className="flex flex-col ml-2 md:ml-4 justify-end pb-[1vw] md:pb-8">
-                <span className="text-[8vw] md:text-[40px] opacity-50 font-medium">{s}</span>
-                {showMillis && <span className={`text-[4vw] md:text-[20px] ${accent} opacity-80`}>{ms}</span>}
+        <div className="flex items-baseline font-bold tracking-tighter tabular-nums drop-shadow-2xl transition-all">
+            <span className={`leading-none ${isZenMode ? 'text-[25vw] md:text-[200px]' : 'text-[18vw] md:text-[120px]'}`}>{h}</span>
+            <span className={`leading-none animate-pulse ${accent} ${isZenMode ? 'text-[25vw] md:text-[200px]' : 'text-[18vw] md:text-[120px]'}`}>:</span>
+            <span className={`leading-none ${isZenMode ? 'text-[25vw] md:text-[200px]' : 'text-[18vw] md:text-[120px]'}`}>{m}</span>
+            <div className={`flex flex-col ml-2 md:ml-4 justify-end ${isZenMode ? 'pb-[2vw] md:pb-12' : 'pb-[1vw] md:pb-6'}`}>
+                <span className={`opacity-50 font-medium ${isZenMode ? 'text-[10vw] md:text-[60px]' : 'text-[6vw] md:text-[32px]'}`}>{s}</span>
+                {showMillis && <span className={`${accent} opacity-80 ${isZenMode ? 'text-[5vw] md:text-[30px]' : 'text-[3vw] md:text-[16px]'}`}>{ms}</span>}
             </div>
         </div>
-        <div className="mt-2 md:mt-4 text-sm md:text-2xl font-light tracking-[0.3em] opacity-80 uppercase text-center">{dateLabel}</div>
+        <div className={`mt-2 md:mt-4 font-light tracking-[0.3em] opacity-80 uppercase text-center transition-all ${isZenMode ? 'text-lg md:text-3xl' : 'text-xs md:text-xl'}`}>{dateLabel}</div>
     </div>
 ));
 
@@ -1654,6 +1654,18 @@ function App() {
             {/* Decor - Optimized blurs with Ambient Animations */}
             <div className={`absolute inset-0 overflow-hidden pointer-events-none transition-opacity duration-1000 ${isZenMode ? 'opacity-20' : 'opacity-100'}`}>
                 <style>{`
+                    /* Hide UI during clean/zen mode (smoothly) */
+                    .hide-on-export { transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease; }
+                    .glass-panel { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
+                    
+                    /* Custom Scrollbar */
+                    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+                    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+                    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 4px; }
+                    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
+
+                    /* Smooth transitions for Zen Mode scaling */
+                    .transition-zen { transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
                     @keyframes ambientFloat1 {
                         0%, 100% { transform: translate(0, 0) scale(1); }
                         33% { transform: translate(5vw, 5vh) scale(1.1); }
@@ -1675,7 +1687,7 @@ function App() {
             </div>
 
             {/* Main Card */}
-            <div className={`relative z-10 w-full my-auto shrink max-h-[calc(100dvh-80px)] overflow-hidden max-w-[95vw] md:max-w-4xl rounded-[30px] sm:rounded-[48px] transition-all duration-700 flex flex-col items-center justify-start min-h-[40vh] ${!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0'} ${isZenMode ? 'scale-[1.05]' : ''} ${isCleanMode ? 'scale-[0.85]' : ''}`}>
+            <div className={`relative z-10 w-full my-auto shrink max-h-[calc(100dvh-80px)] overflow-hidden max-w-[95vw] md:max-w-4xl rounded-[30px] sm:rounded-[48px] transition-zen flex flex-col items-center justify-start min-h-[40vh] ${!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0'} ${isZenMode ? 'scale-[1.05]' : ''} ${isCleanMode ? 'scale-[0.85]' : ''}`}>
 
                 {/* Fixed Top Navigation Arrays */}
                 {(!isCleanMode && !isZenMode) && (
@@ -1714,7 +1726,7 @@ function App() {
                     {mode === 'clock' && (
                         <div className="flex flex-col items-center select-none">
                             <WeatherWidget weather={weather} accent={currentTheme.accent} />
-                            <ClockDisplay h={h} m={m} s={s} ms={ms} showMillis={showMillis} accent={currentTheme.accent} dateLabel={formatDate(time)} />
+                            <ClockDisplay h={h} m={m} s={s} ms={ms} showMillis={showMillis} accent={currentTheme.accent} dateLabel={formatDate(time)} isZenMode={isZenMode} />
                         </div>
                     )}
 
@@ -1785,10 +1797,10 @@ function App() {
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className={`relative flex justify-center items-center w-full mt-4 p-8 flex-col ${ringPosition === 'left' ? 'md:flex-row' : ringPosition === 'right' ? 'md:flex-row-reverse' : 'md:flex-col'}`}>
+                                    <div className={`relative flex justify-center items-center w-full mt-2 p-2 sm:p-4 flex-col ${ringPosition === 'left' ? 'md:flex-row' : ringPosition === 'right' ? 'md:flex-row-reverse' : 'md:flex-col'}`}>
                                         {showProgressRing && <ProgressRing progress={timerInitial > 0 ? (timerSeconds / timerInitial) * 100 : 0} accent={theme === 'custom' ? 'custom-accent text-white' : currentTheme.accent} position={ringPosition} />}
                                         <div
-                                            className="text-[15vw] md:text-[120px] font-bold tracking-tighter tabular-nums drop-shadow-2xl cursor-pointer hover:opacity-80 transition-opacity flex items-baseline gap-1 md:gap-2 z-10"
+                                            className={`font-bold tracking-tighter tabular-nums drop-shadow-2xl cursor-pointer hover:opacity-80 transition-all flex items-baseline gap-1 md:gap-2 z-10 ${isZenMode ? 'text-[15vw] md:text-[120px]' : 'text-[12vw] md:text-[80px]'}`}
                                             onClick={() => {
                                                 if (!isTimerRunning) {
                                                     setIsEditingTimer(true);
@@ -1796,9 +1808,9 @@ function App() {
                                                 }
                                             }}
                                         >
-                                            {timerSeconds >= 3600 && <span>{Math.floor(timerSeconds / 3600).toString().padStart(2, '0')}<span className="text-[4vw] md:text-[32px] font-light opacity-50 ml-1">h</span></span>}
-                                            <span>{Math.floor((timerSeconds % 3600) / 60).toString().padStart(2, '0')}<span className="text-[4vw] md:text-[32px] font-light opacity-50 ml-1">min</span></span>
-                                            <span>{(timerSeconds % 60).toString().padStart(2, '0')}<span className="text-[4vw] md:text-[32px] font-light opacity-50 ml-1">s</span></span>
+                                            {timerSeconds >= 3600 && <span>{Math.floor(timerSeconds / 3600).toString().padStart(2, '0')}<span className={`font-light opacity-50 ml-1 ${isZenMode ? 'text-[4vw] md:text-[32px]' : 'text-[3vw] md:text-[24px]'}`}>h</span></span>}
+                                            <span>{Math.floor((timerSeconds % 3600) / 60).toString().padStart(2, '0')}<span className={`font-light opacity-50 ml-1 ${isZenMode ? 'text-[4vw] md:text-[32px]' : 'text-[3vw] md:text-[24px]'}`}>min</span></span>
+                                            <span>{(timerSeconds % 60).toString().padStart(2, '0')}<span className={`font-light opacity-50 ml-1 ${isZenMode ? 'text-[4vw] md:text-[32px]' : 'text-[3vw] md:text-[24px]'}`}>s</span></span>
                                         </div>
                                         {!isTimerRunning && (
                                             <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex items-center justify-center gap-2 text-sm opacity-50 transition-opacity pointer-events-none">
@@ -1831,7 +1843,7 @@ function App() {
                             </div>
 
                             {/* Integrated Multi-Timers */}
-                            <div className="w-full max-h-[30vh] sm:max-h-[40vh] overflow-y-auto custom-scrollbar space-y-3 p-2 border-t border-white/10 pt-6">
+                            <div className={`w-full max-h-[30vh] sm:max-h-[40vh] overflow-y-auto custom-scrollbar space-y-2 p-2 border-t border-white/10 transition-all ${isZenMode ? 'mt-0 pt-0 opacity-0 overflow-hidden h-0 border-none' : 'mt-4 pt-4 opacity-100 h-auto'}`}>
                                 {multiTimers.map(timer => {
                                     const mins = Math.floor(timer.remaining / 60).toString().padStart(2, '0');
                                     const secs = (timer.remaining % 60).toString().padStart(2, '0');
@@ -1854,9 +1866,9 @@ function App() {
                                         </div>
                                     );
                                 })}
-                                <div className={`flex flex-wrap justify-center gap-3 pt-4 pb-8 ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+                                <div className="flex flex-wrap justify-center gap-2 pt-2 pb-2">
                                     {[1, 3, 5, 10, 15, 30].map(m => (
-                                        <button key={m} onClick={() => addMultiTimer(m)} className="px-4 py-2 rounded-full bg-white/10 border border-white/10 hover:bg-white/20 text-sm transition-all">+{m}min</button>
+                                        <button key={m} onClick={() => addMultiTimer(m)} className="px-3 py-1.5 rounded-full bg-white/10 border border-white/10 hover:bg-white/20 text-xs sm:text-sm transition-all">+{m}m</button>
                                     ))}
                                 </div>
                             </div>
@@ -1865,11 +1877,11 @@ function App() {
 
                     {mode === 'pomodoro' && (
                         <div className="flex flex-col items-center select-none mt-2 sm:mt-4">
-                            <div className={`relative flex justify-center items-center w-full mt-2 sm:mt-4 p-4 sm:p-8 flex-col ${ringPosition === 'left' ? 'md:flex-row' : ringPosition === 'right' ? 'md:flex-row-reverse' : 'md:flex-col'}`}>
+                            <div className={`relative flex justify-center items-center w-full mt-2 p-2 sm:p-4 flex-col ${ringPosition === 'left' ? 'md:flex-row' : ringPosition === 'right' ? 'md:flex-row-reverse' : 'md:flex-col'}`}>
                                 {showProgressRing && <ProgressRing progress={(pomoSeconds / (pomoMode === 'work' ? 25 * 60 : pomoMode === 'short' ? 5 * 60 : 15 * 60)) * 100} accent={theme === 'custom' ? 'custom-accent text-white' : currentTheme.accent} position={ringPosition} />}
-                                <div className="text-[15vw] md:text-[120px] font-bold tracking-tighter tabular-nums drop-shadow-2xl z-10 flex items-baseline gap-1 md:gap-2">
-                                    <span>{Math.floor(pomoSeconds / 60).toString().padStart(2, '0')}<span className="text-[4vw] md:text-[32px] font-light opacity-50 ml-1">min</span></span>
-                                    <span>{(pomoSeconds % 60).toString().padStart(2, '0')}<span className="text-[4vw] md:text-[32px] font-light opacity-50 ml-1">s</span></span>
+                                <div className={`font-bold tracking-tighter tabular-nums drop-shadow-2xl flex items-baseline gap-1 md:gap-2 z-10 transition-all ${isZenMode ? 'text-[15vw] md:text-[120px]' : 'text-[12vw] md:text-[80px]'}`}>
+                                    <span>{Math.floor(pomoSeconds / 60).toString().padStart(2, '0')}<span className={`font-light opacity-50 ml-1 ${isZenMode ? 'text-[4vw] md:text-[32px]' : 'text-[3vw] md:text-[24px]'}`}>min</span></span>
+                                    <span>{(pomoSeconds % 60).toString().padStart(2, '0')}<span className={`font-light opacity-50 ml-1 ${isZenMode ? 'text-[4vw] md:text-[32px]' : 'text-[3vw] md:text-[24px]'}`}>s</span></span>
                                 </div>
                             </div>
                             <div className={`mt-4 sm:mt-8 flex gap-6 z-30 relative ${!showControls && !isCleanMode ? 'opacity-0 pointer-events-none' : 'opacity-100 transition-opacity duration-500'}`}>

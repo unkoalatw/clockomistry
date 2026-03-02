@@ -217,7 +217,13 @@ const I18N = {
     "Melbourne": "墨爾本",
     "Auckland": "奧克蘭",
     "Cairo": "開羅",
-    "Johannesburg": "約翰尼斯堡"
+    "Johannesburg": "約翰尼斯堡",
+    about: '關於本程式',
+    system: '系統',
+    features: '進階功能',
+    cancel: '取消',
+    add: '新增',
+    clickToEdit: '點擊以編輯'
   },
   'en': {
     lang: 'English',
@@ -322,6 +328,12 @@ const I18N = {
     soundDigital: 'Digital',
     soundBell: 'Bell',
     testSound: 'Test Sound',
+    about: 'About App',
+    system: 'System',
+    features: 'Features',
+    cancel: 'Cancel',
+    add: 'Add',
+    clickToEdit: 'Click to edit',
     showProgressRing: 'Progress Ring',
     enableMiniTask: 'Mini Task List',
     enableFocusAnalytics: 'Focus Analytics',
@@ -849,26 +861,27 @@ const ClockDisplay = /*#__PURE__*/React.memo(_ref3 => {
     ms,
     showMillis,
     accent,
-    dateLabel
+    dateLabel,
+    isZenMode
   } = _ref3;
   return /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col items-center select-none"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-baseline font-bold tracking-tighter tabular-nums drop-shadow-2xl"
+    className: "flex items-baseline font-bold tracking-tighter tabular-nums drop-shadow-2xl transition-all"
   }, /*#__PURE__*/React.createElement("span", {
-    className: "text-[22vw] md:text-[150px] leading-none"
+    className: "leading-none ".concat(isZenMode ? 'text-[25vw] md:text-[200px]' : 'text-[18vw] md:text-[120px]')
   }, h), /*#__PURE__*/React.createElement("span", {
-    className: "text-[22vw] md:text-[150px] leading-none animate-pulse ".concat(accent)
+    className: "leading-none animate-pulse ".concat(accent, " ").concat(isZenMode ? 'text-[25vw] md:text-[200px]' : 'text-[18vw] md:text-[120px]')
   }, ":"), /*#__PURE__*/React.createElement("span", {
-    className: "text-[22vw] md:text-[150px] leading-none"
+    className: "leading-none ".concat(isZenMode ? 'text-[25vw] md:text-[200px]' : 'text-[18vw] md:text-[120px]')
   }, m), /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-col ml-2 md:ml-4 justify-end pb-[1vw] md:pb-8"
+    className: "flex flex-col ml-2 md:ml-4 justify-end ".concat(isZenMode ? 'pb-[2vw] md:pb-12' : 'pb-[1vw] md:pb-6')
   }, /*#__PURE__*/React.createElement("span", {
-    className: "text-[8vw] md:text-[40px] opacity-50 font-medium"
+    className: "opacity-50 font-medium ".concat(isZenMode ? 'text-[10vw] md:text-[60px]' : 'text-[6vw] md:text-[32px]')
   }, s), showMillis && /*#__PURE__*/React.createElement("span", {
-    className: "text-[4vw] md:text-[20px] ".concat(accent, " opacity-80")
+    className: "".concat(accent, " opacity-80 ").concat(isZenMode ? 'text-[5vw] md:text-[30px]' : 'text-[3vw] md:text-[16px]')
   }, ms))), /*#__PURE__*/React.createElement("div", {
-    className: "mt-2 md:mt-4 text-sm md:text-2xl font-light tracking-[0.3em] opacity-80 uppercase text-center"
+    className: "mt-2 md:mt-4 font-light tracking-[0.3em] opacity-80 uppercase text-center transition-all ".concat(isZenMode ? 'text-lg md:text-3xl' : 'text-xs md:text-xl')
   }, dateLabel));
 });
 const NavigationBar = /*#__PURE__*/React.memo(_ref4 => {
@@ -1030,6 +1043,7 @@ function App() {
   const [isZenMode, setIsZenMode] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [showSettings, setShowSettings] = useState(false);
+  const [activeSettingsTab, setActiveSettingsTab] = useState('appearance');
   const [searchQuery, setSearchQuery] = useState('');
   const [hasCustomFont, setHasCustomFont] = useState(false);
   const [hasAgreed, setHasAgreed] = useLocalBoolean('clock_agreed', false);
@@ -1050,6 +1064,9 @@ function App() {
 
   // Anniversary 狀態
   const [anniversaries, setAnniversaries] = useLocalJSON('clock_anniversaries', []);
+  const [isAddingEvent, setIsAddingEvent] = useState(false);
+  const [newEventName, setNewEventName] = useState('');
+  const [newEventDate, setNewEventDate] = useState('');
 
   // Advance Features 狀態
   const [focusGoal, setFocusGoal] = useLocalString('clock_focusGoal', '');
@@ -1916,23 +1933,52 @@ function App() {
   }, errorMsg))), showSettings && /*#__PURE__*/React.createElement("div", {
     className: "fixed inset-0 z-[60] ".concat(currentTheme.settingsBg, " backdrop-blur-3xl animate-in fade-in duration-300 flex flex-col md:flex-row overflow-hidden")
   }, /*#__PURE__*/React.createElement("div", {
-    className: "md:w-1/3 lg:w-1/4 p-8 md:p-12 border-b md:border-b-0 md:border-r border-white/10"
+    className: "md:w-1/3 lg:w-1/4 p-8 md:p-12 border-b md:border-b-0 md:border-r border-white/10 flex flex-col"
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => setShowSettings(false),
-    className: "mb-8 p-2 -ml-2 hover:bg-white/10 rounded-full flex items-center gap-2 opacity-60 hover:opacity-100 group"
+    className: "mb-4 sm:mb-8 p-2 -ml-2 hover:bg-white/10 rounded-full flex items-center gap-2 opacity-60 hover:opacity-100 group w-max"
   }, /*#__PURE__*/React.createElement(ArrowLeft, {
     size: 24,
     className: "group-hover:-translate-x-1 transition-transform"
   }), /*#__PURE__*/React.createElement("span", null, t('back'))), /*#__PURE__*/React.createElement("h2", {
     className: "text-4xl font-bold tracking-wider mb-2"
   }, t('settings')), /*#__PURE__*/React.createElement("p", {
-    className: "opacity-50 text-lg"
-  }, t('settingsDesc'))), /*#__PURE__*/React.createElement("div", {
-    className: "flex-1 overflow-y-auto custom-scrollbar p-8 md:p-12"
+    className: "opacity-50 text-lg mb-8"
+  }, t('settingsDesc')), /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-row md:flex-col gap-2 overflow-x-auto hide-scroll pb-2 md:pb-0"
+  }, [{
+    id: 'appearance',
+    icon: Palette,
+    label: t('appearance')
+  }, {
+    id: 'general',
+    icon: Settings,
+    label: t('general')
+  }, {
+    id: 'features',
+    icon: Globe,
+    label: t('features')
+  }, {
+    id: 'system',
+    icon: Download,
+    label: t('system')
+  }, {
+    id: 'about',
+    icon: AlertCircle,
+    label: t('about')
+  }].map(tab => /*#__PURE__*/React.createElement("button", {
+    key: tab.id,
+    onClick: () => setActiveSettingsTab(tab.id),
+    className: "flex items-center gap-3 px-5 py-4 rounded-2xl transition-all whitespace-nowrap text-left ".concat(activeSettingsTab === tab.id ? 'bg-white/10 font-bold text-white shadow-lg' : 'opacity-60 hover:opacity-100 hover:bg-white/5')
+  }, /*#__PURE__*/React.createElement(tab.icon, {
+    size: 20,
+    className: activeSettingsTab === tab.id ? currentTheme.accent : ''
+  }), tab.label)))), /*#__PURE__*/React.createElement("div", {
+    className: "flex-1 overflow-y-auto custom-scrollbar p-6 md:p-12"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "max-w-3xl mx-auto space-y-12 pb-20"
-  }, /*#__PURE__*/React.createElement("section", {
-    className: "space-y-6"
+    className: "max-w-3xl mx-auto space-y-12 pb-24"
+  }, activeSettingsTab === 'appearance' && /*#__PURE__*/React.createElement("section", {
+    className: "space-y-6 animate-fade-in"
   }, /*#__PURE__*/React.createElement("h3", {
     className: "text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"
   }, /*#__PURE__*/React.createElement(Palette, {
@@ -2103,7 +2149,9 @@ function App() {
   }), hasCustomFont && /*#__PURE__*/React.createElement("button", {
     onClick: () => setFont('custom'),
     className: "p-4 rounded-2xl border col-span-full ".concat(font === 'custom' ? "bg-white/10 border-white/30 shadow-lg" : 'border-white/10 hover:bg-white/5')
-  }, t('imported'))))), /*#__PURE__*/React.createElement("section", {
+  }, t('imported'))))), activeSettingsTab === 'features' && /*#__PURE__*/React.createElement("section", {
+    className: "space-y-12 animate-fade-in"
+  }, /*#__PURE__*/React.createElement("div", {
     className: "space-y-6"
   }, /*#__PURE__*/React.createElement("h3", {
     className: "text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"
@@ -2140,7 +2188,24 @@ function App() {
       size: 16,
       className: "text-blue-400"
     }));
-  }))), /*#__PURE__*/React.createElement("section", {
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "space-y-6"
+  }, /*#__PURE__*/React.createElement("h3", {
+    className: "text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"
+  }, /*#__PURE__*/React.createElement(Languages, {
+    size: 24
+  }), " ", t('language')), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-2 sm:grid-cols-3 gap-4"
+  }, Object.entries(I18N).map(_ref0 => {
+    let [key, val] = _ref0;
+    return /*#__PURE__*/React.createElement("button", {
+      key: key,
+      onClick: () => setLang(key),
+      className: "p-4 rounded-2xl border text-center text-sm transition-all ".concat(lang === key ? 'bg-white/10 border-white/50 shadow-lg scale-105' : 'border-white/5 hover:bg-white/5')
+    }, val.lang);
+  })))), activeSettingsTab === 'general' && /*#__PURE__*/React.createElement("section", {
+    className: "space-y-12 animate-fade-in"
+  }, /*#__PURE__*/React.createElement("div", {
     className: "space-y-6"
   }, /*#__PURE__*/React.createElement("h3", {
     className: "text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"
@@ -2148,8 +2213,8 @@ function App() {
     size: 24
   }), " ", t('general')), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-1 sm:grid-cols-2 gap-4"
-  }, [['showMillis', showMillis, setShowMillis], ['notifications', notificationsEnabled, handleToggleNotifications], ['autoZenMode', autoZenMode, setAutoZenMode], ['showProgressRing', showProgressRing, setShowProgressRing], ['enableMiniTask', enableMiniTask, setEnableMiniTask], ['enableFocusAnalytics', enableFocusAnalytics, setEnableFocusAnalytics], ['enableMeetingPlanner', enableMeetingPlanner, setEnableMeetingPlanner]].map(_ref0 => {
-    let [k, val, setVal] = _ref0;
+  }, [['showMillis', showMillis, setShowMillis], ['notifications', notificationsEnabled, handleToggleNotifications], ['autoZenMode', autoZenMode, setAutoZenMode], ['showProgressRing', showProgressRing, setShowProgressRing], ['enableMiniTask', enableMiniTask, setEnableMiniTask], ['enableFocusAnalytics', enableFocusAnalytics, setEnableFocusAnalytics], ['enableMeetingPlanner', enableMeetingPlanner, setEnableMeetingPlanner]].map(_ref1 => {
+    let [k, val, setVal] = _ref1;
     return /*#__PURE__*/React.createElement("label", {
       key: k,
       className: "flex items-center justify-between p-6 rounded-2xl bg-white/5 cursor-pointer hover:bg-white/10 transition-colors"
@@ -2186,22 +2251,9 @@ function App() {
     key: sk,
     onClick: () => setAlarmSound(sk),
     className: "p-4 rounded-xl text-center text-sm transition-all border ".concat(alarmSound === sk ? 'bg-white/10 border-white/50 scale-105' : 'bg-white/5 border-transparent hover:bg-white/10')
-  }, t("sound".concat(sk.charAt(0).toUpperCase() + sk.slice(1)))))))), /*#__PURE__*/React.createElement("section", {
-    className: "space-y-6"
-  }, /*#__PURE__*/React.createElement("h3", {
-    className: "text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"
-  }, /*#__PURE__*/React.createElement(Languages, {
-    size: 24
-  }), " ", t('language')), /*#__PURE__*/React.createElement("div", {
-    className: "grid grid-cols-3 gap-4"
-  }, Object.entries(I18N).map(_ref1 => {
-    let [key, val] = _ref1;
-    return /*#__PURE__*/React.createElement("button", {
-      key: key,
-      onClick: () => setLang(key),
-      className: "p-4 rounded-2xl border text-center text-sm transition-all ".concat(lang === key ? 'bg-white/10 border-white/50 scale-105' : 'border-white/5 hover:bg-white/5')
-    }, val.lang);
-  }))), /*#__PURE__*/React.createElement("section", {
+  }, t("sound".concat(sk.charAt(0).toUpperCase() + sk.slice(1))))))))), activeSettingsTab === 'about' && /*#__PURE__*/React.createElement("section", {
+    className: "space-y-12 animate-fade-in"
+  }, /*#__PURE__*/React.createElement("div", {
     className: "space-y-6"
   }, /*#__PURE__*/React.createElement("h3", {
     className: "text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"
@@ -2229,7 +2281,29 @@ function App() {
     className: "p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 flex flex-col items-center gap-2 transition-all"
   }, /*#__PURE__*/React.createElement(LayoutTemplate, {
     size: 20
-  }), /*#__PURE__*/React.createElement("span", null, t('import'))))), /*#__PURE__*/React.createElement("section", {
+  }), /*#__PURE__*/React.createElement("span", null, t('import'))))), /*#__PURE__*/React.createElement("div", {
+    className: "space-y-6"
+  }, /*#__PURE__*/React.createElement("h3", {
+    className: "text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"
+  }, /*#__PURE__*/React.createElement(AlertCircle, {
+    size: 24
+  }), " ", t('legal')), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-2 gap-4"
+  }, /*#__PURE__*/React.createElement("a", {
+    href: "privacy.html",
+    className: "p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-center text-sm transition-all"
+  }, t('privacy')), /*#__PURE__*/React.createElement("a", {
+    href: "terms.html",
+    className: "p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-center text-sm transition-all"
+  }, t('terms')), /*#__PURE__*/React.createElement("a", {
+    href: "cookies.html",
+    className: "p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-center text-sm transition-all"
+  }, t('cookies')), /*#__PURE__*/React.createElement("a", {
+    href: "disclaimer.html",
+    className: "p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-center text-sm transition-all"
+  }, t('disclaimer'))))), activeSettingsTab === 'system' && /*#__PURE__*/React.createElement("section", {
+    className: "space-y-12 animate-fade-in"
+  }, /*#__PURE__*/React.createElement("div", {
     className: "space-y-6"
   }, /*#__PURE__*/React.createElement("h3", {
     className: "text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"
@@ -2247,7 +2321,7 @@ function App() {
   }, /*#__PURE__*/React.createElement(Download, {
     size: 18,
     className: isDownloadingApp ? 'animate-bounce' : ''
-  }), isDownloadingApp ? t('downloadingApp') : t('downloadApp')))), /*#__PURE__*/React.createElement("section", {
+  }), isDownloadingApp ? t('downloadingApp') : t('downloadApp')))), /*#__PURE__*/React.createElement("div", {
     className: "space-y-6"
   }, /*#__PURE__*/React.createElement("h3", {
     className: "text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"
@@ -2276,7 +2350,7 @@ function App() {
   }, /*#__PURE__*/React.createElement(RefreshCw, {
     size: 18,
     className: updateStatus === 'checking' ? 'animate-spin' : ''
-  }), updateStatus === 'checking' ? t('checking') : updateStatus === 'latest' ? t('upToDate') : t('checkUpdate')))), /*#__PURE__*/React.createElement("section", {
+  }), updateStatus === 'checking' ? t('checking') : updateStatus === 'latest' ? t('upToDate') : t('checkUpdate')))), /*#__PURE__*/React.createElement("div", {
     className: "space-y-6"
   }, /*#__PURE__*/React.createElement("h3", {
     className: "text-xl font-medium flex items-center gap-3 border-b border-red-500/30 pb-4 text-red-400"
@@ -2291,27 +2365,7 @@ function App() {
     className: "w-full py-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 font-medium hover:bg-red-500/25 hover:border-red-500/60 active:scale-95 transition-all flex items-center justify-center gap-2"
   }, /*#__PURE__*/React.createElement(Trash2, {
     size: 18
-  }), t('clearDataBtn')))), /*#__PURE__*/React.createElement("section", {
-    className: "space-y-6"
-  }, /*#__PURE__*/React.createElement("h3", {
-    className: "text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"
-  }, /*#__PURE__*/React.createElement(AlertCircle, {
-    size: 24
-  }), " ", t('legal')), /*#__PURE__*/React.createElement("div", {
-    className: "grid grid-cols-2 gap-4"
-  }, /*#__PURE__*/React.createElement("a", {
-    href: "privacy.html",
-    className: "p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-center text-sm transition-all"
-  }, t('privacy')), /*#__PURE__*/React.createElement("a", {
-    href: "terms.html",
-    className: "p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-center text-sm transition-all"
-  }, t('terms')), /*#__PURE__*/React.createElement("a", {
-    href: "cookies.html",
-    className: "p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-center text-sm transition-all"
-  }, t('cookies')), /*#__PURE__*/React.createElement("a", {
-    href: "disclaimer.html",
-    className: "p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-center text-sm transition-all"
-  }, t('disclaimer'))))))), !hasAgreed && /*#__PURE__*/React.createElement("div", {
+  }), t('clearDataBtn')))))))), !hasAgreed && /*#__PURE__*/React.createElement("div", {
     className: "fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden select-none",
     style: {
       background: 'linear-gradient(160deg, #020420 0%, #0a1628 30%, #111d3a 50%, #0d1a2f 70%, #040812 100%)'
@@ -2407,14 +2461,16 @@ function App() {
     className: "mt-4 text-sm opacity-20 tracking-[1em] uppercase"
   }, t('ssHint')))), /*#__PURE__*/React.createElement("div", {
     className: "absolute inset-0 overflow-hidden pointer-events-none transition-opacity duration-1000 ".concat(isZenMode ? 'opacity-20' : 'opacity-100')
-  }, /*#__PURE__*/React.createElement("style", null, "\n                    @keyframes ambientFloat1 {\n                        0%, 100% { transform: translate(0, 0) scale(1); }\n                        33% { transform: translate(5vw, 5vh) scale(1.1); }\n                        66% { transform: translate(-5vw, 10vh) scale(0.9); }\n                    }\n                    @keyframes ambientFloat2 {\n                        0%, 100% { transform: translate(0, 0) scale(1); }\n                        33% { transform: translate(-5vw, -5vh) scale(1.2); }\n                        66% { transform: translate(5vw, -10vh) scale(0.8); }\n                    }\n                    .ambient-blob-1 { animation: ambientFloat1 25s ease-in-out infinite alternate; }\n                    .ambient-blob-2 { animation: ambientFloat2 30s ease-in-out infinite alternate; }\n                    \n                    /* Global tactical button squish */\n                    button:active { transform: scale(0.93) !important; transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1) !important; }\n                "), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("style", null, "\n                    /* Hide UI during clean/zen mode (smoothly) */\n                    .hide-on-export { transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease; }\n                    .glass-panel { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }\n                    \n                    /* Custom Scrollbar */\n                    .custom-scrollbar::-webkit-scrollbar { width: 4px; }\n                    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }\n                    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 4px; }\n                    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }\n\n                    /* Smooth transitions for Zen Mode scaling */\n                    .transition-zen { transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }\n                    @keyframes ambientFloat1 {\n                        0%, 100% { transform: translate(0, 0) scale(1); }\n                        33% { transform: translate(5vw, 5vh) scale(1.1); }\n                        66% { transform: translate(-5vw, 10vh) scale(0.9); }\n                    }\n                    @keyframes ambientFloat2 {\n                        0%, 100% { transform: translate(0, 0) scale(1); }\n                        33% { transform: translate(-5vw, -5vh) scale(1.2); }\n                        66% { transform: translate(5vw, -10vh) scale(0.8); }\n                    }\n                    .ambient-blob-1 { animation: ambientFloat1 25s ease-in-out infinite alternate; }\n                    .ambient-blob-2 { animation: ambientFloat2 30s ease-in-out infinite alternate; }\n                    \n                    /* Global tactical button squish */\n                    button:active { transform: scale(0.93) !important; transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1) !important; }\n                "), /*#__PURE__*/React.createElement("div", {
     className: "ambient-blob-1 absolute top-[10%] left-[10%] w-[50vw] h-[50vw] rounded-full blur-[80px] opacity-20 bg-blue-500/40"
   }), /*#__PURE__*/React.createElement("div", {
     className: "ambient-blob-2 absolute bottom-[10%] right-[10%] w-[50vw] h-[50vw] rounded-full blur-[80px] opacity-20 bg-purple-500/40"
   })), /*#__PURE__*/React.createElement("div", {
-    className: "relative z-10 w-full my-auto shrink max-h-[calc(100dvh-140px)] overflow-y-auto custom-scrollbar max-w-[95vw] md:max-w-4xl p-6 sm:p-12 rounded-[30px] sm:rounded-[48px] transition-all duration-700 flex flex-col items-center justify-center min-h-[40vh] ".concat(!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0', " ").concat(isZenMode ? 'scale-[1.05]' : '', " ").concat(isCleanMode ? 'scale-[0.85] !p-0' : '')
+    className: "relative z-10 w-full my-auto shrink max-h-[calc(100dvh-80px)] overflow-hidden max-w-[95vw] md:max-w-4xl rounded-[30px] sm:rounded-[48px] transition-zen flex flex-col items-center justify-start min-h-[40vh] ".concat(!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0', " ").concat(isZenMode ? 'scale-[1.05]' : '', " ").concat(isCleanMode ? 'scale-[0.85]' : '')
+  }, !isCleanMode && !isZenMode && /*#__PURE__*/React.createElement("div", {
+    className: "w-full flex flex-col items-center pt-4 sm:pt-6 pb-2 shrink-0 z-50 transition-opacity"
   }, ['timer', 'pomodoro', 'stopwatch'].includes(mode) && /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-center gap-2 bg-black/20 p-1.5 rounded-full border border-white/5 w-max animate-fade-in z-20 mb-8 mt-[-1rem] ".concat(isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:opacity-100'),
+    className: "flex justify-center gap-2 bg-black/40 backdrop-blur-xl p-1.5 rounded-full border border-white/10 shadow-lg shadow-black/20",
     style: {
       transition: 'opacity 0.3s ease'
     }
@@ -2428,7 +2484,7 @@ function App() {
     onClick: () => setMode('stopwatch'),
     className: "px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ".concat(mode === 'stopwatch' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100')
   }, t('tabStopwatch'))), ['calendar', 'anniversary', 'memento'].includes(mode) && /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-center gap-2 bg-black/20 p-1.5 rounded-full border border-white/5 w-max animate-fade-in z-20 mb-8 mt-[-1rem] ".concat(isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:opacity-100'),
+    className: "flex justify-center gap-2 bg-black/40 backdrop-blur-xl p-1.5 rounded-full border border-white/10 shadow-lg shadow-black/20",
     style: {
       transition: 'opacity 0.3s ease'
     }
@@ -2441,7 +2497,22 @@ function App() {
   }, t('tabEvents')), /*#__PURE__*/React.createElement("button", {
     onClick: () => setMode('memento'),
     className: "px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ".concat(mode === 'memento' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100')
-  }, t('tabLife'))), mode === 'clock' && /*#__PURE__*/React.createElement("div", {
+  }, t('tabLife'))), mode === 'pomodoro' && /*#__PURE__*/React.createElement("div", {
+    className: "w-full flex justify-center mt-4 shrink-0 z-40"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-4"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => resetPomo('work'),
+    className: "px-4 py-1.5 rounded-full text-sm border transition-all ".concat(pomoMode === 'work' ? "bg-white/10 border-white/50 ".concat(currentTheme.accent) : 'border-transparent opacity-50')
+  }, t('work')), /*#__PURE__*/React.createElement("button", {
+    onClick: () => resetPomo('short'),
+    className: "px-4 py-1.5 rounded-full text-sm border transition-all ".concat(pomoMode === 'short' ? "bg-white/10 border-white/50 ".concat(currentTheme.accent) : 'border-transparent opacity-50')
+  }, t('break')), /*#__PURE__*/React.createElement("button", {
+    onClick: () => resetPomo('long'),
+    className: "px-4 py-1.5 rounded-full text-sm border transition-all ".concat(pomoMode === 'long' ? "bg-white/10 border-white/50 ".concat(currentTheme.accent) : 'border-transparent opacity-50')
+  }, t('long'))))), /*#__PURE__*/React.createElement("div", {
+    className: "w-full flex-1 overflow-y-auto custom-scrollbar flex flex-col items-center justify-start ".concat(isCleanMode || isZenMode || mode === 'clock' || mode === 'world' ? 'p-6 sm:p-12' : 'px-6 sm:px-12 pb-12 pt-4 sm:pt-6')
+  }, mode === 'clock' && /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col items-center select-none"
   }, /*#__PURE__*/React.createElement(WeatherWidget, {
     weather: weather,
@@ -2453,7 +2524,8 @@ function App() {
     ms: ms,
     showMillis: showMillis,
     accent: currentTheme.accent,
-    dateLabel: formatDate(time)
+    dateLabel: formatDate(time),
+    isZenMode: isZenMode
   })), mode === 'world' && /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col items-center select-none w-full"
   }, enableMeetingPlanner && /*#__PURE__*/React.createElement("div", {
@@ -2545,13 +2617,13 @@ function App() {
     size: 32,
     className: currentTheme.accent
   })))) : /*#__PURE__*/React.createElement("div", {
-    className: "relative flex justify-center items-center w-full mt-4 p-8 flex-col ".concat(ringPosition === 'left' ? 'md:flex-row' : ringPosition === 'right' ? 'md:flex-row-reverse' : 'md:flex-col')
+    className: "relative flex justify-center items-center w-full mt-2 p-2 sm:p-4 flex-col ".concat(ringPosition === 'left' ? 'md:flex-row' : ringPosition === 'right' ? 'md:flex-row-reverse' : 'md:flex-col')
   }, showProgressRing && /*#__PURE__*/React.createElement(ProgressRing, {
     progress: timerInitial > 0 ? timerSeconds / timerInitial * 100 : 0,
     accent: theme === 'custom' ? 'custom-accent text-white' : currentTheme.accent,
     position: ringPosition
   }), /*#__PURE__*/React.createElement("div", {
-    className: "text-[15vw] md:text-[120px] font-bold tracking-tighter tabular-nums drop-shadow-2xl cursor-pointer hover:opacity-80 transition-opacity flex items-baseline gap-1 md:gap-2 z-10",
+    className: "font-bold tracking-tighter tabular-nums drop-shadow-2xl cursor-pointer hover:opacity-80 transition-all flex items-baseline gap-1 md:gap-2 z-10 ".concat(isZenMode ? 'text-[15vw] md:text-[120px]' : 'text-[12vw] md:text-[80px]'),
     onClick: () => {
       if (!isTimerRunning) {
         setIsEditingTimer(true);
@@ -2559,11 +2631,11 @@ function App() {
       }
     }
   }, timerSeconds >= 3600 && /*#__PURE__*/React.createElement("span", null, Math.floor(timerSeconds / 3600).toString().padStart(2, '0'), /*#__PURE__*/React.createElement("span", {
-    className: "text-[6vw] md:text-[40px] opacity-50 ml-1"
+    className: "font-light opacity-50 ml-1 ".concat(isZenMode ? 'text-[4vw] md:text-[32px]' : 'text-[3vw] md:text-[24px]')
   }, "h")), /*#__PURE__*/React.createElement("span", null, Math.floor(timerSeconds % 3600 / 60).toString().padStart(2, '0'), /*#__PURE__*/React.createElement("span", {
-    className: "text-[6vw] md:text-[40px] opacity-50 ml-1"
+    className: "font-light opacity-50 ml-1 ".concat(isZenMode ? 'text-[4vw] md:text-[32px]' : 'text-[3vw] md:text-[24px]')
   }, "min")), /*#__PURE__*/React.createElement("span", null, (timerSeconds % 60).toString().padStart(2, '0'), /*#__PURE__*/React.createElement("span", {
-    className: "text-[6vw] md:text-[40px] opacity-50 ml-1"
+    className: "font-light opacity-50 ml-1 ".concat(isZenMode ? 'text-[4vw] md:text-[32px]' : 'text-[3vw] md:text-[24px]')
   }, "s"))), !isTimerRunning && /*#__PURE__*/React.createElement("div", {
     className: "absolute -bottom-8 left-1/2 -translate-x-1/2 flex items-center justify-center gap-2 text-sm opacity-50 transition-opacity pointer-events-none"
   }, /*#__PURE__*/React.createElement(Edit3, {
@@ -2599,7 +2671,7 @@ function App() {
   }, /*#__PURE__*/React.createElement(RotateCcw, {
     size: 32
   }))), /*#__PURE__*/React.createElement("div", {
-    className: "w-full max-h-[30vh] sm:max-h-[40vh] overflow-y-auto custom-scrollbar space-y-3 p-2 border-t border-white/10 pt-6"
+    className: "w-full max-h-[30vh] sm:max-h-[40vh] overflow-y-auto custom-scrollbar space-y-2 p-2 border-t border-white/10 transition-all ".concat(isZenMode ? 'mt-0 pt-0 opacity-0 overflow-hidden h-0 border-none' : 'mt-4 pt-4 opacity-100 h-auto')
   }, multiTimers.map(timer => {
     const mins = Math.floor(timer.remaining / 60).toString().padStart(2, '0');
     const secs = (timer.remaining % 60).toString().padStart(2, '0');
@@ -2640,36 +2712,25 @@ function App() {
       size: 18
     }))));
   }), /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-wrap justify-center gap-3 pt-4 pb-8 ".concat(isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100')
+    className: "flex flex-wrap justify-center gap-2 pt-2 pb-2"
   }, [1, 3, 5, 10, 15, 30].map(m => /*#__PURE__*/React.createElement("button", {
     key: m,
     onClick: () => addMultiTimer(m),
-    className: "px-4 py-2 rounded-full bg-white/10 border border-white/10 hover:bg-white/20 text-sm transition-all"
-  }, "+", m, "min"))))), mode === 'pomodoro' && /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-col items-center select-none mt-2 sm:mt-12"
+    className: "px-3 py-1.5 rounded-full bg-white/10 border border-white/10 hover:bg-white/20 text-xs sm:text-sm transition-all"
+  }, "+", m, "m"))))), mode === 'pomodoro' && /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-col items-center select-none mt-2 sm:mt-4"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "flex gap-4 mb-4"
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => resetPomo('work'),
-    className: "px-4 py-1 rounded-full text-sm border transition-all ".concat(pomoMode === 'work' ? "bg-white/10 border-white/50 ".concat(currentTheme.accent) : 'border-transparent opacity-50')
-  }, t('work')), /*#__PURE__*/React.createElement("button", {
-    onClick: () => resetPomo('short'),
-    className: "px-4 py-1 rounded-full text-sm border transition-all ".concat(pomoMode === 'short' ? "bg-white/10 border-white/50 ".concat(currentTheme.accent) : 'border-transparent opacity-50')
-  }, t('break')), /*#__PURE__*/React.createElement("button", {
-    onClick: () => resetPomo('long'),
-    className: "px-4 py-1 rounded-full text-sm border transition-all ".concat(pomoMode === 'long' ? "bg-white/10 border-white/50 ".concat(currentTheme.accent) : 'border-transparent opacity-50')
-  }, t('long'))), /*#__PURE__*/React.createElement("div", {
-    className: "relative flex justify-center items-center w-full mt-2 sm:mt-4 p-4 sm:p-8 flex-col ".concat(ringPosition === 'left' ? 'md:flex-row' : ringPosition === 'right' ? 'md:flex-row-reverse' : 'md:flex-col')
+    className: "relative flex justify-center items-center w-full mt-2 p-2 sm:p-4 flex-col ".concat(ringPosition === 'left' ? 'md:flex-row' : ringPosition === 'right' ? 'md:flex-row-reverse' : 'md:flex-col')
   }, showProgressRing && /*#__PURE__*/React.createElement(ProgressRing, {
     progress: pomoSeconds / (pomoMode === 'work' ? 25 * 60 : pomoMode === 'short' ? 5 * 60 : 15 * 60) * 100,
     accent: theme === 'custom' ? 'custom-accent text-white' : currentTheme.accent,
     position: ringPosition
   }), /*#__PURE__*/React.createElement("div", {
-    className: "text-[15vw] md:text-[120px] font-bold tracking-tighter tabular-nums drop-shadow-2xl z-10 flex items-baseline gap-1 md:gap-2"
+    className: "font-bold tracking-tighter tabular-nums drop-shadow-2xl flex items-baseline gap-1 md:gap-2 z-10 transition-all ".concat(isZenMode ? 'text-[15vw] md:text-[120px]' : 'text-[12vw] md:text-[80px]')
   }, /*#__PURE__*/React.createElement("span", null, Math.floor(pomoSeconds / 60).toString().padStart(2, '0'), /*#__PURE__*/React.createElement("span", {
-    className: "text-[6vw] md:text-[40px] opacity-50 ml-1"
+    className: "font-light opacity-50 ml-1 ".concat(isZenMode ? 'text-[4vw] md:text-[32px]' : 'text-[3vw] md:text-[24px]')
   }, "min")), /*#__PURE__*/React.createElement("span", null, (pomoSeconds % 60).toString().padStart(2, '0'), /*#__PURE__*/React.createElement("span", {
-    className: "text-[6vw] md:text-[40px] opacity-50 ml-1"
+    className: "font-light opacity-50 ml-1 ".concat(isZenMode ? 'text-[4vw] md:text-[32px]' : 'text-[3vw] md:text-[24px]')
   }, "s")))), /*#__PURE__*/React.createElement("div", {
     className: "mt-4 sm:mt-8 flex gap-6 z-30 relative ".concat(!showControls && !isCleanMode ? 'opacity-0 pointer-events-none' : 'opacity-100 transition-opacity duration-500')
   }, /*#__PURE__*/React.createElement("button", {
@@ -2809,16 +2870,40 @@ function App() {
     }, /*#__PURE__*/React.createElement(Trash2, {
       size: 16
     }))));
-  })), /*#__PURE__*/React.createElement("button", {
+  })), isAddingEvent ? /*#__PURE__*/React.createElement("div", {
+    className: "mt-8 p-6 rounded-3xl bg-white/10 border border-white/20 w-full animate-in fade-in zoom-in-95 duration-300"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    placeholder: t('eventName'),
+    value: newEventName,
+    onChange: e => setNewEventName(e.target.value),
+    className: "w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 mb-3 outline-none focus:border-white/30"
+  }), /*#__PURE__*/React.createElement("input", {
+    type: "date",
+    value: newEventDate,
+    onChange: e => setNewEventDate(e.target.value),
+    className: "w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 mb-4 outline-none focus:border-white/30"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-3"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setIsAddingEvent(false),
+    className: "flex-1 py-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors uppercase tracking-widest text-xs font-bold"
+  }, t('cancel') || 'Cancel'), /*#__PURE__*/React.createElement("button", {
     onClick: () => {
-      const label = prompt(t('eventName'));
-      const date = prompt(t('date'), '2026-01-01');
-      if (label && date) setAnniversaries([...anniversaries, {
-        id: Date.now(),
-        label,
-        date
-      }]);
+      if (newEventName && newEventDate) {
+        setAnniversaries([...anniversaries, {
+          id: Date.now(),
+          label: newEventName,
+          date: newEventDate
+        }]);
+        setIsAddingEvent(false);
+        setNewEventName('');
+        setNewEventDate('');
+      }
     },
+    className: "flex-1 py-3 rounded-xl bg-blue-500 hover:bg-blue-600 transition-colors uppercase tracking-widest text-xs font-bold"
+  }, t('add') || 'Add'))) : /*#__PURE__*/React.createElement("button", {
+    onClick: () => setIsAddingEvent(true),
     className: "mt-8 px-8 py-3 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 flex items-center gap-2 transition-all"
   }, /*#__PURE__*/React.createElement(Plus, {
     size: 20
@@ -2840,7 +2925,7 @@ function App() {
     style: {
       colorScheme: 'dark'
     }
-  })), mementoView))), /*#__PURE__*/React.createElement("div", {
+  })), mementoView)))), /*#__PURE__*/React.createElement("div", {
     className: "w-full h-4 shrink-0"
   }), /*#__PURE__*/React.createElement(NavigationBar, {
     mode: mode,
