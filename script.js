@@ -1675,329 +1675,341 @@ function App() {
             </div>
 
             {/* Main Card */}
-            <div className={`relative z-10 w-full my-auto shrink max-h-[calc(100dvh-80px)] overflow-y-auto custom-scrollbar max-w-[95vw] md:max-w-4xl p-6 sm:p-12 rounded-[30px] sm:rounded-[48px] transition-all duration-700 flex flex-col items-center justify-start min-h-[40vh] ${!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0'} ${isZenMode ? 'scale-[1.05]' : ''} ${isCleanMode ? 'scale-[0.85] !p-0' : ''}`}>
+            <div className={`relative z-10 w-full my-auto shrink max-h-[calc(100dvh-80px)] overflow-hidden max-w-[95vw] md:max-w-4xl rounded-[30px] sm:rounded-[48px] transition-all duration-700 flex flex-col items-center justify-start min-h-[40vh] ${!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0'} ${isZenMode ? 'scale-[1.05]' : ''} ${isCleanMode ? 'scale-[0.85]' : ''}`}>
 
-                {/* Sub-Navigation for Time Tools */}
-                {['timer', 'pomodoro', 'stopwatch'].includes(mode) && (
-                    <div className={`sticky top-0 flex justify-center gap-2 bg-black/60 backdrop-blur-md p-1.5 rounded-full border border-white/10 w-max animate-fade-in z-[60] mb-8 mt-[-1rem] shadow-lg shadow-black/20 ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:opacity-100'}`} style={{ transition: 'opacity 0.3s ease' }}>
-                        <button onClick={() => setMode('pomodoro')} className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ${mode === 'pomodoro' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100'}`}>{t('tabPomodoro')}</button>
-                        <button onClick={() => setMode('timer')} className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ${mode === 'timer' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100'}`}>{t('tabTimer')}</button>
-                        <button onClick={() => setMode('stopwatch')} className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ${mode === 'stopwatch' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100'}`}>{t('tabStopwatch')}</button>
-                    </div>
-                )}
-
-                {/* Sub-Navigation for Calendar Tools */}
-                {['calendar', 'anniversary', 'memento'].includes(mode) && (
-                    <div className={`sticky top-0 flex justify-center gap-2 bg-black/60 backdrop-blur-md p-1.5 rounded-full border border-white/10 w-max animate-fade-in z-[60] mb-8 mt-[-1rem] shadow-lg shadow-black/20 ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:opacity-100'}`} style={{ transition: 'opacity 0.3s ease' }}>
-                        <button onClick={() => setMode('calendar')} className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ${mode === 'calendar' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100'}`}>{t('tabMonthly')}</button>
-                        <button onClick={() => setMode('anniversary')} className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ${mode === 'anniversary' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100'}`}>{t('tabEvents')}</button>
-                        <button onClick={() => setMode('memento')} className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ${mode === 'memento' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100'}`}>{t('tabLife')}</button>
-                    </div>
-                )}
-
-                {mode === 'clock' && (
-                    <div className="flex flex-col items-center select-none">
-                        <WeatherWidget weather={weather} accent={currentTheme.accent} />
-                        <ClockDisplay h={h} m={m} s={s} ms={ms} showMillis={showMillis} accent={currentTheme.accent} dateLabel={formatDate(time)} />
-                    </div>
-                )}
-
-                {mode === 'world' && (
-                    <div className="flex flex-col items-center select-none w-full">
-                        {enableMeetingPlanner && (
-                            <div className="w-full max-w-lg mb-8 px-6 py-4 rounded-3xl bg-white/5 border border-white/10 flex flex-col gap-4 animate-fade-in">
-                                <div className="flex justify-between text-sm opacity-80 font-medium">
-                                    <span>-12h</span>
-                                    <span className={currentTheme.accent}>{meetingOffset > 0 ? `+${meetingOffset}h` : meetingOffset < 0 ? `${meetingOffset}h` : t('today')}</span>
-                                    <span>+12h</span>
-                                </div>
-                                <input type="range" min="-12" max="12" step="1" value={meetingOffset} onDoubleClick={() => setMeetingOffset(0)} onChange={e => setMeetingOffset(Number(e.target.value))} className="w-full cursor-pointer opacity-80 hover:opacity-100 transition-opacity" style={{ accentColor: '#3b82f6' }} title="Double click to reset" />
+                {/* Fixed Top Navigation Arrays */}
+                {(!isCleanMode && !isZenMode) && (
+                    <div className="w-full flex flex-col items-center pt-4 sm:pt-6 pb-2 shrink-0 z-50 transition-opacity">
+                        {['timer', 'pomodoro', 'stopwatch'].includes(mode) && (
+                            <div className="flex justify-center gap-2 bg-black/40 backdrop-blur-xl p-1.5 rounded-full border border-white/10 shadow-lg shadow-black/20" style={{ transition: 'opacity 0.3s ease' }}>
+                                <button onClick={() => setMode('pomodoro')} className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ${mode === 'pomodoro' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100'}`}>{t('tabPomodoro')}</button>
+                                <button onClick={() => setMode('timer')} className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ${mode === 'timer' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100'}`}>{t('tabTimer')}</button>
+                                <button onClick={() => setMode('stopwatch')} className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ${mode === 'stopwatch' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100'}`}>{t('tabStopwatch')}</button>
                             </div>
                         )}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 w-full max-h-[50vh] overflow-y-auto custom-scrollbar p-4">
-                            {selectedZones.map(zone => {
-                                const tWorld = getWorldTime(zone.id);
-                                return (
-                                    <div key={zone.id} className="flex flex-col items-center p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                                        <div className="text-3xl font-bold tracking-tighter">{tWorld.h}:{tWorld.m}</div>
-                                        <div className="text-sm opacity-60 mt-2 text-center uppercase tracking-wider">{t(zone.label)}</div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                        <button onClick={() => setShowSettings(true)} className="mt-8 flex items-center gap-2 text-sm opacity-50 hover:opacity-100 transition-opacity">
-                            <Settings size={14} /> {t('addEditZones')}
-                        </button>
+
+                        {['calendar', 'anniversary', 'memento'].includes(mode) && (
+                            <div className="flex justify-center gap-2 bg-black/40 backdrop-blur-xl p-1.5 rounded-full border border-white/10 shadow-lg shadow-black/20" style={{ transition: 'opacity 0.3s ease' }}>
+                                <button onClick={() => setMode('calendar')} className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ${mode === 'calendar' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100'}`}>{t('tabMonthly')}</button>
+                                <button onClick={() => setMode('anniversary')} className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ${mode === 'anniversary' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100'}`}>{t('tabEvents')}</button>
+                                <button onClick={() => setMode('memento')} className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ${mode === 'memento' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100'}`}>{t('tabLife')}</button>
+                            </div>
+                        )}
+
+                        {/* Pomodoro Sub-Navigation - Also Fixed */}
+                        {mode === 'pomodoro' && (
+                            <div className="w-full flex justify-center mt-4 shrink-0 z-40">
+                                <div className="flex gap-4">
+                                    <button onClick={() => resetPomo('work')} className={`px-4 py-1.5 rounded-full text-sm border transition-all ${pomoMode === 'work' ? `bg-white/10 border-white/50 ${currentTheme.accent}` : 'border-transparent opacity-50'}`}>{t('work')}</button>
+                                    <button onClick={() => resetPomo('short')} className={`px-4 py-1.5 rounded-full text-sm border transition-all ${pomoMode === 'short' ? `bg-white/10 border-white/50 ${currentTheme.accent}` : 'border-transparent opacity-50'}`}>{t('break')}</button>
+                                    <button onClick={() => resetPomo('long')} className={`px-4 py-1.5 rounded-full text-sm border transition-all ${pomoMode === 'long' ? `bg-white/10 border-white/50 ${currentTheme.accent}` : 'border-transparent opacity-50'}`}>{t('long')}</button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
 
-                {mode === 'timer' && (
-                    <div className="flex flex-col items-center select-none w-full max-w-lg mt-4 sm:mt-8">
-                        <div className="flex flex-col items-center mb-6 sm:mb-12 w-full">
-                            {isEditingTimer ? (
-                                <div className="flex flex-col items-center w-full animate-fade-in">
-                                    <div className="text-[14vw] md:text-[80px] font-bold tracking-tighter tabular-nums drop-shadow-2xl flex items-baseline gap-1 md:gap-2 mb-6">
-                                        <span className={timerInput.slice(0, 2) === '00' ? 'opacity-30' : ''}>{timerInput.slice(0, 2)}<span className="text-xl md:text-2xl opacity-50 ml-1">h</span></span>
-                                        <span className={timerInput.slice(0, 4) === '0000' ? 'opacity-30' : ''}>{timerInput.slice(2, 4)}<span className="text-xl md:text-2xl opacity-50 ml-1">min</span></span>
-                                        <span className={timerInput === '000000' ? 'opacity-30' : ''}>{timerInput.slice(4, 6)}<span className="text-xl md:text-2xl opacity-50 ml-1">s</span></span>
+                {/* SCROLLABLE BODY */}
+                <div className={`w-full flex-1 overflow-y-auto custom-scrollbar flex flex-col items-center justify-start ${isCleanMode || isZenMode || mode === 'clock' || mode === 'world' ? 'p-6 sm:p-12' : 'px-6 sm:px-12 pb-12 pt-4 sm:pt-6'}`}>
+                    {mode === 'clock' && (
+                        <div className="flex flex-col items-center select-none">
+                            <WeatherWidget weather={weather} accent={currentTheme.accent} />
+                            <ClockDisplay h={h} m={m} s={s} ms={ms} showMillis={showMillis} accent={currentTheme.accent} dateLabel={formatDate(time)} />
+                        </div>
+                    )}
+
+                    {mode === 'world' && (
+                        <div className="flex flex-col items-center select-none w-full">
+                            {enableMeetingPlanner && (
+                                <div className="w-full max-w-lg mb-8 px-6 py-4 rounded-3xl bg-white/5 border border-white/10 flex flex-col gap-4 animate-fade-in">
+                                    <div className="flex justify-between text-sm opacity-80 font-medium">
+                                        <span>-12h</span>
+                                        <span className={currentTheme.accent}>{meetingOffset > 0 ? `+${meetingOffset}h` : meetingOffset < 0 ? `${meetingOffset}h` : t('today')}</span>
+                                        <span>+12h</span>
                                     </div>
-                                    <div className="grid grid-cols-3 gap-2 sm:gap-4 w-full max-w-[280px]">
-                                        {['1', '2', '3', '4', '5', '6', '7', '8', '9', '00', '0', 'del'].map(btn => (
-                                            <button key={btn} onClick={() => handleTimerInput(btn)} className="h-[clamp(3.5rem,7vh,4rem)] rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 flex items-center justify-center text-xl sm:text-2xl font-medium transition-all active:scale-95">
-                                                {btn === 'del' ? <Delete size={24} /> : btn}
+                                    <input type="range" min="-12" max="12" step="1" value={meetingOffset} onDoubleClick={() => setMeetingOffset(0)} onChange={e => setMeetingOffset(Number(e.target.value))} className="w-full cursor-pointer opacity-80 hover:opacity-100 transition-opacity" style={{ accentColor: '#3b82f6' }} title="Double click to reset" />
+                                </div>
+                            )}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 w-full max-h-[50vh] overflow-y-auto custom-scrollbar p-4">
+                                {selectedZones.map(zone => {
+                                    const tWorld = getWorldTime(zone.id);
+                                    return (
+                                        <div key={zone.id} className="flex flex-col items-center p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                                            <div className="text-3xl font-bold tracking-tighter">{tWorld.h}:{tWorld.m}</div>
+                                            <div className="text-sm opacity-60 mt-2 text-center uppercase tracking-wider">{t(zone.label)}</div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                            <button onClick={() => setShowSettings(true)} className="mt-8 flex items-center gap-2 text-sm opacity-50 hover:opacity-100 transition-opacity">
+                                <Settings size={14} /> {t('addEditZones')}
+                            </button>
+                        </div>
+                    )}
+
+                    {mode === 'timer' && (
+                        <div className="flex flex-col items-center select-none w-full max-w-lg mt-4 sm:mt-8">
+                            <div className="flex flex-col items-center mb-6 sm:mb-12 w-full">
+                                {isEditingTimer ? (
+                                    <div className="flex flex-col items-center w-full animate-fade-in">
+                                        <div className="text-[14vw] md:text-[80px] font-bold tracking-tighter tabular-nums drop-shadow-2xl flex items-baseline gap-1 md:gap-2 mb-6">
+                                            <span className={timerInput.slice(0, 2) === '00' ? 'opacity-30' : ''}>{timerInput.slice(0, 2)}<span className="text-xl md:text-2xl opacity-50 ml-1">h</span></span>
+                                            <span className={timerInput.slice(0, 4) === '0000' ? 'opacity-30' : ''}>{timerInput.slice(2, 4)}<span className="text-xl md:text-2xl opacity-50 ml-1">min</span></span>
+                                            <span className={timerInput === '000000' ? 'opacity-30' : ''}>{timerInput.slice(4, 6)}<span className="text-xl md:text-2xl opacity-50 ml-1">s</span></span>
+                                        </div>
+                                        <div className="grid grid-cols-3 gap-2 sm:gap-4 w-full max-w-[280px]">
+                                            {['1', '2', '3', '4', '5', '6', '7', '8', '9', '00', '0', 'del'].map(btn => (
+                                                <button key={btn} onClick={() => handleTimerInput(btn)} className="h-[clamp(3.5rem,7vh,4rem)] rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 flex items-center justify-center text-xl sm:text-2xl font-medium transition-all active:scale-95">
+                                                    {btn === 'del' ? <Delete size={24} /> : btn}
+                                                </button>
+                                            ))}
+                                        </div>
+                                        <div className="mt-8 flex gap-6 z-30 relative">
+                                            <button onClick={() => setIsEditingTimer(false)} className="p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all">
+                                                <X size={32} />
                                             </button>
-                                        ))}
+                                            <button onClick={() => {
+                                                const sec = getTimerInputSeconds();
+                                                if (sec > 0) {
+                                                    setTimerInitial(sec);
+                                                    setTimerSeconds(sec);
+                                                    setIsEditingTimer(false);
+                                                    setIsTimerRunning(true);
+                                                    if (autoZenMode && !isZenMode) setIsZenMode(true);
+                                                } else {
+                                                    setIsEditingTimer(false);
+                                                }
+                                            }} className={`p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all`}>
+                                                <Play size={32} className={currentTheme.accent} />
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div className="mt-8 flex gap-6 z-30 relative">
-                                        <button onClick={() => setIsEditingTimer(false)} className="p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all">
-                                            <X size={32} />
-                                        </button>
-                                        <button onClick={() => {
-                                            const sec = getTimerInputSeconds();
-                                            if (sec > 0) {
-                                                setTimerInitial(sec);
-                                                setTimerSeconds(sec);
-                                                setIsEditingTimer(false);
-                                                setIsTimerRunning(true);
-                                                if (autoZenMode && !isZenMode) setIsZenMode(true);
-                                            } else {
-                                                setIsEditingTimer(false);
-                                            }
-                                        }} className={`p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all`}>
-                                            <Play size={32} className={currentTheme.accent} />
-                                        </button>
+                                ) : (
+                                    <div className={`relative flex justify-center items-center w-full mt-4 p-8 flex-col ${ringPosition === 'left' ? 'md:flex-row' : ringPosition === 'right' ? 'md:flex-row-reverse' : 'md:flex-col'}`}>
+                                        {showProgressRing && <ProgressRing progress={timerInitial > 0 ? (timerSeconds / timerInitial) * 100 : 0} accent={theme === 'custom' ? 'custom-accent text-white' : currentTheme.accent} position={ringPosition} />}
+                                        <div
+                                            className="text-[15vw] md:text-[120px] font-bold tracking-tighter tabular-nums drop-shadow-2xl cursor-pointer hover:opacity-80 transition-opacity flex items-baseline gap-1 md:gap-2 z-10"
+                                            onClick={() => {
+                                                if (!isTimerRunning) {
+                                                    setIsEditingTimer(true);
+                                                    setTimerInput('000000');
+                                                }
+                                            }}
+                                        >
+                                            {timerSeconds >= 3600 && <span>{Math.floor(timerSeconds / 3600).toString().padStart(2, '0')}<span className="text-[4vw] md:text-[32px] font-light opacity-50 ml-1">h</span></span>}
+                                            <span>{Math.floor((timerSeconds % 3600) / 60).toString().padStart(2, '0')}<span className="text-[4vw] md:text-[32px] font-light opacity-50 ml-1">min</span></span>
+                                            <span>{(timerSeconds % 60).toString().padStart(2, '0')}<span className="text-[4vw] md:text-[32px] font-light opacity-50 ml-1">s</span></span>
+                                        </div>
+                                        {!isTimerRunning && (
+                                            <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex items-center justify-center gap-2 text-sm opacity-50 transition-opacity pointer-events-none">
+                                                <Edit3 size={16} /> <span>{t('clickToEdit') || 'Click to edit'}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className={`mt-8 flex gap-6 z-30 relative ${isEditingTimer ? 'hidden' : ''} ${!showControls && !isCleanMode ? 'opacity-0 pointer-events-none' : 'opacity-100 transition-opacity duration-500'}`}>
+                                <button onClick={() => {
+                                    if (!isTimerRunning && timerSeconds <= 0) {
+                                        if (timerInitial > 0) {
+                                            setTimerSeconds(timerInitial);
+                                        } else {
+                                            setIsEditingTimer(true);
+                                            setTimerInput('000000');
+                                            return;
+                                        }
+                                    }
+                                    if (!isTimerRunning && autoZenMode && !isZenMode) setIsZenMode(true);
+                                    setIsTimerRunning(!isTimerRunning);
+                                }} className={`p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all`}>
+                                    {isTimerRunning ? <Pause size={32} /> : <Play size={32} className={currentTheme.accent} />}
+                                </button>
+                                <button onClick={() => { setIsTimerRunning(false); setTimerSeconds(timerInitial > 0 ? timerInitial : 0); }} className="p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all">
+                                    <RotateCcw size={32} />
+                                </button>
+                            </div>
+
+                            {/* Integrated Multi-Timers */}
+                            <div className="w-full max-h-[30vh] sm:max-h-[40vh] overflow-y-auto custom-scrollbar space-y-3 p-2 border-t border-white/10 pt-6">
+                                {multiTimers.map(timer => {
+                                    const mins = Math.floor(timer.remaining / 60).toString().padStart(2, '0');
+                                    const secs = (timer.remaining % 60).toString().padStart(2, '0');
+                                    const pct = timer.initial > 0 ? (timer.remaining / timer.initial) * 100 : 0;
+                                    return (
+                                        <div key={timer.id} className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10">
+                                            <div className="flex-1">
+                                                <div className="text-3xl font-bold tabular-nums tracking-tighter">{mins}:{secs}</div>
+                                                <div className="w-full h-1.5 rounded-full bg-white/10 mt-2 overflow-hidden">
+                                                    <div className={`h-full rounded-full transition-all duration-1000 ${pct > 20 ? 'bg-blue-500' : 'bg-red-500'}`} style={{ width: `${pct}%` }} />
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <button onClick={() => toggleMultiTimer(timer.id)} className="p-2.5 rounded-full bg-white/10 hover:bg-white/20 transition-all">
+                                                    {timer.running ? <Pause size={18} /> : <Play size={18} className={currentTheme.accent} />}
+                                                </button>
+                                                <button onClick={() => resetMultiTimer(timer.id)} className="p-2.5 rounded-full bg-white/10 hover:bg-white/20 transition-all"><RotateCcw size={18} /></button>
+                                                <button onClick={() => deleteMultiTimer(timer.id)} className="p-2.5 rounded-full bg-white/10 hover:bg-red-500/30 transition-all"><Trash2 size={18} /></button>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                                <div className={`flex flex-wrap justify-center gap-3 pt-4 pb-8 ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+                                    {[1, 3, 5, 10, 15, 30].map(m => (
+                                        <button key={m} onClick={() => addMultiTimer(m)} className="px-4 py-2 rounded-full bg-white/10 border border-white/10 hover:bg-white/20 text-sm transition-all">+{m}min</button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {mode === 'pomodoro' && (
+                        <div className="flex flex-col items-center select-none mt-2 sm:mt-4">
+                            <div className={`relative flex justify-center items-center w-full mt-2 sm:mt-4 p-4 sm:p-8 flex-col ${ringPosition === 'left' ? 'md:flex-row' : ringPosition === 'right' ? 'md:flex-row-reverse' : 'md:flex-col'}`}>
+                                {showProgressRing && <ProgressRing progress={(pomoSeconds / (pomoMode === 'work' ? 25 * 60 : pomoMode === 'short' ? 5 * 60 : 15 * 60)) * 100} accent={theme === 'custom' ? 'custom-accent text-white' : currentTheme.accent} position={ringPosition} />}
+                                <div className="text-[15vw] md:text-[120px] font-bold tracking-tighter tabular-nums drop-shadow-2xl z-10 flex items-baseline gap-1 md:gap-2">
+                                    <span>{Math.floor(pomoSeconds / 60).toString().padStart(2, '0')}<span className="text-[4vw] md:text-[32px] font-light opacity-50 ml-1">min</span></span>
+                                    <span>{(pomoSeconds % 60).toString().padStart(2, '0')}<span className="text-[4vw] md:text-[32px] font-light opacity-50 ml-1">s</span></span>
+                                </div>
+                            </div>
+                            <div className={`mt-4 sm:mt-8 flex gap-6 z-30 relative ${!showControls && !isCleanMode ? 'opacity-0 pointer-events-none' : 'opacity-100 transition-opacity duration-500'}`}>
+                                <button onClick={() => {
+                                    if (!isPomoRunning && pomoSeconds <= 0) resetPomo(pomoMode);
+                                    if (!isPomoRunning && autoZenMode && !isZenMode) setIsZenMode(true);
+                                    setIsPomoRunning(!isPomoRunning);
+                                }} className={`p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all`}>
+                                    {isPomoRunning ? <Pause size={32} /> : <Play size={32} className={currentTheme.accent} />}
+                                </button>
+                                <button onClick={() => resetPomo(pomoMode)} className="p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all">
+                                    <RotateCcw size={32} />
+                                </button>
+                            </div>
+                            {enableMiniTask && (
+                                <div className={`mt-8 flex items-center justify-center w-[80vw] max-w-sm transition-opacity duration-500 relative ${isZenMode ? 'opacity-0' : 'opacity-100'}`}>
+                                    <Target size={18} className="absolute left-2 opacity-30 pointer-events-none" />
+                                    <input type="text" placeholder={t('focusGoal')} value={focusGoal} onChange={e => setFocusGoal(e.target.value)} className="w-full text-center bg-transparent border-b border-white/20 focus:border-white/60 py-2 outline-none text-base transition-colors placeholder:text-white/20 text-inherit" style={{ color: 'inherit' }} />
+                                </div>
+                            )}
+                            {enableFocusAnalytics && (
+                                <div className={`mt-6 w-[80vw] max-w-sm p-4 rounded-3xl bg-white/5 border border-white/10 flex flex-col gap-2 transition-opacity duration-500 ${isZenMode ? 'opacity-0' : 'opacity-100'}`}>
+                                    <div className="text-xs font-medium opacity-80 flex items-center justify-between">
+                                        <div className="flex items-center gap-1.5"><BarChart2 size={14} /> {t('focusStats')}</div>
+                                        <div className="opacity-50">{Object.keys(focusStats).slice(-7).length} Days</div>
+                                    </div>
+                                    <div className="text-2xl font-bold">{Math.floor(Object.values(focusStats).reduce((a, b) => a + b, 0) / 60)} <span className="text-xs opacity-50 font-normal">mins (total)</span></div>
+                                    <div className="flex items-end gap-1.5 h-12 mt-1 w-full mx-auto justify-between px-1">
+                                        {[...Array(7)].map((_, i) => {
+                                            const dateStrs = Object.keys(focusStats).sort();
+                                            const ds = dateStrs.slice(-7)[i];
+                                            const max = Math.max(...Object.values(focusStats), 1);
+                                            const val = ds ? focusStats[ds] : 0;
+                                            const pct = ds ? (val / max) * 100 : 0;
+                                            return <div key={i} className={`flex-1 rounded-sm opacity-60 hover:opacity-100 transition-all ${pct === 0 ? 'bg-white/10' : ''}`} style={{ height: pct > 0 ? `max(4px, ${pct}%)` : '4px', background: pct > 0 ? (theme === 'custom' ? customColors.accent : (currentTheme.bg.includes('50') ? '#3b82f6' : '#60a5fa')) : '' }} title={ds ? `${ds}: ${Math.floor(val / 60)}m` : ''} />
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {mode === 'stopwatch' && (
+                        <div className="flex flex-col items-center select-none w-full min-w-[300px] mt-2 sm:mt-12">
+                            <div className="text-[15vw] md:text-[120px] font-bold tracking-tighter tabular-nums flex items-baseline">
+                                <span>{stopwatch.m}</span><span className="opacity-50 mx-1">:</span><span>{stopwatch.s}</span>
+                                <span className={`text-[8vw] md:text-[60px] ml-1 md:ml-2 ${currentTheme.accent}`}>.{stopwatch.cs}</span>
+                            </div>
+                            <div className={`mt-8 flex gap-6 z-30 relative ${!showControls && !isCleanMode ? 'opacity-0 pointer-events-none' : 'opacity-100 transition-opacity duration-500'}`}>
+                                <button onClick={() => setIsStopwatchRunning(!isStopwatchRunning)} className="p-4 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition-all">
+                                    {isStopwatchRunning ? <Pause size={32} /> : <Play size={32} className={currentTheme.accent} />}
+                                </button>
+                                <button onClick={() => { if (isStopwatchRunning) setLaps([stopwatchTime, ...laps]); else { setStopwatchTime(0); setLaps([]); } }} className="p-4 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition-all">
+                                    {isStopwatchRunning ? <Plus size={32} /> : <RotateCcw size={32} />}
+                                </button>
+                            </div>
+                            <div className="mt-6 w-full max-h-32 overflow-y-auto custom-scrollbar">
+                                {laps.map((lap, i) => {
+                                    const d = formatDuration(lap);
+                                    return <div key={i} className="flex justify-between px-6 py-2 border-b border-white/5 opacity-80"><span>{t('lap')} {laps.length - i}</span><span>{d.m}:{d.s}.{d.cs}</span></div>
+                                })}
+                            </div>
+                        </div>
+                    )}
+
+                    {mode === 'calendar' && calendarView}
+
+
+                    {mode === 'anniversary' && (
+                        <div className="flex flex-col items-center select-none w-full max-w-lg mt-12">
+                            <div className="w-full max-h-[50vh] overflow-y-auto custom-scrollbar space-y-4 p-2">
+                                {anniversaries.length === 0 && (
+                                    <div className="text-center opacity-40 py-12">
+                                        <Sparkles size={48} className="mx-auto mb-4 opacity-20" />
+                                        <p className="text-lg">{t('addEvent')}</p>
+                                    </div>
+                                )}
+                                {anniversaries.map(ev => {
+                                    const target = new Date(ev.date);
+                                    const diff = target - new Date();
+                                    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+                                    const isFuture = days >= 0;
+
+                                    return (
+                                        <div key={ev.id} className="flex items-center justify-between p-6 rounded-[2rem] bg-white/5 border border-white/10 group hover:bg-white/10 transition-all">
+                                            <div>
+                                                <div className="text-xl font-bold">{ev.label}</div>
+                                                <div className="text-xs opacity-40 mt-1 uppercase tracking-widest">{ev.date}</div>
+                                            </div>
+                                            <div className="flex items-center gap-6">
+                                                <div className="text-right">
+                                                    <div className={`text-3xl font-black ${isFuture ? currentTheme.accent : 'opacity-40'}`}>
+                                                        {Math.abs(days)}
+                                                    </div>
+                                                    <div className="text-[10px] opacity-40 uppercase tracking-tighter">
+                                                        {isFuture ? t('daysLeft') : t('daysAgo')}
+                                                    </div>
+                                                </div>
+                                                <button onClick={() => setAnniversaries(prev => prev.filter(a => a.id !== ev.id))} className="p-2 rounded-full opacity-0 group-hover:opacity-100 hover:bg-red-500/20 transition-all">
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                            {isAddingEvent ? (
+                                <div className="mt-8 p-6 rounded-3xl bg-white/10 border border-white/20 w-full animate-in fade-in zoom-in-95 duration-300">
+                                    <input type="text" placeholder={t('eventName')} value={newEventName} onChange={e => setNewEventName(e.target.value)} className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 mb-3 outline-none focus:border-white/30" />
+                                    <input type="date" value={newEventDate} onChange={e => setNewEventDate(e.target.value)} className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 mb-4 outline-none focus:border-white/30" />
+                                    <div className="flex gap-3">
+                                        <button onClick={() => setIsAddingEvent(false)} className="flex-1 py-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors uppercase tracking-widest text-xs font-bold">{t('cancel') || 'Cancel'}</button>
+                                        <button onClick={() => { if (newEventName && newEventDate) { setAnniversaries([...anniversaries, { id: Date.now(), label: newEventName, date: newEventDate }]); setIsAddingEvent(false); setNewEventName(''); setNewEventDate(''); } }} className="flex-1 py-3 rounded-xl bg-blue-500 hover:bg-blue-600 transition-colors uppercase tracking-widest text-xs font-bold">{t('add') || 'Add'}</button>
                                     </div>
                                 </div>
                             ) : (
-                                <div className={`relative flex justify-center items-center w-full mt-4 p-8 flex-col ${ringPosition === 'left' ? 'md:flex-row' : ringPosition === 'right' ? 'md:flex-row-reverse' : 'md:flex-col'}`}>
-                                    {showProgressRing && <ProgressRing progress={timerInitial > 0 ? (timerSeconds / timerInitial) * 100 : 0} accent={theme === 'custom' ? 'custom-accent text-white' : currentTheme.accent} position={ringPosition} />}
-                                    <div
-                                        className="text-[15vw] md:text-[120px] font-bold tracking-tighter tabular-nums drop-shadow-2xl cursor-pointer hover:opacity-80 transition-opacity flex items-baseline gap-1 md:gap-2 z-10"
-                                        onClick={() => {
-                                            if (!isTimerRunning) {
-                                                setIsEditingTimer(true);
-                                                setTimerInput('000000');
-                                            }
-                                        }}
-                                    >
-                                        {timerSeconds >= 3600 && <span>{Math.floor(timerSeconds / 3600).toString().padStart(2, '0')}<span className="text-[4vw] md:text-[32px] font-light opacity-50 ml-1">h</span></span>}
-                                        <span>{Math.floor((timerSeconds % 3600) / 60).toString().padStart(2, '0')}<span className="text-[4vw] md:text-[32px] font-light opacity-50 ml-1">min</span></span>
-                                        <span>{(timerSeconds % 60).toString().padStart(2, '0')}<span className="text-[4vw] md:text-[32px] font-light opacity-50 ml-1">s</span></span>
-                                    </div>
-                                    {!isTimerRunning && (
-                                        <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex items-center justify-center gap-2 text-sm opacity-50 transition-opacity pointer-events-none">
-                                            <Edit3 size={16} /> <span>{t('clickToEdit') || 'Click to edit'}</span>
-                                        </div>
-                                    )}
-                                </div>
+                                <button
+                                    onClick={() => setIsAddingEvent(true)}
+                                    className="mt-8 px-8 py-3 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 flex items-center gap-2 transition-all"
+                                >
+                                    <Plus size={20} /> {t('addEvent')}
+                                </button>
                             )}
                         </div>
+                    )}
 
-                        <div className={`mt-8 flex gap-6 z-30 relative ${isEditingTimer ? 'hidden' : ''} ${!showControls && !isCleanMode ? 'opacity-0 pointer-events-none' : 'opacity-100 transition-opacity duration-500'}`}>
-                            <button onClick={() => {
-                                if (!isTimerRunning && timerSeconds <= 0) {
-                                    if (timerInitial > 0) {
-                                        setTimerSeconds(timerInitial);
-                                    } else {
-                                        setIsEditingTimer(true);
-                                        setTimerInput('000000');
-                                        return;
-                                    }
-                                }
-                                if (!isTimerRunning && autoZenMode && !isZenMode) setIsZenMode(true);
-                                setIsTimerRunning(!isTimerRunning);
-                            }} className={`p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all`}>
-                                {isTimerRunning ? <Pause size={32} /> : <Play size={32} className={currentTheme.accent} />}
-                            </button>
-                            <button onClick={() => { setIsTimerRunning(false); setTimerSeconds(timerInitial > 0 ? timerInitial : 0); }} className="p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all">
-                                <RotateCcw size={32} />
-                            </button>
-                        </div>
 
-                        {/* Integrated Multi-Timers */}
-                        <div className="w-full max-h-[30vh] sm:max-h-[40vh] overflow-y-auto custom-scrollbar space-y-3 p-2 border-t border-white/10 pt-6">
-                            {multiTimers.map(timer => {
-                                const mins = Math.floor(timer.remaining / 60).toString().padStart(2, '0');
-                                const secs = (timer.remaining % 60).toString().padStart(2, '0');
-                                const pct = timer.initial > 0 ? (timer.remaining / timer.initial) * 100 : 0;
-                                return (
-                                    <div key={timer.id} className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10">
-                                        <div className="flex-1">
-                                            <div className="text-3xl font-bold tabular-nums tracking-tighter">{mins}:{secs}</div>
-                                            <div className="w-full h-1.5 rounded-full bg-white/10 mt-2 overflow-hidden">
-                                                <div className={`h-full rounded-full transition-all duration-1000 ${pct > 20 ? 'bg-blue-500' : 'bg-red-500'}`} style={{ width: `${pct}%` }} />
-                                            </div>
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <button onClick={() => toggleMultiTimer(timer.id)} className="p-2.5 rounded-full bg-white/10 hover:bg-white/20 transition-all">
-                                                {timer.running ? <Pause size={18} /> : <Play size={18} className={currentTheme.accent} />}
-                                            </button>
-                                            <button onClick={() => resetMultiTimer(timer.id)} className="p-2.5 rounded-full bg-white/10 hover:bg-white/20 transition-all"><RotateCcw size={18} /></button>
-                                            <button onClick={() => deleteMultiTimer(timer.id)} className="p-2.5 rounded-full bg-white/10 hover:bg-red-500/30 transition-all"><Trash2 size={18} /></button>
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                            <div className={`flex flex-wrap justify-center gap-3 pt-4 pb-8 ${isZenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-                                {[1, 3, 5, 10, 15, 30].map(m => (
-                                    <button key={m} onClick={() => addMultiTimer(m)} className="px-4 py-2 rounded-full bg-white/10 border border-white/10 hover:bg-white/20 text-sm transition-all">+{m}min</button>
-                                ))}
+                    {mode === 'memento' && (
+                        <div className="flex flex-col items-center select-none w-full max-w-2xl animate-fade-in relative mt-12">
+                            <div className="flex flex-col mb-8 text-center bg-black/40 backdrop-blur-md px-12 py-6 rounded-[2rem] border border-white/10 w-full pb-8">
+                                <h2 className="text-3xl font-black tracking-widest uppercase mb-6 mt-2">{t('memento')}</h2>
+                                <label className="text-sm opacity-80 flex flex-col items-center gap-3 w-full">
+                                    <span className="uppercase tracking-widest text-white/50">{t('birthDate')}</span>
+                                    <input type="date" value={birthDate} onChange={e => setBirthDate(e.target.value)} className="bg-white/10 border border-white/20 rounded-xl px-4 py-2 outline-none text-white text-lg w-full max-w-xs transition-all hover:bg-white/20 focus:bg-white/20 focus:border-white/40 font-mono tracking-widest" style={{ colorScheme: 'dark' }} />
+                                </label>
+                                {mementoView}
                             </div>
                         </div>
-                    </div>
-                )}
-
-                {mode === 'pomodoro' && (
-                    <div className="flex flex-col items-center select-none mt-2 sm:mt-12">
-                        <div className="flex gap-4 mb-4">
-                            <button onClick={() => resetPomo('work')} className={`px-4 py-1 rounded-full text-sm border transition-all ${pomoMode === 'work' ? `bg-white/10 border-white/50 ${currentTheme.accent}` : 'border-transparent opacity-50'}`}>{t('work')}</button>
-                            <button onClick={() => resetPomo('short')} className={`px-4 py-1 rounded-full text-sm border transition-all ${pomoMode === 'short' ? `bg-white/10 border-white/50 ${currentTheme.accent}` : 'border-transparent opacity-50'}`}>{t('break')}</button>
-                            <button onClick={() => resetPomo('long')} className={`px-4 py-1 rounded-full text-sm border transition-all ${pomoMode === 'long' ? `bg-white/10 border-white/50 ${currentTheme.accent}` : 'border-transparent opacity-50'}`}>{t('long')}</button>
-                        </div>
-                        <div className={`relative flex justify-center items-center w-full mt-2 sm:mt-4 p-4 sm:p-8 flex-col ${ringPosition === 'left' ? 'md:flex-row' : ringPosition === 'right' ? 'md:flex-row-reverse' : 'md:flex-col'}`}>
-                            {showProgressRing && <ProgressRing progress={(pomoSeconds / (pomoMode === 'work' ? 25 * 60 : pomoMode === 'short' ? 5 * 60 : 15 * 60)) * 100} accent={theme === 'custom' ? 'custom-accent text-white' : currentTheme.accent} position={ringPosition} />}
-                            <div className="text-[15vw] md:text-[120px] font-bold tracking-tighter tabular-nums drop-shadow-2xl z-10 flex items-baseline gap-1 md:gap-2">
-                                <span>{Math.floor(pomoSeconds / 60).toString().padStart(2, '0')}<span className="text-[4vw] md:text-[32px] font-light opacity-50 ml-1">min</span></span>
-                                <span>{(pomoSeconds % 60).toString().padStart(2, '0')}<span className="text-[4vw] md:text-[32px] font-light opacity-50 ml-1">s</span></span>
-                            </div>
-                        </div>
-                        <div className={`mt-4 sm:mt-8 flex gap-6 z-30 relative ${!showControls && !isCleanMode ? 'opacity-0 pointer-events-none' : 'opacity-100 transition-opacity duration-500'}`}>
-                            <button onClick={() => {
-                                if (!isPomoRunning && pomoSeconds <= 0) resetPomo(pomoMode);
-                                if (!isPomoRunning && autoZenMode && !isZenMode) setIsZenMode(true);
-                                setIsPomoRunning(!isPomoRunning);
-                            }} className={`p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all`}>
-                                {isPomoRunning ? <Pause size={32} /> : <Play size={32} className={currentTheme.accent} />}
-                            </button>
-                            <button onClick={() => resetPomo(pomoMode)} className="p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all">
-                                <RotateCcw size={32} />
-                            </button>
-                        </div>
-                        {enableMiniTask && (
-                            <div className={`mt-8 flex items-center justify-center w-[80vw] max-w-sm transition-opacity duration-500 relative ${isZenMode ? 'opacity-0' : 'opacity-100'}`}>
-                                <Target size={18} className="absolute left-2 opacity-30 pointer-events-none" />
-                                <input type="text" placeholder={t('focusGoal')} value={focusGoal} onChange={e => setFocusGoal(e.target.value)} className="w-full text-center bg-transparent border-b border-white/20 focus:border-white/60 py-2 outline-none text-base transition-colors placeholder:text-white/20 text-inherit" style={{ color: 'inherit' }} />
-                            </div>
-                        )}
-                        {enableFocusAnalytics && (
-                            <div className={`mt-6 w-[80vw] max-w-sm p-4 rounded-3xl bg-white/5 border border-white/10 flex flex-col gap-2 transition-opacity duration-500 ${isZenMode ? 'opacity-0' : 'opacity-100'}`}>
-                                <div className="text-xs font-medium opacity-80 flex items-center justify-between">
-                                    <div className="flex items-center gap-1.5"><BarChart2 size={14} /> {t('focusStats')}</div>
-                                    <div className="opacity-50">{Object.keys(focusStats).slice(-7).length} Days</div>
-                                </div>
-                                <div className="text-2xl font-bold">{Math.floor(Object.values(focusStats).reduce((a, b) => a + b, 0) / 60)} <span className="text-xs opacity-50 font-normal">mins (total)</span></div>
-                                <div className="flex items-end gap-1.5 h-12 mt-1 w-full mx-auto justify-between px-1">
-                                    {[...Array(7)].map((_, i) => {
-                                        const dateStrs = Object.keys(focusStats).sort();
-                                        const ds = dateStrs.slice(-7)[i];
-                                        const max = Math.max(...Object.values(focusStats), 1);
-                                        const val = ds ? focusStats[ds] : 0;
-                                        const pct = ds ? (val / max) * 100 : 0;
-                                        return <div key={i} className={`flex-1 rounded-sm opacity-60 hover:opacity-100 transition-all ${pct === 0 ? 'bg-white/10' : ''}`} style={{ height: pct > 0 ? `max(4px, ${pct}%)` : '4px', background: pct > 0 ? (theme === 'custom' ? customColors.accent : (currentTheme.bg.includes('50') ? '#3b82f6' : '#60a5fa')) : '' }} title={ds ? `${ds}: ${Math.floor(val / 60)}m` : ''} />
-                                    })}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                )}
-
-                {mode === 'stopwatch' && (
-                    <div className="flex flex-col items-center select-none w-full min-w-[300px] mt-2 sm:mt-12">
-                        <div className="text-[15vw] md:text-[120px] font-bold tracking-tighter tabular-nums flex items-baseline">
-                            <span>{stopwatch.m}</span><span className="opacity-50 mx-1">:</span><span>{stopwatch.s}</span>
-                            <span className={`text-[8vw] md:text-[60px] ml-1 md:ml-2 ${currentTheme.accent}`}>.{stopwatch.cs}</span>
-                        </div>
-                        <div className={`mt-8 flex gap-6 z-30 relative ${!showControls && !isCleanMode ? 'opacity-0 pointer-events-none' : 'opacity-100 transition-opacity duration-500'}`}>
-                            <button onClick={() => setIsStopwatchRunning(!isStopwatchRunning)} className="p-4 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition-all">
-                                {isStopwatchRunning ? <Pause size={32} /> : <Play size={32} className={currentTheme.accent} />}
-                            </button>
-                            <button onClick={() => { if (isStopwatchRunning) setLaps([stopwatchTime, ...laps]); else { setStopwatchTime(0); setLaps([]); } }} className="p-4 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition-all">
-                                {isStopwatchRunning ? <Plus size={32} /> : <RotateCcw size={32} />}
-                            </button>
-                        </div>
-                        <div className="mt-6 w-full max-h-32 overflow-y-auto custom-scrollbar">
-                            {laps.map((lap, i) => {
-                                const d = formatDuration(lap);
-                                return <div key={i} className="flex justify-between px-6 py-2 border-b border-white/5 opacity-80"><span>{t('lap')} {laps.length - i}</span><span>{d.m}:{d.s}.{d.cs}</span></div>
-                            })}
-                        </div>
-                    </div>
-                )}
-
-                {mode === 'calendar' && calendarView}
-
-
-                {mode === 'anniversary' && (
-                    <div className="flex flex-col items-center select-none w-full max-w-lg mt-12">
-                        <div className="w-full max-h-[50vh] overflow-y-auto custom-scrollbar space-y-4 p-2">
-                            {anniversaries.length === 0 && (
-                                <div className="text-center opacity-40 py-12">
-                                    <Sparkles size={48} className="mx-auto mb-4 opacity-20" />
-                                    <p className="text-lg">{t('addEvent')}</p>
-                                </div>
-                            )}
-                            {anniversaries.map(ev => {
-                                const target = new Date(ev.date);
-                                const diff = target - new Date();
-                                const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-                                const isFuture = days >= 0;
-
-                                return (
-                                    <div key={ev.id} className="flex items-center justify-between p-6 rounded-[2rem] bg-white/5 border border-white/10 group hover:bg-white/10 transition-all">
-                                        <div>
-                                            <div className="text-xl font-bold">{ev.label}</div>
-                                            <div className="text-xs opacity-40 mt-1 uppercase tracking-widest">{ev.date}</div>
-                                        </div>
-                                        <div className="flex items-center gap-6">
-                                            <div className="text-right">
-                                                <div className={`text-3xl font-black ${isFuture ? currentTheme.accent : 'opacity-40'}`}>
-                                                    {Math.abs(days)}
-                                                </div>
-                                                <div className="text-[10px] opacity-40 uppercase tracking-tighter">
-                                                    {isFuture ? t('daysLeft') : t('daysAgo')}
-                                                </div>
-                                            </div>
-                                            <button onClick={() => setAnniversaries(prev => prev.filter(a => a.id !== ev.id))} className="p-2 rounded-full opacity-0 group-hover:opacity-100 hover:bg-red-500/20 transition-all">
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                        {isAddingEvent ? (
-                            <div className="mt-8 p-6 rounded-3xl bg-white/10 border border-white/20 w-full animate-in fade-in zoom-in-95 duration-300">
-                                <input type="text" placeholder={t('eventName')} value={newEventName} onChange={e => setNewEventName(e.target.value)} className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 mb-3 outline-none focus:border-white/30" />
-                                <input type="date" value={newEventDate} onChange={e => setNewEventDate(e.target.value)} className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 mb-4 outline-none focus:border-white/30" />
-                                <div className="flex gap-3">
-                                    <button onClick={() => setIsAddingEvent(false)} className="flex-1 py-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors uppercase tracking-widest text-xs font-bold">{t('cancel') || 'Cancel'}</button>
-                                    <button onClick={() => { if (newEventName && newEventDate) { setAnniversaries([...anniversaries, { id: Date.now(), label: newEventName, date: newEventDate }]); setIsAddingEvent(false); setNewEventName(''); setNewEventDate(''); } }} className="flex-1 py-3 rounded-xl bg-blue-500 hover:bg-blue-600 transition-colors uppercase tracking-widest text-xs font-bold">{t('add') || 'Add'}</button>
-                                </div>
-                            </div>
-                        ) : (
-                            <button
-                                onClick={() => setIsAddingEvent(true)}
-                                className="mt-8 px-8 py-3 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 flex items-center gap-2 transition-all"
-                            >
-                                <Plus size={20} /> {t('addEvent')}
-                            </button>
-                        )}
-                    </div>
-                )}
-
-
-                {mode === 'memento' && (
-                    <div className="flex flex-col items-center select-none w-full max-w-2xl animate-fade-in relative mt-12">
-                        <div className="flex flex-col mb-8 text-center bg-black/40 backdrop-blur-md px-12 py-6 rounded-[2rem] border border-white/10 w-full pb-8">
-                            <h2 className="text-3xl font-black tracking-widest uppercase mb-6 mt-2">{t('memento')}</h2>
-                            <label className="text-sm opacity-80 flex flex-col items-center gap-3 w-full">
-                                <span className="uppercase tracking-widest text-white/50">{t('birthDate')}</span>
-                                <input type="date" value={birthDate} onChange={e => setBirthDate(e.target.value)} className="bg-white/10 border border-white/20 rounded-xl px-4 py-2 outline-none text-white text-lg w-full max-w-xs transition-all hover:bg-white/20 focus:bg-white/20 focus:border-white/40 font-mono tracking-widest" style={{ colorScheme: 'dark' }} />
-                            </label>
-                            {mementoView}
-                        </div>
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
 
             {/* Spacer for Navigation Bar offset on Mobile/Desktop */}
