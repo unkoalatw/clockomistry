@@ -22,13 +22,37 @@
   - `src/05-hooks.js`：`useAudio`, `useLocalStorage` 以及生命週期管理
   - `src/06-app.js`：最主要的 `<App />` 主體容器與邏輯
   - `src/07-index.js`：React DOM Render 入口建立
-- **建置流程 (Build Process)**：Babel 已經設定為編譯整個 `src/` 資料夾。所有的獨立小文件會在執行 `npm run build` 或網頁載入時自動按順序打包成最終的 `script.dist.js`，這意味著接下來的對話代理人只需要精準修改對應的特定 `src/` 檔案即可，大幅提升編輯穩定性！
+- **建置流程 (Build Process)**：Babel 已經設定為編譯整個 `src/` 資料夾。所有的獨立小文件會被自動打包成最終的 `script.dist.js`。
 
 ## ⚙️ 接下來的開發建議 (給下一個對話的提示)
 1. 如果要修改**主程式邏輯與主要渲染**：請查閱並修改 `src/06-app.js`。
 2. 如果要修改**底下導覽列或時鐘主字體**：請前往 `src/04-components.js` 修改相關 UI 元件。
 3. 如果遇到**狀態或是播放音效**問題：可檢視 `src/05-hooks.js`。
-4. **發布到手機 APK**：我們已經設定好 `sync.ps1`，每次透過 `npm run build` 打包 `dist.js` 後，都可以一鍵同步覆蓋到 `clock-apk` 目錄去編譯 Android 版本。
+4. **建置指令**：`npm run build`。
+
+## 🛠️ 部署與同步 SOP (重要指令)
+
+為確保專案同步與發布，請遵循以下步驟：
+
+### 1. 重新建置專案 (Babel & Tailwind)
+```bash
+npm run build
+```
+
+### 2. 推送至 GitHub 備份
+```bash
+git add .
+git commit -m "你的更新說明"
+git push
+```
+
+### 3. 同步至 Android APK 專案
+需在 `clock-apk` 目錄下執行同步腳本（建議在 PowerShell 執行）：
+```powershell
+cd ..\clock-apk
+pwsh .\sync.ps1
+cd ..\clock
+```
 
 ## 📍 目前狀態
 專案所有的 Git 分支都已經同步（包含本次的重構），你隨時可以開啟新對話並提供這個 `chat.md` 文件作為 context 進行下一階段功能的開發！
