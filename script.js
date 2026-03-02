@@ -1156,7 +1156,18 @@ function App() {
                                         minHeight: 56,
                                         borderBottom: borderStyle,
                                         borderRight: borderStyle,
-                                        borderLeft: colIndex === 0 ? borderStyle : 'none'
+                                        borderLeft: colIndex === 0 ? borderStyle : 'none',
+                                        cursor: cell.type === 'current' ? 'pointer' : 'default'
+                                    }}
+                                    className="hover:bg-white/5 transition-colors"
+                                    onClick={() => {
+                                        if (cell.type === 'current') {
+                                            const selectedDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(cell.day).padStart(2, '0')}`;
+                                            setNewEventDate(selectedDateStr);
+                                            setNewEventName('');
+                                            setIsAddingEvent(true);
+                                            setMode('anniversary');
+                                        }
                                     }}
                                 >
                                     <div style={{
