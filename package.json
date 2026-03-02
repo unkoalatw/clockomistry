@@ -5,10 +5,10 @@
   "main": "script.js",
   "scripts": {
     "build:css": "tailwindcss -i ./input.css -o ./output.css --minify",
-    "build:js": "babel script.js --out-file script.dist.js",
+    "build:js": "babel src --out-file script.dist.js",
     "build": "npm run build:css && npm run build:js",
     "watch:css": "tailwindcss -i ./input.css -o ./output.css --watch",
-    "watch:js": "babel script.js --out-file script.dist.js --watch",
+    "watch:js": "babel src --out-file script.dist.js --watch",
     "watch": "concurrently \"npm run watch:css\" \"npm run watch:js\"",
     "start": "npx -y serve . -p 8000"
   },

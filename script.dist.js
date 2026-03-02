@@ -1,8 +1,3 @@
-function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
-function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
-function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
-function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
-function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { createRoot } from 'react-dom/client';
 import html2canvas from 'html2canvas';
@@ -29,7 +24,6 @@ const triggerSuccess = () => {
 };
 import { Maximize2, Minimize2, Timer, Clock, Monitor, Play, Pause, RotateCcw, AlertCircle, Globe, StopCircle, Settings, X, Check, Plus, Search, Type, Upload, Palette, ArrowLeft, Coffee, Brain, CalendarDays, Languages, Trash2, ChevronLeft, ChevronRight, Calendar, CloudSun, Share2, Download, LayoutTemplate, Sparkles, Delete, Camera, CheckSquare, BarChart2, Sliders, Target, Edit3, Sunrise, Sunset, LayoutGrid, LayoutPanelTop, RefreshCw } from 'lucide-react';
 const APP_VERSION = '1.3.0';
-
 // --- IndexedDB 管理 (用於儲存大體積字型) ---
 const DB_NAME = 'ClockomistryDB';
 const STORE_NAME = 'fonts';
@@ -53,7 +47,6 @@ const getFontFromDB = async () => {
   const request = tx.objectStore(STORE_NAME).get('customFont');
   return new Promise(resolve => request.onsuccess = () => resolve(request.result));
 };
-
 // --- 國際化 (i18n) ---
 const I18N = {
   'zh-TW': {
@@ -558,7 +551,6 @@ const I18N = {
     "Johannesburg": "ヨハネスブルグ"
   }
 };
-
 // --- 配置與常數 ---
 const DEFAULT_THEMES = {
   modern: {
@@ -759,9 +751,8 @@ const ALL_ZONES = [
   label: 'Johannesburg',
   region: 'Africa'
 }];
-
 // --- Memoized Components ---
-const ProgressRing = /*#__PURE__*/React.memo(_ref => {
+const ProgressRing = React.memo(_ref => {
   let {
     progress,
     accent,
@@ -825,7 +816,7 @@ const ProgressRing = /*#__PURE__*/React.memo(_ref => {
     transform: "rotate(-90 50 50)"
   })));
 });
-const WeatherWidget = /*#__PURE__*/React.memo(_ref2 => {
+const WeatherWidget = React.memo(_ref2 => {
   let {
     weather,
     accent
@@ -853,7 +844,7 @@ const WeatherWidget = /*#__PURE__*/React.memo(_ref2 => {
     className: "text-purple-400"
   }), weather.sunset)));
 });
-const ClockDisplay = /*#__PURE__*/React.memo(_ref3 => {
+const ClockDisplay = React.memo(_ref3 => {
   let {
     h,
     m,
@@ -869,22 +860,22 @@ const ClockDisplay = /*#__PURE__*/React.memo(_ref3 => {
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-baseline font-bold tracking-tighter tabular-nums drop-shadow-2xl transition-all"
   }, /*#__PURE__*/React.createElement("span", {
-    className: "leading-none ".concat(isZenMode ? 'text-[25vw] md:text-[200px]' : 'text-[18vw] md:text-[120px]')
+    className: "leading-none text-[25vw] md:text-[200px]"
   }, h), /*#__PURE__*/React.createElement("span", {
-    className: "leading-none animate-pulse ".concat(accent, " ").concat(isZenMode ? 'text-[25vw] md:text-[200px]' : 'text-[18vw] md:text-[120px]')
+    className: "leading-none animate-pulse ".concat(accent, " text-[25vw] md:text-[200px]")
   }, ":"), /*#__PURE__*/React.createElement("span", {
-    className: "leading-none ".concat(isZenMode ? 'text-[25vw] md:text-[200px]' : 'text-[18vw] md:text-[120px]')
+    className: "leading-none text-[25vw] md:text-[200px]"
   }, m), /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-col ml-2 md:ml-4 justify-end ".concat(isZenMode ? 'pb-[2vw] md:pb-12' : 'pb-[1vw] md:pb-6')
+    className: "flex flex-col ml-2 md:ml-4 justify-end pb-[2vw] md:pb-12"
   }, /*#__PURE__*/React.createElement("span", {
-    className: "opacity-50 font-medium ".concat(isZenMode ? 'text-[10vw] md:text-[60px]' : 'text-[6vw] md:text-[32px]')
+    className: "opacity-50 font-medium text-[10vw] md:text-[60px]"
   }, s), showMillis && /*#__PURE__*/React.createElement("span", {
-    className: "".concat(accent, " opacity-80 ").concat(isZenMode ? 'text-[5vw] md:text-[30px]' : 'text-[3vw] md:text-[16px]')
+    className: "".concat(accent, " opacity-80 text-[5vw] md:text-[30px]")
   }, ms))), /*#__PURE__*/React.createElement("div", {
-    className: "mt-2 md:mt-4 font-light tracking-[0.3em] opacity-80 uppercase text-center transition-all ".concat(isZenMode ? 'text-lg md:text-3xl' : 'text-xs md:text-xl')
+    className: "mt-2 md:mt-4 font-light tracking-[0.3em] opacity-80 uppercase text-center transition-all text-lg md:text-3xl"
   }, dateLabel));
 });
-const NavigationBar = /*#__PURE__*/React.memo(_ref4 => {
+const NavigationBar = React.memo(_ref4 => {
   let {
     mode,
     setMode,
@@ -956,7 +947,6 @@ const NavigationBar = /*#__PURE__*/React.memo(_ref4 => {
     size: 20
   }))));
 });
-
 // --- Custom Hooks for Local Storage ---
 function useLocalString(key, initialValue) {
   const [value, setValue] = useState(() => {
@@ -1017,6 +1007,11 @@ const formatDuration = ms => {
     cs
   };
 };
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 function App() {
   const [time, setTime] = useState(new Date());
   const [theme, setTheme] = useLocalString('clock_theme', 'modern');
@@ -1996,8 +1991,8 @@ function App() {
     size: 24
   }), " ", t('appearance')), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-2 sm:grid-cols-4 gap-4"
-  }, Object.entries(DEFAULT_THEMES).map(_ref6 => {
-    let [key, thm] = _ref6;
+  }, Object.entries(DEFAULT_THEMES).map(_ref => {
+    let [key, thm] = _ref;
     return /*#__PURE__*/React.createElement("button", {
       key: key,
       onClick: () => setTheme(key),
@@ -2032,8 +2027,8 @@ function App() {
     }
   }, t('bgGradient')), /*#__PURE__*/React.createElement("div", {
     className: "flex gap-4 items-center"
-  }, [['bg1', t('color1')], ['bg2', t('color2')], ['bg3', t('color3')]].map(_ref7 => {
-    let [k, l] = _ref7;
+  }, [['bg1', t('color1')], ['bg2', t('color2')], ['bg3', t('color3')]].map(_ref2 => {
+    let [k, l] = _ref2;
     return /*#__PURE__*/React.createElement("label", {
       key: k,
       className: "flex flex-col items-center gap-1 cursor-pointer"
@@ -2069,8 +2064,8 @@ function App() {
     }
   }, t('textAccent')), /*#__PURE__*/React.createElement("div", {
     className: "flex gap-4 items-center"
-  }, [['text', t('text')], ['accent', t('accent')]].map(_ref8 => {
-    let [k, l] = _ref8;
+  }, [['text', t('text')], ['accent', t('accent')]].map(_ref3 => {
+    let [k, l] = _ref3;
     return /*#__PURE__*/React.createElement("label", {
       key: k,
       className: "flex flex-col items-center gap-1 cursor-pointer"
@@ -2149,8 +2144,8 @@ function App() {
     onChange: handleFontUpload
   })), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-1 sm:grid-cols-2 gap-4"
-  }, Object.entries(DEFAULT_FONTS).map(_ref9 => {
-    let [key, f] = _ref9;
+  }, Object.entries(DEFAULT_FONTS).map(_ref4 => {
+    let [key, f] = _ref4;
     return /*#__PURE__*/React.createElement("button", {
       key: key,
       onClick: () => setFont(key),
@@ -2207,8 +2202,8 @@ function App() {
     size: 24
   }), " ", t('language')), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-2 sm:grid-cols-3 gap-4"
-  }, Object.entries(I18N).map(_ref0 => {
-    let [key, val] = _ref0;
+  }, Object.entries(I18N).map(_ref5 => {
+    let [key, val] = _ref5;
     return /*#__PURE__*/React.createElement("button", {
       key: key,
       onClick: () => setLang(key),
@@ -2224,8 +2219,8 @@ function App() {
     size: 24
   }), " ", t('general')), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-1 sm:grid-cols-2 gap-4"
-  }, [['showMillis', showMillis, setShowMillis], ['notifications', notificationsEnabled, handleToggleNotifications], ['autoZenMode', autoZenMode, setAutoZenMode], ['showProgressRing', showProgressRing, setShowProgressRing], ['enableMiniTask', enableMiniTask, setEnableMiniTask], ['enableFocusAnalytics', enableFocusAnalytics, setEnableFocusAnalytics], ['enableMeetingPlanner', enableMeetingPlanner, setEnableMeetingPlanner]].map(_ref1 => {
-    let [k, val, setVal] = _ref1;
+  }, [['showMillis', showMillis, setShowMillis], ['notifications', notificationsEnabled, handleToggleNotifications], ['autoZenMode', autoZenMode, setAutoZenMode], ['showProgressRing', showProgressRing, setShowProgressRing], ['enableMiniTask', enableMiniTask, setEnableMiniTask], ['enableFocusAnalytics', enableFocusAnalytics, setEnableFocusAnalytics], ['enableMeetingPlanner', enableMeetingPlanner, setEnableMeetingPlanner]].map(_ref6 => {
+    let [k, val, setVal] = _ref6;
     return /*#__PURE__*/React.createElement("label", {
       key: k,
       className: "flex items-center justify-between p-6 rounded-2xl bg-white/5 cursor-pointer hover:bg-white/10 transition-colors"
@@ -2418,8 +2413,8 @@ function App() {
     className: "bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500"
   }, "omistry")), /*#__PURE__*/React.createElement("div", {
     className: "flex gap-2 justify-center mt-6"
-  }, Object.entries(I18N).map(_ref10 => {
-    let [key, val] = _ref10;
+  }, Object.entries(I18N).map(_ref7 => {
+    let [key, val] = _ref7;
     return /*#__PURE__*/React.createElement("button", {
       key: key,
       onClick: () => setLang(key),
@@ -2634,7 +2629,7 @@ function App() {
     accent: theme === 'custom' ? 'custom-accent text-white' : currentTheme.accent,
     position: ringPosition
   }), /*#__PURE__*/React.createElement("div", {
-    className: "font-bold tracking-tighter tabular-nums drop-shadow-2xl cursor-pointer hover:opacity-80 transition-all flex items-baseline gap-1 md:gap-2 z-10 ".concat(isZenMode ? 'text-[15vw] md:text-[120px]' : 'text-[12vw] md:text-[80px]'),
+    className: "font-bold tracking-tighter tabular-nums drop-shadow-2xl cursor-pointer hover:opacity-80 transition-all flex items-baseline gap-1 md:gap-2 z-10 text-[15vw] md:text-[120px]",
     onClick: () => {
       if (!isTimerRunning) {
         setIsEditingTimer(true);
@@ -2737,11 +2732,11 @@ function App() {
     accent: theme === 'custom' ? 'custom-accent text-white' : currentTheme.accent,
     position: ringPosition
   }), /*#__PURE__*/React.createElement("div", {
-    className: "font-bold tracking-tighter tabular-nums drop-shadow-2xl flex items-baseline gap-1 md:gap-2 z-10 transition-all ".concat(isZenMode ? 'text-[15vw] md:text-[120px]' : 'text-[12vw] md:text-[80px]')
+    className: "font-bold tracking-tighter tabular-nums drop-shadow-2xl flex items-baseline gap-1 md:gap-2 z-10 transition-all text-[15vw] md:text-[120px]"
   }, /*#__PURE__*/React.createElement("span", null, Math.floor(pomoSeconds / 60).toString().padStart(2, '0'), /*#__PURE__*/React.createElement("span", {
-    className: "font-light opacity-50 ml-1 ".concat(isZenMode ? 'text-[4vw] md:text-[32px]' : 'text-[3vw] md:text-[24px]')
+    className: "font-light opacity-50 ml-1 text-[4vw] md:text-[32px]"
   }, "min")), /*#__PURE__*/React.createElement("span", null, (pomoSeconds % 60).toString().padStart(2, '0'), /*#__PURE__*/React.createElement("span", {
-    className: "font-light opacity-50 ml-1 ".concat(isZenMode ? 'text-[4vw] md:text-[32px]' : 'text-[3vw] md:text-[24px]')
+    className: "font-light opacity-50 ml-1 text-[4vw] md:text-[32px]"
   }, "s")))), /*#__PURE__*/React.createElement("div", {
     className: "mt-4 sm:mt-8 flex gap-6 z-30 relative ".concat(!showControls && !isCleanMode ? 'opacity-0 pointer-events-none' : 'opacity-100 transition-opacity duration-500')
   }, /*#__PURE__*/React.createElement("button", {
