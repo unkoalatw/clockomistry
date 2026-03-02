@@ -2479,7 +2479,7 @@ function App() {
   })), /*#__PURE__*/React.createElement("div", {
     className: "relative z-10 w-full my-auto shrink max-h-[calc(100dvh-80px)] overflow-hidden max-w-[95vw] md:max-w-4xl rounded-[30px] sm:rounded-[48px] transition-zen flex flex-col items-center justify-start min-h-[40vh] ".concat(!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0', " ").concat(isZenMode ? 'scale-[1.05]' : '', " ").concat(isCleanMode ? 'scale-[0.85]' : '')
   }, !isCleanMode && !isZenMode && /*#__PURE__*/React.createElement("div", {
-    className: "w-full flex flex-col items-center pt-4 sm:pt-6 pb-2 shrink-0 z-50 transition-opacity"
+    className: "w-full flex flex-col items-center pt-4 sm:pt-6 pb-2 shrink-0 z-50 transition-opacity duration-300"
   }, ['timer', 'pomodoro', 'stopwatch'].includes(mode) && /*#__PURE__*/React.createElement("div", {
     className: "flex justify-center gap-2 bg-black/40 backdrop-blur-xl p-1.5 rounded-full border border-white/10 shadow-lg shadow-black/20",
     style: {
@@ -2511,7 +2511,7 @@ function App() {
   }, t('tabLife'))), mode === 'pomodoro' && /*#__PURE__*/React.createElement("div", {
     className: "w-full flex justify-center mt-4 shrink-0 z-40"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "flex gap-4"
+    className: "flex gap-4 transition-opacity duration-300"
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => resetPomo('work'),
     className: "px-4 py-1.5 rounded-full text-sm border transition-all ".concat(pomoMode === 'work' ? "bg-white/10 border-white/50 ".concat(currentTheme.accent) : 'border-transparent opacity-50')

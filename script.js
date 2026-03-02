@@ -1702,7 +1702,7 @@ function App() {
 
                 {/* Fixed Top Navigation Arrays */}
                 {(!isCleanMode && !isZenMode) && (
-                    <div className="w-full flex flex-col items-center pt-4 sm:pt-6 pb-2 shrink-0 z-50 transition-opacity">
+                    <div className="w-full flex flex-col items-center pt-4 sm:pt-6 pb-2 shrink-0 z-50 transition-opacity duration-300">
                         {['timer', 'pomodoro', 'stopwatch'].includes(mode) && (
                             <div className="flex justify-center gap-2 bg-black/40 backdrop-blur-xl p-1.5 rounded-full border border-white/10 shadow-lg shadow-black/20" style={{ transition: 'opacity 0.3s ease' }}>
                                 <button onClick={() => setMode('pomodoro')} className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ${mode === 'pomodoro' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100'}`}>{t('tabPomodoro')}</button>
@@ -1722,7 +1722,7 @@ function App() {
                         {/* Pomodoro Sub-Navigation - Also Fixed */}
                         {mode === 'pomodoro' && (
                             <div className="w-full flex justify-center mt-4 shrink-0 z-40">
-                                <div className="flex gap-4">
+                                <div className="flex gap-4 transition-opacity duration-300">
                                     <button onClick={() => resetPomo('work')} className={`px-4 py-1.5 rounded-full text-sm border transition-all ${pomoMode === 'work' ? `bg-white/10 border-white/50 ${currentTheme.accent}` : 'border-transparent opacity-50'}`}>{t('work')}</button>
                                     <button onClick={() => resetPomo('short')} className={`px-4 py-1.5 rounded-full text-sm border transition-all ${pomoMode === 'short' ? `bg-white/10 border-white/50 ${currentTheme.accent}` : 'border-transparent opacity-50'}`}>{t('break')}</button>
                                     <button onClick={() => resetPomo('long')} className={`px-4 py-1.5 rounded-full text-sm border transition-all ${pomoMode === 'long' ? `bg-white/10 border-white/50 ${currentTheme.accent}` : 'border-transparent opacity-50'}`}>{t('long')}</button>
