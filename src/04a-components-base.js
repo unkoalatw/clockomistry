@@ -148,18 +148,18 @@ const ClockDisplay = React.memo(({ h, m, s, ms, showMillis, accent, dateLabel, i
             {(showSeconds || ampm) && (
                 <div className="flex items-center gap-3 mt-4 md:mt-6">
                     {showSeconds && (
-                        <div className="bg-white/5 border border-white/10 rounded-xl px-4 py-2 backdrop-blur-sm">
-                            <span className="text-[6vw] md:text-[36px] font-bold tabular-nums opacity-60">{s}</span>
+                        <div className="bg-white/5 border border-white/10 rounded-xl px-4 py-2 backdrop-blur-sm min-w-[16vw] md:min-w-[80px] flex justify-center items-center">
+                            <span className="text-[6vw] md:text-[36px] font-bold tabular-nums opacity-60 leading-none">{s}</span>
                         </div>
                     )}
                     {showSeconds && showMillis && (
-                        <div className={`bg-white/5 border border-white/10 rounded-xl px-4 py-2 backdrop-blur-sm`}>
-                            <span className={`text-[4vw] md:text-[24px] font-bold tabular-nums ${accent} opacity-80`}>{ms}</span>
+                        <div className={`bg-white/5 border border-white/10 rounded-xl px-4 py-2 backdrop-blur-sm min-w-[14vw] md:min-w-[64px] flex justify-center items-center`}>
+                            <span className={`text-[4vw] md:text-[24px] font-bold tabular-nums ${accent} opacity-80 leading-none`}>{ms}</span>
                         </div>
                     )}
                     {ampm && (
-                        <div className="bg-white/5 border border-white/10 rounded-xl px-4 py-2 backdrop-blur-sm">
-                            <span className={`text-[4vw] md:text-[24px] font-bold ${accent} opacity-80`}>{ampm}</span>
+                        <div className="bg-white/5 border border-white/10 rounded-xl px-4 py-2 backdrop-blur-sm min-w-[14vw] md:min-w-[64px] flex justify-center items-center">
+                            <span className={`text-[4vw] md:text-[24px] font-bold ${accent} opacity-80 leading-none`}>{ampm}</span>
                         </div>
                     )}
                 </div>

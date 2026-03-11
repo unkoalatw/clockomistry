@@ -278,22 +278,22 @@ const MementoView = React.memo(({ birthDate, setBirthDate, t }) => {
     const pct = birthDate ? Math.min(100, Math.floor((livedWeeksCount / totalWeeksCount) * 100)) : 0;
 
     return (
-        <div className="flex flex-col items-center select-none w-full max-w-md animate-fade-in relative mt-12">
-            <div className="flex flex-col mb-8 text-center bg-black/40 backdrop-blur-md px-6 py-6 rounded-3xl border border-white/10 w-full pb-8">
-                <h2 className="text-2xl font-black tracking-widest uppercase mb-6 mt-2">{t('memento')}</h2>
-                <label className="text-sm opacity-80 flex flex-col items-center gap-2 w-full">
+        <div className="flex flex-col items-center select-none w-full animate-fade-in relative mt-4 sm:mt-8 px-2">
+            <div className="flex flex-col items-center mb-8 text-center bg-black/40 backdrop-blur-md px-6 sm:px-10 py-6 sm:py-8 rounded-[2rem] sm:rounded-[3rem] border border-white/10 w-full" style={{ maxWidth: 'calc(max(320px, (100dvh - 200px) * 0.65) * 1.5)' }}>
+                <h2 className="text-2xl sm:text-3xl font-black tracking-widest uppercase mb-6 mt-2">{t('memento')}</h2>
+                <div className="text-xs sm:text-sm opacity-80 flex items-center justify-center gap-4 w-full mb-8">
                     <span className="uppercase tracking-widest text-white/50">{t('birthDate')}</span>
-                    <input type="date" value={birthDate} onChange={e => setBirthDate(e.target.value)} className="bg-white/10 border border-white/20 rounded-xl px-3 py-2 outline-none text-white text-base w-full max-w-[200px] transition-with-all hover:bg-white/20 focus:bg-white/20 focus:border-white/40 font-mono tracking-widest" style={{ colorScheme: 'dark' }} />
-                </label>
-                <div className="w-full mt-6">
-                    <div className="flex justify-between text-[10px] opacity-60 mb-3 px-1 font-mono uppercase tracking-[0.2em]">
+                    <input type="date" value={birthDate} onChange={e => setBirthDate(e.target.value)} className="bg-white/10 border border-white/20 rounded-xl px-4 py-2 outline-none text-white text-base max-w-[180px] transition-all hover:bg-white/20 focus:bg-white/20 focus:border-white/40 font-mono tracking-widest" style={{ colorScheme: 'dark' }} />
+                </div>
+                <div className="w-full flex flex-col items-center">
+                    <div className="flex justify-between w-full text-[10px] sm:text-xs opacity-60 mb-3 px-1 font-mono uppercase tracking-[0.2em]" style={{ maxWidth: 'calc(max(280px, (100dvh - 350px) * 0.65))' }}>
                         <span>{t('livedWeeks')} : {livedWeeksCount}</span>
                         <span>{pct}% - {t('totalWeeks')}</span>
                     </div>
-                    <div className="relative w-full rounded-xl overflow-hidden bg-black/50 border border-white/5 p-3" style={{ display: 'grid', gridTemplateColumns: `repeat(${weeksPerYear}, 1fr)`, gap: '1px', alignContent: 'start' }}>
+                    <div className="relative w-full rounded-2xl overflow-hidden bg-black/50 border border-white/5 p-3 sm:p-5" style={{ display: 'grid', gridTemplateColumns: `repeat(${weeksPerYear}, 1fr)`, gap: '1px', alignContent: 'start', maxWidth: 'calc(max(280px, (100dvh - 350px) * 0.65))' }}>
                         {Array.from({ length: totalWeeksCount }).map((_, i) => {
                             const isLived = i < livedWeeksCount;
-                            return <div key={i} className={`w-full aspect-square ${isLived ? 'bg-indigo-400' : 'bg-white/10'}`} style={{ opacity: isLived ? 0.9 : 0.2 }} title={`Week ${i + 1}`} />;
+                            return <div key={i} className={`w-full aspect-square rounded-[1px] ${isLived ? 'bg-indigo-400' : 'bg-white/10'}`} style={{ opacity: isLived ? 0.9 : 0.2 }} title={`Week ${i + 1}`} />;
                         })}
                     </div>
                 </div>

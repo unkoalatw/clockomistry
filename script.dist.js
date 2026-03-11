@@ -1043,17 +1043,17 @@ const ClockDisplay = /*#__PURE__*/React.memo(_ref3 => {
   }, d)))), (showSeconds || ampm) && /*#__PURE__*/React.createElement("div", {
     className: "flex items-center gap-3 mt-4 md:mt-6"
   }, showSeconds && /*#__PURE__*/React.createElement("div", {
-    className: "bg-white/5 border border-white/10 rounded-xl px-4 py-2 backdrop-blur-sm"
+    className: "bg-white/5 border border-white/10 rounded-xl px-4 py-2 backdrop-blur-sm min-w-[16vw] md:min-w-[80px] flex justify-center items-center"
   }, /*#__PURE__*/React.createElement("span", {
-    className: "text-[6vw] md:text-[36px] font-bold tabular-nums opacity-60"
+    className: "text-[6vw] md:text-[36px] font-bold tabular-nums opacity-60 leading-none"
   }, s)), showSeconds && showMillis && /*#__PURE__*/React.createElement("div", {
-    className: "bg-white/5 border border-white/10 rounded-xl px-4 py-2 backdrop-blur-sm"
+    className: "bg-white/5 border border-white/10 rounded-xl px-4 py-2 backdrop-blur-sm min-w-[14vw] md:min-w-[64px] flex justify-center items-center"
   }, /*#__PURE__*/React.createElement("span", {
-    className: "text-[4vw] md:text-[24px] font-bold tabular-nums ".concat(accent, " opacity-80")
+    className: "text-[4vw] md:text-[24px] font-bold tabular-nums ".concat(accent, " opacity-80 leading-none")
   }, ms)), ampm && /*#__PURE__*/React.createElement("div", {
-    className: "bg-white/5 border border-white/10 rounded-xl px-4 py-2 backdrop-blur-sm"
+    className: "bg-white/5 border border-white/10 rounded-xl px-4 py-2 backdrop-blur-sm min-w-[14vw] md:min-w-[64px] flex justify-center items-center"
   }, /*#__PURE__*/React.createElement("span", {
-    className: "text-[4vw] md:text-[24px] font-bold ".concat(accent, " opacity-80")
+    className: "text-[4vw] md:text-[24px] font-bold ".concat(accent, " opacity-80 leading-none")
   }, ampm))), dateLabel && /*#__PURE__*/React.createElement("div", {
     className: "mt-4 md:mt-6 font-light tracking-[0.3em] opacity-80 uppercase text-center text-lg md:text-3xl"
   }, dateLabel));
@@ -2487,34 +2487,41 @@ const MementoView = /*#__PURE__*/React.memo(_ref23 => {
   }
   const pct = birthDate ? Math.min(100, Math.floor(livedWeeksCount / totalWeeksCount * 100)) : 0;
   return /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-col items-center select-none w-full max-w-md animate-fade-in relative mt-12"
+    className: "flex flex-col items-center select-none w-full animate-fade-in relative mt-4 sm:mt-8 px-2"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-col mb-8 text-center bg-black/40 backdrop-blur-md px-6 py-6 rounded-3xl border border-white/10 w-full pb-8"
+    className: "flex flex-col items-center mb-8 text-center bg-black/40 backdrop-blur-md px-6 sm:px-10 py-6 sm:py-8 rounded-[2rem] sm:rounded-[3rem] border border-white/10 w-full",
+    style: {
+      maxWidth: 'calc(max(320px, (100dvh - 200px) * 0.65) * 1.5)'
+    }
   }, /*#__PURE__*/React.createElement("h2", {
-    className: "text-2xl font-black tracking-widest uppercase mb-6 mt-2"
-  }, t('memento')), /*#__PURE__*/React.createElement("label", {
-    className: "text-sm opacity-80 flex flex-col items-center gap-2 w-full"
+    className: "text-2xl sm:text-3xl font-black tracking-widest uppercase mb-6 mt-2"
+  }, t('memento')), /*#__PURE__*/React.createElement("div", {
+    className: "text-xs sm:text-sm opacity-80 flex items-center justify-center gap-4 w-full mb-8"
   }, /*#__PURE__*/React.createElement("span", {
     className: "uppercase tracking-widest text-white/50"
   }, t('birthDate')), /*#__PURE__*/React.createElement("input", {
     type: "date",
     value: birthDate,
     onChange: e => setBirthDate(e.target.value),
-    className: "bg-white/10 border border-white/20 rounded-xl px-3 py-2 outline-none text-white text-base w-full max-w-[200px] transition-with-all hover:bg-white/20 focus:bg-white/20 focus:border-white/40 font-mono tracking-widest",
+    className: "bg-white/10 border border-white/20 rounded-xl px-4 py-2 outline-none text-white text-base max-w-[180px] transition-all hover:bg-white/20 focus:bg-white/20 focus:border-white/40 font-mono tracking-widest",
     style: {
       colorScheme: 'dark'
     }
   })), /*#__PURE__*/React.createElement("div", {
-    className: "w-full mt-6"
+    className: "w-full flex flex-col items-center"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-between text-[10px] opacity-60 mb-3 px-1 font-mono uppercase tracking-[0.2em]"
+    className: "flex justify-between w-full text-[10px] sm:text-xs opacity-60 mb-3 px-1 font-mono uppercase tracking-[0.2em]",
+    style: {
+      maxWidth: 'calc(max(280px, (100dvh - 350px) * 0.65))'
+    }
   }, /*#__PURE__*/React.createElement("span", null, t('livedWeeks'), " : ", livedWeeksCount), /*#__PURE__*/React.createElement("span", null, pct, "% - ", t('totalWeeks'))), /*#__PURE__*/React.createElement("div", {
-    className: "relative w-full rounded-xl overflow-hidden bg-black/50 border border-white/5 p-3",
+    className: "relative w-full rounded-2xl overflow-hidden bg-black/50 border border-white/5 p-3 sm:p-5",
     style: {
       display: 'grid',
       gridTemplateColumns: "repeat(".concat(weeksPerYear, ", 1fr)"),
       gap: '1px',
-      alignContent: 'start'
+      alignContent: 'start',
+      maxWidth: 'calc(max(280px, (100dvh - 350px) * 0.65))'
     }
   }, Array.from({
     length: totalWeeksCount
@@ -2522,7 +2529,7 @@ const MementoView = /*#__PURE__*/React.memo(_ref23 => {
     const isLived = i < livedWeeksCount;
     return /*#__PURE__*/React.createElement("div", {
       key: i,
-      className: "w-full aspect-square ".concat(isLived ? 'bg-indigo-400' : 'bg-white/10'),
+      className: "w-full aspect-square rounded-[1px] ".concat(isLived ? 'bg-indigo-400' : 'bg-white/10'),
       style: {
         opacity: isLived ? 0.9 : 0.2
       },
