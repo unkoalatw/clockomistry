@@ -1075,62 +1075,50 @@ const NavigationBar = /*#__PURE__*/React.memo(_ref4 => {
     t
   } = _ref4;
   return /*#__PURE__*/React.createElement("div", {
-    className: "hide-on-export fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 flex items-center justify-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-[2rem] sm:rounded-full backdrop-blur-xl bg-white/5 border border-white/20 shadow-2xl transition-all duration-500 z-40 w-max max-w-[96vw] sm:max-w-2xl sm:w-auto ".concat(showControls && !isCleanMode ? 'translate-y-0 opacity-100' : 'translate-y-32 opacity-0 pointer-events-none')
+    className: "hide-on-export fixed bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 flex items-center justify-center gap-3 p-3 rounded-full backdrop-blur-3xl bg-black/60 border border-white/10 shadow-2xl transition-all duration-500 z-40 w-max max-w-[96vw] ".concat(showControls && !isCleanMode ? 'translate-y-0 opacity-100' : 'translate-y-32 opacity-0 pointer-events-none')
   }, /*#__PURE__*/React.createElement("div", {
-    className: "flex bg-white/5 rounded-full p-1 gap-1 flex-none overflow-x-auto overflow-y-hidden snap-x snap-mandatory hide-scroll max-w-[65vw] sm:max-w-none",
-    style: {
-      WebkitOverflowScrolling: 'touch'
-    }
-  }, [{
-    m: 'clock',
-    icon: Clock
-  }, {
-    m: 'world',
-    icon: Globe
-  }, {
-    m: 'calendar',
-    icon: CalendarDays
-  }, {
-    m: 'pomodoro',
-    icon: Timer
-  }].map(_ref5 => {
-    let {
-      m,
-      icon: Icon
-    } = _ref5;
-    const isActive = m === 'pomodoro' && ['timer', 'pomodoro', 'stopwatch'].includes(mode) || m === 'calendar' && ['calendar', 'anniversary', 'memento'].includes(mode) || mode === m;
-    return /*#__PURE__*/React.createElement("button", {
-      key: m,
-      onClick: () => {
-        if (m === 'pomodoro' && !['timer', 'pomodoro', 'stopwatch'].includes(mode)) setMode('pomodoro');else if (m === 'calendar' && !['calendar', 'anniversary', 'memento'].includes(mode)) setMode('calendar');else if (m === 'clock' || m === 'world') setMode(m);
-      },
-      className: "p-3 lg:px-6 lg:py-3 rounded-full transition-all snap-center flex-shrink-0 ".concat(isActive ? 'bg-white/20 scale-105 shadow-sm' : 'opacity-60 hover:bg-white/10')
-    }, /*#__PURE__*/React.createElement(Icon, {
-      size: 20,
-      className: isActive ? accent : ''
-    }));
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "w-px h-8 bg-white/20 hidden sm:block"
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "flex gap-1 pr-1 sm:pr-0"
+    className: "flex bg-white/5 rounded-full p-1 gap-1"
   }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => setShowSettings(true),
-    className: "p-3 rounded-full opacity-80 hover:opacity-100 hover:rotate-90 transition-all"
-  }, /*#__PURE__*/React.createElement(Settings, {
-    size: 20
-  })), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setMode('clock'),
+    className: "px-5 sm:px-6 py-3 rounded-full transition-all flex items-center gap-2 ".concat(mode === 'clock' ? 'bg-white/20 shadow-sm' : 'opacity-60 hover:bg-white/10 hover:opacity-100')
+  }, /*#__PURE__*/React.createElement(Clock, {
+    size: 20,
+    className: mode === 'clock' ? accent : ''
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "text-sm font-semibold tracking-wider hidden sm:block"
+  }, "Clock")), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setMode('apps'),
+    className: "px-5 sm:px-6 py-3 rounded-full transition-all flex items-center gap-2 ".concat(mode !== 'clock' ? 'bg-white/20 shadow-sm' : 'opacity-60 hover:bg-white/10 hover:opacity-100')
+  }, /*#__PURE__*/React.createElement(LayoutGrid, {
+    size: 20,
+    className: mode !== 'clock' ? accent : ''
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "text-sm font-semibold tracking-wider hidden sm:block"
+  }, "Apps"))), /*#__PURE__*/React.createElement("div", {
+    className: "w-px h-8 bg-white/10 mx-1"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-1 pr-2"
+  }, /*#__PURE__*/React.createElement("button", {
     onClick: () => setIsZenMode(!isZenMode),
-    className: "p-3 rounded-full ".concat(isZenMode ? accent : 'opacity-80')
+    className: "p-3 rounded-full transition-all ".concat(isZenMode ? accent : 'opacity-60 hover:opacity-100 hover:bg-white/10'),
+    title: "Zen Mode"
   }, /*#__PURE__*/React.createElement(Monitor, {
     size: 20
   })), /*#__PURE__*/React.createElement("button", {
     onClick: toggleFullscreen,
-    className: "p-3 rounded-full opacity-80 hover:opacity-100 hidden sm:block"
+    className: "p-3 rounded-full opacity-60 hover:opacity-100 hover:bg-white/10 transition-all hidden sm:block",
+    title: "Fullscreen"
   }, /*#__PURE__*/React.createElement(Maximize2, {
+    size: 20
+  })), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setShowSettings(true),
+    className: "p-3 rounded-full opacity-60 hover:opacity-100 hover:bg-white/10 transition-all",
+    title: "Settings"
+  }, /*#__PURE__*/React.createElement(Settings, {
     size: 20
   }))));
 });
-const AppearanceSettings = /*#__PURE__*/React.memo(_ref6 => {
+const AppearanceSettings = /*#__PURE__*/React.memo(_ref5 => {
   let {
     t,
     currentTheme,
@@ -1151,7 +1139,7 @@ const AppearanceSettings = /*#__PURE__*/React.memo(_ref6 => {
     hasCustomFont,
     clockLayout,
     setClockLayout
-  } = _ref6;
+  } = _ref5;
   return /*#__PURE__*/React.createElement("section", {
     className: "space-y-6 animate-fade-in"
   }, /*#__PURE__*/React.createElement("h3", {
@@ -1160,8 +1148,8 @@ const AppearanceSettings = /*#__PURE__*/React.memo(_ref6 => {
     size: 24
   }), " ", t('appearance')), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-2 sm:grid-cols-4 gap-4"
-  }, Object.entries(DEFAULT_THEMES).map(_ref7 => {
-    let [key, thm] = _ref7;
+  }, Object.entries(DEFAULT_THEMES).map(_ref6 => {
+    let [key, thm] = _ref6;
     return /*#__PURE__*/React.createElement("button", {
       key: key,
       onClick: () => setTheme(key),
@@ -1187,8 +1175,8 @@ const AppearanceSettings = /*#__PURE__*/React.memo(_ref6 => {
     className: "text-sm font-medium opacity-80 block mb-3"
   }, t('bgGradient')), /*#__PURE__*/React.createElement("div", {
     className: "flex gap-4 items-center"
-  }, [['bg1', t('color1')], ['bg2', t('color2')], ['bg3', t('color3')]].map(_ref8 => {
-    let [k, l] = _ref8;
+  }, [['bg1', t('color1')], ['bg2', t('color2')], ['bg3', t('color3')]].map(_ref7 => {
+    let [k, l] = _ref7;
     return /*#__PURE__*/React.createElement("label", {
       key: k,
       className: "flex flex-col items-center gap-1 cursor-pointer"
@@ -1216,8 +1204,8 @@ const AppearanceSettings = /*#__PURE__*/React.memo(_ref6 => {
     className: "text-sm font-medium opacity-80 block mb-3"
   }, t('textAccent')), /*#__PURE__*/React.createElement("div", {
     className: "flex gap-4 items-center"
-  }, [['text', t('text')], ['accent', t('accent')]].map(_ref9 => {
-    let [k, l] = _ref9;
+  }, [['text', t('text')], ['accent', t('accent')]].map(_ref8 => {
+    let [k, l] = _ref8;
     return /*#__PURE__*/React.createElement("label", {
       key: k,
       className: "flex flex-col items-center gap-1 cursor-pointer"
@@ -1354,8 +1342,8 @@ const AppearanceSettings = /*#__PURE__*/React.memo(_ref6 => {
     onChange: handleFontUpload
   })), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-1 sm:grid-cols-2 gap-4"
-  }, Object.entries(DEFAULT_FONTS).map(_ref0 => {
-    let [key, f] = _ref0;
+  }, Object.entries(DEFAULT_FONTS).map(_ref9 => {
+    let [key, f] = _ref9;
     return /*#__PURE__*/React.createElement("button", {
       key: key,
       onClick: () => setFont(key),
@@ -1367,7 +1355,7 @@ const AppearanceSettings = /*#__PURE__*/React.memo(_ref6 => {
     className: "p-4 rounded-2xl border col-span-full ".concat(font === 'custom' ? "bg-white/10 border-white/30 shadow-lg" : 'border-white/10 hover:bg-white/5')
   }, t('imported')))));
 });
-const FeaturesSettings = /*#__PURE__*/React.memo(_ref1 => {
+const FeaturesSettings = /*#__PURE__*/React.memo(_ref0 => {
   let {
     t,
     searchQuery,
@@ -1378,7 +1366,7 @@ const FeaturesSettings = /*#__PURE__*/React.memo(_ref1 => {
     I18N,
     lang,
     setLang
-  } = _ref1;
+  } = _ref0;
   return /*#__PURE__*/React.createElement("section", {
     className: "space-y-12 animate-fade-in"
   }, /*#__PURE__*/React.createElement("div", {
@@ -1422,8 +1410,8 @@ const FeaturesSettings = /*#__PURE__*/React.memo(_ref1 => {
     size: 24
   }), " ", t('language')), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-2 sm:grid-cols-3 gap-4"
-  }, Object.entries(I18N).map(_ref10 => {
-    let [key, val] = _ref10;
+  }, Object.entries(I18N).map(_ref1 => {
+    let [key, val] = _ref1;
     return /*#__PURE__*/React.createElement("button", {
       key: key,
       onClick: () => setLang(key),
@@ -1431,7 +1419,7 @@ const FeaturesSettings = /*#__PURE__*/React.memo(_ref1 => {
     }, val.lang);
   }))));
 });
-const GeneralSettings = /*#__PURE__*/React.memo(_ref11 => {
+const GeneralSettings = /*#__PURE__*/React.memo(_ref10 => {
   let {
     t,
     showMillis,
@@ -1465,7 +1453,7 @@ const GeneralSettings = /*#__PURE__*/React.memo(_ref11 => {
     setShowNextEvent,
     dashboardMode,
     setDashboardMode
-  } = _ref11;
+  } = _ref10;
   return /*#__PURE__*/React.createElement("section", {
     className: "space-y-12 animate-fade-in"
   }, /*#__PURE__*/React.createElement("div", {
@@ -1476,8 +1464,8 @@ const GeneralSettings = /*#__PURE__*/React.memo(_ref11 => {
     size: 24
   }), " ", t('general')), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-1 sm:grid-cols-2 gap-4"
-  }, [['showMillis', showMillis, setShowMillis], ['notifications', notificationsEnabled, handleToggleNotifications], ['autoZenMode', autoZenMode, setAutoZenMode], ['showProgressRing', showProgressRing, setShowProgressRing], ['enableMiniTask', enableMiniTask, setEnableMiniTask], ['enableFocusAnalytics', enableFocusAnalytics, setEnableFocusAnalytics], ['enableMeetingPlanner', enableMeetingPlanner, setEnableMeetingPlanner], ['use12Hour', use12Hour, setUse12Hour], ['hourlyChime', hourlyChime, setHourlyChime], ['showSeconds', showSeconds, setShowSeconds], ['showDate', showDate, setShowDate], ['showNextEvent', showNextEvent, setShowNextEvent], ['dashboardMode', dashboardMode, setDashboardMode]].map(_ref12 => {
-    let [k, val, setVal] = _ref12;
+  }, [['showMillis', showMillis, setShowMillis], ['notifications', notificationsEnabled, handleToggleNotifications], ['autoZenMode', autoZenMode, setAutoZenMode], ['showProgressRing', showProgressRing, setShowProgressRing], ['enableMiniTask', enableMiniTask, setEnableMiniTask], ['enableFocusAnalytics', enableFocusAnalytics, setEnableFocusAnalytics], ['enableMeetingPlanner', enableMeetingPlanner, setEnableMeetingPlanner], ['use12Hour', use12Hour, setUse12Hour], ['hourlyChime', hourlyChime, setHourlyChime], ['showSeconds', showSeconds, setShowSeconds], ['showDate', showDate, setShowDate], ['showNextEvent', showNextEvent, setShowNextEvent], ['dashboardMode', dashboardMode, setDashboardMode]].map(_ref11 => {
+    let [k, val, setVal] = _ref11;
     return /*#__PURE__*/React.createElement("label", {
       key: k,
       className: "flex items-center justify-between p-6 rounded-2xl bg-white/5 cursor-pointer hover:bg-white/10 transition-colors"
@@ -1516,14 +1504,14 @@ const GeneralSettings = /*#__PURE__*/React.memo(_ref11 => {
     className: "p-4 rounded-xl text-center text-sm transition-all border ".concat(alarmSound === sk ? 'bg-white/10 border-white/50 scale-105' : 'bg-white/5 border-transparent hover:bg-white/10')
   }, t("sound".concat(sk.charAt(0).toUpperCase() + sk.slice(1)))))))));
 });
-const AboutSettings = /*#__PURE__*/React.memo(_ref13 => {
+const AboutSettings = /*#__PURE__*/React.memo(_ref12 => {
   let {
     t,
     exportTheme,
     handleExportImage,
     isExporting,
     importTheme
-  } = _ref13;
+  } = _ref12;
   return /*#__PURE__*/React.createElement("section", {
     className: "space-y-12 animate-fade-in"
   }, /*#__PURE__*/React.createElement("div", {
@@ -1576,7 +1564,7 @@ const AboutSettings = /*#__PURE__*/React.memo(_ref13 => {
     className: "p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-center text-sm transition-all"
   }, t('disclaimer')))));
 });
-const SystemSettings = /*#__PURE__*/React.memo(_ref14 => {
+const SystemSettings = /*#__PURE__*/React.memo(_ref13 => {
   let {
     t,
     isDownloadingApp,
@@ -1587,7 +1575,7 @@ const SystemSettings = /*#__PURE__*/React.memo(_ref14 => {
     handleCheckUpdate,
     latestVersion,
     handleClearData
-  } = _ref14;
+  } = _ref13;
   return /*#__PURE__*/React.createElement("section", {
     className: "space-y-12 animate-fade-in"
   }, /*#__PURE__*/React.createElement("div", {
@@ -1654,7 +1642,7 @@ const SystemSettings = /*#__PURE__*/React.memo(_ref14 => {
     size: 18
   }), " ", t('clearDataBtn')))));
 });
-const SettingsOverlay = /*#__PURE__*/React.memo(_ref15 => {
+const SettingsOverlay = /*#__PURE__*/React.memo(_ref14 => {
   let {
     showSettings,
     setShowSettings,
@@ -1730,7 +1718,7 @@ const SettingsOverlay = /*#__PURE__*/React.memo(_ref15 => {
     setShowNextEvent,
     dashboardMode,
     setDashboardMode
-  } = _ref15;
+  } = _ref14;
   if (!showSettings) return null;
   return /*#__PURE__*/React.createElement("div", {
     className: "fixed inset-0 z-[60] ".concat(currentTheme.settingsBg, " backdrop-blur-3xl animate-in fade-in duration-300 flex flex-col md:flex-row overflow-hidden")
@@ -1860,7 +1848,7 @@ const SettingsOverlay = /*#__PURE__*/React.memo(_ref15 => {
     handleClearData: handleClearData
   }))));
 });
-const SplashOverlay = /*#__PURE__*/React.memo(_ref16 => {
+const SplashOverlay = /*#__PURE__*/React.memo(_ref15 => {
   let {
     hasAgreed,
     setHasAgreed,
@@ -1868,7 +1856,7 @@ const SplashOverlay = /*#__PURE__*/React.memo(_ref16 => {
     setLang,
     I18N,
     t
-  } = _ref16;
+  } = _ref15;
   if (hasAgreed) return null;
   return /*#__PURE__*/React.createElement("div", {
     className: "fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden select-none",
@@ -1912,8 +1900,8 @@ const SplashOverlay = /*#__PURE__*/React.memo(_ref16 => {
     className: "bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500"
   }, "omistry")), /*#__PURE__*/React.createElement("div", {
     className: "flex gap-2 justify-center mt-6"
-  }, Object.entries(I18N).map(_ref17 => {
-    let [key, val] = _ref17;
+  }, Object.entries(I18N).map(_ref16 => {
+    let [key, val] = _ref16;
     return /*#__PURE__*/React.createElement("button", {
       key: key,
       onClick: () => setLang(key),
@@ -1952,14 +1940,14 @@ const SplashOverlay = /*#__PURE__*/React.memo(_ref16 => {
     className: "absolute bottom-8 text-[10px] text-slate-600 tracking-[0.3em] uppercase"
   }, t('splashBottom')));
 });
-const ScreenSaverOverlay = /*#__PURE__*/React.memo(_ref18 => {
+const ScreenSaverOverlay = /*#__PURE__*/React.memo(_ref17 => {
   let {
     isScreenSaverActive,
     ssPos,
     h,
     m,
     t
-  } = _ref18;
+  } = _ref17;
   if (!isScreenSaverActive) return null;
   return /*#__PURE__*/React.createElement("div", {
     className: "fixed inset-0 z-[200] bg-black select-none cursor-none flex items-center justify-center"
@@ -1977,7 +1965,7 @@ const ScreenSaverOverlay = /*#__PURE__*/React.memo(_ref18 => {
     className: "mt-4 text-sm opacity-20 tracking-[1em] uppercase"
   }, t('ssHint'))));
 });
-const WorldClockView = /*#__PURE__*/React.memo(_ref19 => {
+const WorldClockView = /*#__PURE__*/React.memo(_ref18 => {
   let {
     enableMeetingPlanner,
     meetingOffset,
@@ -1987,7 +1975,7 @@ const WorldClockView = /*#__PURE__*/React.memo(_ref19 => {
     getWorldTime,
     t,
     setShowSettings
-  } = _ref19;
+  } = _ref18;
   return /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col items-center select-none w-full"
   }, enableMeetingPlanner && /*#__PURE__*/React.createElement("div", {
@@ -2028,7 +2016,7 @@ const WorldClockView = /*#__PURE__*/React.memo(_ref19 => {
     size: 14
   }), " ", t('addEditZones')));
 });
-const AnniversaryView = /*#__PURE__*/React.memo(_ref20 => {
+const AnniversaryView = /*#__PURE__*/React.memo(_ref19 => {
   let {
     anniversaries,
     setAnniversaries,
@@ -2040,7 +2028,7 @@ const AnniversaryView = /*#__PURE__*/React.memo(_ref20 => {
     setNewEventName,
     newEventDate,
     setNewEventDate
-  } = _ref20;
+  } = _ref19;
   return /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col items-center select-none w-full max-w-lg mt-12"
   }, /*#__PURE__*/React.createElement("div", {
@@ -2117,7 +2105,7 @@ const AnniversaryView = /*#__PURE__*/React.memo(_ref20 => {
     size: 20
   }), " ", t('addEvent')));
 });
-const TimerView = /*#__PURE__*/React.memo(_ref21 => {
+const TimerView = /*#__PURE__*/React.memo(_ref20 => {
   let {
     isEditingTimer,
     timerInput,
@@ -2146,7 +2134,7 @@ const TimerView = /*#__PURE__*/React.memo(_ref21 => {
     deleteMultiTimer,
     addMultiTimer,
     setTimerInput
-  } = _ref21;
+  } = _ref20;
   return /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col items-center select-none w-full max-w-lg mt-4 sm:mt-8"
   }, /*#__PURE__*/React.createElement("div", {
@@ -2312,7 +2300,7 @@ const TimerView = /*#__PURE__*/React.memo(_ref21 => {
     className: "px-3 py-1.5 rounded-full bg-white/10 border border-white/10 hover:bg-white/20 text-xs sm:text-sm transition-all"
   }, "+", m, "m")))));
 });
-const PomodoroView = /*#__PURE__*/React.memo(_ref22 => {
+const PomodoroView = /*#__PURE__*/React.memo(_ref21 => {
   let {
     ringPosition,
     showProgressRing,
@@ -2335,10 +2323,23 @@ const PomodoroView = /*#__PURE__*/React.memo(_ref22 => {
     enableFocusAnalytics,
     focusStats,
     customColors
-  } = _ref22;
+  } = _ref21;
   return /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col items-center select-none mt-2 sm:mt-4"
   }, /*#__PURE__*/React.createElement("div", {
+    className: "w-full flex justify-center mb-4 shrink-0 z-40"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-2 sm:gap-4 transition-opacity duration-300"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => resetPomo('work'),
+    className: "px-4 py-1.5 rounded-full text-xs sm:text-sm border transition-all ".concat(pomoMode === 'work' ? "bg-white/10 border-white/50 ".concat(currentTheme.accent) : 'border-transparent opacity-50 hover:bg-white/5')
+  }, t('work')), /*#__PURE__*/React.createElement("button", {
+    onClick: () => resetPomo('short'),
+    className: "px-4 py-1.5 rounded-full text-xs sm:text-sm border transition-all ".concat(pomoMode === 'short' ? "bg-white/10 border-white/50 ".concat(currentTheme.accent) : 'border-transparent opacity-50 hover:bg-white/5')
+  }, t('break')), /*#__PURE__*/React.createElement("button", {
+    onClick: () => resetPomo('long'),
+    className: "px-4 py-1.5 rounded-full text-xs sm:text-sm border transition-all ".concat(pomoMode === 'long' ? "bg-white/10 border-white/50 ".concat(currentTheme.accent) : 'border-transparent opacity-50 hover:bg-white/5')
+  }, t('long')))), /*#__PURE__*/React.createElement("div", {
     className: "relative flex justify-center items-center w-full mt-2 p-2 sm:p-4 flex-col ".concat(ringPosition === 'left' ? 'md:flex-row' : ringPosition === 'right' ? 'md:flex-row-reverse' : 'md:flex-col')
   }, showProgressRing && /*#__PURE__*/React.createElement(ProgressRing, {
     progress: pomoSeconds / (pomoMode === 'work' ? 25 * 60 : pomoMode === 'short' ? 5 * 60 : 15 * 60) * 100,
@@ -2416,7 +2417,7 @@ const PomodoroView = /*#__PURE__*/React.memo(_ref22 => {
     });
   }))));
 });
-const StopwatchView = /*#__PURE__*/React.memo(_ref23 => {
+const StopwatchView = /*#__PURE__*/React.memo(_ref22 => {
   let {
     stopwatch,
     setIsStopwatchRunning,
@@ -2429,7 +2430,7 @@ const StopwatchView = /*#__PURE__*/React.memo(_ref23 => {
     t,
     showControls,
     isCleanMode
-  } = _ref23;
+  } = _ref22;
   return /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col items-center select-none w-full min-w-[300px] mt-2 sm:mt-12"
   }, /*#__PURE__*/React.createElement("div", {
@@ -2470,12 +2471,12 @@ const StopwatchView = /*#__PURE__*/React.memo(_ref23 => {
     }, /*#__PURE__*/React.createElement("span", null, t('lap'), " ", laps.length - i), /*#__PURE__*/React.createElement("span", null, d.m, ":", d.s, ".", d.cs));
   })));
 });
-const MementoView = /*#__PURE__*/React.memo(_ref24 => {
+const MementoView = /*#__PURE__*/React.memo(_ref23 => {
   let {
     birthDate,
     setBirthDate,
     t
-  } = _ref24;
+  } = _ref23;
   const weeksPerYear = 52;
   const years = 80;
   const totalWeeksCount = weeksPerYear * years;
@@ -2529,7 +2530,7 @@ const MementoView = /*#__PURE__*/React.memo(_ref24 => {
     });
   })))));
 });
-const DashboardView = /*#__PURE__*/React.memo(_ref25 => {
+const DashboardView = /*#__PURE__*/React.memo(_ref24 => {
   let {
     time,
     h,
@@ -2553,7 +2554,7 @@ const DashboardView = /*#__PURE__*/React.memo(_ref25 => {
     focusGoal,
     activeTab,
     isZenMode
-  } = _ref25;
+  } = _ref24;
   return /*#__PURE__*/React.createElement("div", {
     className: "w-full h-full max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 px-6 py-6 animate-fade-in select-none"
   }, /*#__PURE__*/React.createElement("div", {
@@ -2647,7 +2648,7 @@ const DashboardView = /*#__PURE__*/React.memo(_ref25 => {
     }, tz.h, ":", tz.m));
   })))));
 });
-const CalendarView = /*#__PURE__*/React.memo(_ref26 => {
+const CalendarView = /*#__PURE__*/React.memo(_ref25 => {
   let {
     calendarDate,
     setCalendarDate,
@@ -2659,7 +2660,7 @@ const CalendarView = /*#__PURE__*/React.memo(_ref26 => {
     setNewEventName,
     setNewEventDate,
     setMode
-  } = _ref26;
+  } = _ref25;
   const year = calendarDate.getFullYear();
   const month = calendarDate.getMonth();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -2738,6 +2739,73 @@ const CalendarView = /*#__PURE__*/React.memo(_ref26 => {
       className: "absolute top-1.5 left-1/2 -translate-x-1/2 w-7 h-7 flex items-center justify-center text-xs rounded-full transition-all ".concat(isToday ? 'bg-blue-500 font-bold text-white' : cell.type !== 'current' ? 'opacity-20' : colIndex === 0 ? 'text-red-400' : colIndex === 6 ? 'text-blue-400' : '')
     }, cell.day));
   }))));
+});
+const LauncherView = /*#__PURE__*/React.memo(_ref26 => {
+  let {
+    setMode,
+    t
+  } = _ref26;
+  const apps = [{
+    id: 'pomodoro',
+    icon: Target,
+    label: t('tabPomodoro'),
+    color: 'text-rose-400',
+    bg: 'bg-rose-500/10'
+  }, {
+    id: 'timer',
+    icon: Timer,
+    label: t('tabTimer'),
+    color: 'text-amber-400',
+    bg: 'bg-amber-500/10'
+  }, {
+    id: 'stopwatch',
+    icon: Play,
+    label: t('tabStopwatch'),
+    color: 'text-emerald-400',
+    bg: 'bg-emerald-500/10'
+  }, {
+    id: 'calendar',
+    icon: CalendarDays,
+    label: t('tabMonthly'),
+    color: 'text-blue-400',
+    bg: 'bg-blue-500/10'
+  }, {
+    id: 'anniversary',
+    icon: Sparkles,
+    label: t('tabEvents'),
+    color: 'text-purple-400',
+    bg: 'bg-purple-500/10'
+  }, {
+    id: 'memento',
+    icon: LayoutPanelTop,
+    label: t('tabLife'),
+    color: 'text-indigo-400',
+    bg: 'bg-indigo-500/10'
+  }, {
+    id: 'world',
+    icon: Globe,
+    label: t('worldClock'),
+    color: 'text-cyan-400',
+    bg: 'bg-cyan-500/10'
+  }];
+  return /*#__PURE__*/React.createElement("div", {
+    className: "w-full max-w-4xl mx-auto p-4 sm:p-8 flex flex-col items-center animate-fade-in mt-6 sm:mt-12 select-none"
+  }, /*#__PURE__*/React.createElement("h2", {
+    className: "text-sm font-bold mb-8 tracking-[0.3em] uppercase opacity-40"
+  }, "Workspace Tools"), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6 w-full"
+  }, apps.map(app => /*#__PURE__*/React.createElement("button", {
+    key: app.id,
+    onClick: () => setMode(app.id),
+    className: "flex flex-col items-center justify-center p-6 sm:p-8 rounded-[2rem] bg-white/5 border border-white/10 hover:bg-white/10 hover:scale-105 transition-all group"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "p-4 sm:p-5 rounded-[1.5rem] sm:rounded-[2rem] ".concat(app.bg, " mb-4 group-hover:scale-110 transition-transform")
+  }, /*#__PURE__*/React.createElement(app.icon, {
+    size: 32,
+    className: "".concat(app.color)
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "text-xs sm:text-sm font-medium tracking-wider text-center opacity-80 group-hover:opacity-100"
+  }, app.label)))));
 });
 
 // --- Custom Hooks for Local Storage ---
@@ -3844,52 +3912,21 @@ function App() {
     className: "ambient-blob-2 absolute bottom-[10%] right-[10%] w-[40vw] h-[40vw] rounded-full blur-[60px] opacity-15 bg-purple-500/40 will-change-transform"
   })), /*#__PURE__*/React.createElement("div", {
     className: "relative z-10 w-full my-auto shrink max-h-[calc(100dvh-80px)] overflow-hidden max-w-[95vw] ".concat(dashboardMode && mode === 'clock' ? 'md:max-w-6xl' : 'md:max-w-4xl', " rounded-[30px] sm:rounded-[48px] transition-zen flex flex-col items-center justify-start min-h-[40vh] ").concat(!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0', " ").concat(isZenMode ? 'scale-[1.05]' : '', " ").concat(isCleanMode ? 'scale-[0.85]' : '')
-  }, !isCleanMode && !isZenMode && /*#__PURE__*/React.createElement("div", {
-    className: "w-full flex flex-col items-center pt-4 sm:pt-6 pb-2 shrink-0 z-50 transition-opacity duration-300"
-  }, ['timer', 'pomodoro', 'stopwatch'].includes(mode) && /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-center gap-2 bg-black/40 backdrop-blur-xl p-1.5 rounded-full border border-white/10 shadow-lg shadow-black/20",
-    style: {
-      transition: 'opacity 0.3s ease'
-    }
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => setMode('pomodoro'),
-    className: "px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ".concat(mode === 'pomodoro' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100')
-  }, t('tabPomodoro')), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setMode('timer'),
-    className: "px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ".concat(mode === 'timer' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100')
-  }, t('tabTimer')), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setMode('stopwatch'),
-    className: "px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ".concat(mode === 'stopwatch' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100')
-  }, t('tabStopwatch'))), ['calendar', 'anniversary', 'memento'].includes(mode) && /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-center gap-2 bg-black/40 backdrop-blur-xl p-1.5 rounded-full border border-white/10 shadow-lg shadow-black/20",
-    style: {
-      transition: 'opacity 0.3s ease'
-    }
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => setMode('calendar'),
-    className: "px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ".concat(mode === 'calendar' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100')
-  }, t('tabMonthly')), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setMode('anniversary'),
-    className: "px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ".concat(mode === 'anniversary' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100')
-  }, t('tabEvents')), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setMode('memento'),
-    className: "px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ".concat(mode === 'memento' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100')
-  }, t('tabLife'))), mode === 'pomodoro' && /*#__PURE__*/React.createElement("div", {
-    className: "w-full flex justify-center mt-4 shrink-0 z-40"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "flex gap-4 transition-opacity duration-300"
+    className: "w-full flex-1 overflow-y-auto custom-scrollbar flex flex-col items-center justify-start ".concat(isCleanMode || isZenMode || mode === 'clock' || mode === 'world' || mode === 'apps' ? 'p-6 sm:p-12' : 'px-6 sm:px-12 pb-12 pt-4 sm:pt-6', " relative")
+  }, mode !== 'clock' && mode !== 'apps' && /*#__PURE__*/React.createElement("div", {
+    className: "w-full max-w-4xl mx-auto flex justify-start mb-2 sm:mb-4"
   }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => resetPomo('work'),
-    className: "px-4 py-1.5 rounded-full text-sm border transition-all ".concat(pomoMode === 'work' ? "bg-white/10 border-white/50 ".concat(currentTheme.accent) : 'border-transparent opacity-50')
-  }, t('work')), /*#__PURE__*/React.createElement("button", {
-    onClick: () => resetPomo('short'),
-    className: "px-4 py-1.5 rounded-full text-sm border transition-all ".concat(pomoMode === 'short' ? "bg-white/10 border-white/50 ".concat(currentTheme.accent) : 'border-transparent opacity-50')
-  }, t('break')), /*#__PURE__*/React.createElement("button", {
-    onClick: () => resetPomo('long'),
-    className: "px-4 py-1.5 rounded-full text-sm border transition-all ".concat(pomoMode === 'long' ? "bg-white/10 border-white/50 ".concat(currentTheme.accent) : 'border-transparent opacity-50')
-  }, t('long'))))), /*#__PURE__*/React.createElement("div", {
-    className: "w-full flex-1 overflow-y-auto custom-scrollbar flex flex-col items-center justify-start ".concat(isCleanMode || isZenMode || mode === 'clock' || mode === 'world' ? 'p-6 sm:p-12' : 'px-6 sm:px-12 pb-12 pt-4 sm:pt-6')
-  }, mode === 'clock' && (dashboardMode ? /*#__PURE__*/React.createElement(DashboardView, {
+    onClick: () => setMode('apps'),
+    className: "flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all opacity-80 hover:opacity-100"
+  }, /*#__PURE__*/React.createElement(ArrowLeft, {
+    size: 16
+  }), " ", /*#__PURE__*/React.createElement("span", {
+    className: "text-sm font-medium"
+  }, "Back"))), mode === 'apps' && /*#__PURE__*/React.createElement(LauncherView, {
+    setMode: setMode,
+    t: t
+  }), mode === 'clock' && (dashboardMode ? /*#__PURE__*/React.createElement(DashboardView, {
     time: time,
     h: h,
     m: m,

@@ -173,31 +173,22 @@ const ClockDisplay = React.memo(({ h, m, s, ms, showMillis, accent, dateLabel, i
 });
 
 const NavigationBar = React.memo(({ mode, setMode, isZenMode, accent, showControls, toggleFullscreen, setShowSettings, setIsZenMode, isCleanMode, t }) => (
-    <div className={`hide-on-export fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 flex items-center justify-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-[2rem] sm:rounded-full backdrop-blur-xl bg-white/5 border border-white/20 shadow-2xl transition-all duration-500 z-40 w-max max-w-[96vw] sm:max-w-2xl sm:w-auto ${showControls && !isCleanMode ? 'translate-y-0 opacity-100' : 'translate-y-32 opacity-0 pointer-events-none'}`}>
-        <div className="flex bg-white/5 rounded-full p-1 gap-1 flex-none overflow-x-auto overflow-y-hidden snap-x snap-mandatory hide-scroll max-w-[65vw] sm:max-w-none" style={{ WebkitOverflowScrolling: 'touch' }}>
-            {[
-                { m: 'clock', icon: Clock }, { m: 'world', icon: Globe },
-                { m: 'calendar', icon: CalendarDays }, { m: 'pomodoro', icon: Timer }
-            ].map(({ m, icon: Icon }) => {
-                const isActive = (m === 'pomodoro' && ['timer', 'pomodoro', 'stopwatch'].includes(mode)) ||
-                    (m === 'calendar' && ['calendar', 'anniversary', 'memento'].includes(mode)) ||
-                    (mode === m);
-                return (
-                    <button key={m} onClick={() => {
-                        if (m === 'pomodoro' && !['timer', 'pomodoro', 'stopwatch'].includes(mode)) setMode('pomodoro');
-                        else if (m === 'calendar' && !['calendar', 'anniversary', 'memento'].includes(mode)) setMode('calendar');
-                        else if (m === 'clock' || m === 'world') setMode(m);
-                    }} className={`p-3 lg:px-6 lg:py-3 rounded-full transition-all snap-center flex-shrink-0 ${isActive ? 'bg-white/20 scale-105 shadow-sm' : 'opacity-60 hover:bg-white/10'}`}>
-                        <Icon size={20} className={isActive ? accent : ''} />
-                    </button>
-                )
-            })}
+    <div className={`hide-on-export fixed bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 flex items-center justify-center gap-3 p-3 rounded-full backdrop-blur-3xl bg-black/60 border border-white/10 shadow-2xl transition-all duration-500 z-40 w-max max-w-[96vw] ${showControls && !isCleanMode ? 'translate-y-0 opacity-100' : 'translate-y-32 opacity-0 pointer-events-none'}`}>
+        <div className="flex bg-white/5 rounded-full p-1 gap-1">
+            <button onClick={() => setMode('clock')} className={`px-5 sm:px-6 py-3 rounded-full transition-all flex items-center gap-2 ${mode === 'clock' ? 'bg-white/20 shadow-sm' : 'opacity-60 hover:bg-white/10 hover:opacity-100'}`}>
+                <Clock size={20} className={mode === 'clock' ? accent : ''} />
+                <span className="text-sm font-semibold tracking-wider hidden sm:block">Clock</span>
+            </button>
+            <button onClick={() => setMode('apps')} className={`px-5 sm:px-6 py-3 rounded-full transition-all flex items-center gap-2 ${mode !== 'clock' ? 'bg-white/20 shadow-sm' : 'opacity-60 hover:bg-white/10 hover:opacity-100'}`}>
+                <LayoutGrid size={20} className={mode !== 'clock' ? accent : ''} />
+                <span className="text-sm font-semibold tracking-wider hidden sm:block">Apps</span>
+            </button>
         </div>
-        <div className="w-px h-8 bg-white/20 hidden sm:block"></div>
-        <div className="flex gap-1 pr-1 sm:pr-0">
-            <button onClick={() => setShowSettings(true)} className="p-3 rounded-full opacity-80 hover:opacity-100 hover:rotate-90 transition-all"><Settings size={20} /></button>
-            <button onClick={() => setIsZenMode(!isZenMode)} className={`p-3 rounded-full ${isZenMode ? accent : 'opacity-80'}`}><Monitor size={20} /></button>
-            <button onClick={toggleFullscreen} className="p-3 rounded-full opacity-80 hover:opacity-100 hidden sm:block"><Maximize2 size={20} /></button>
+        <div className="w-px h-8 bg-white/10 mx-1"></div>
+        <div className="flex gap-1 pr-2">
+            <button onClick={() => setIsZenMode(!isZenMode)} className={`p-3 rounded-full transition-all ${isZenMode ? accent : 'opacity-60 hover:opacity-100 hover:bg-white/10'}`} title="Zen Mode"><Monitor size={20} /></button>
+            <button onClick={toggleFullscreen} className="p-3 rounded-full opacity-60 hover:opacity-100 hover:bg-white/10 transition-all hidden sm:block" title="Fullscreen"><Maximize2 size={20} /></button>
+            <button onClick={() => setShowSettings(true)} className="p-3 rounded-full opacity-60 hover:opacity-100 hover:bg-white/10 transition-all" title="Settings"><Settings size={20} /></button>
         </div>
     </div>
 ));

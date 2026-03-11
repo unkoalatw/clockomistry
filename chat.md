@@ -35,6 +35,21 @@
 - **建置專案**: `npm run build`
 - **推送備份**: `git add . && git commit -m "Performance boost and new functional settings" && git push`
 
-## 📍 目前狀態
-專案已完成階段性的性能大洗牌，運行效能大幅提升且功能更豐富。代碼已模組化，分布於 `src/` 資料夾中。
+## 🖥️ 桌面應用程式 (Electron) 指南
+我們建立了一個全新的資料夾 `clock-desktop` 作為桌面應用程式專案。
 
+### 如何同步網頁版 (`clock`) 到桌面版 (`clock-desktop`)？
+請在命令提示字元 (cmd) 中，使用以下 `robocopy` 指令同步最新的程式碼。這個指令會自動排除掉不該被覆蓋的桌面版特定檔案與套件資料夾：
+
+```cmd
+robocopy "C:\Users\timothy\Desktop\app files\clock" "C:\Users\timothy\Desktop\app files\clock-desktop" /E /XD node_modules .git /XF package.json package-lock.json main.js
+```
+
+> **💡 實用小建議**：你可以將上述指令存成 `sync.bat` 放在 `clock-desktop` 資料夾底下，以後點擊兩下就能自動同步拉取最新的網頁版程式碼。
+
+### 桌面版專屬指令 (在 `clock-desktop` 目錄下執行)
+- **啟動開發版**: `npm run desktop` (啟動一個獨立的 Electron 視窗預覽 APP)
+- **打包為執行檔 (.exe)**: `npm run dist` (打包後的檔案會生成於 `dist` 資料夾內)
+
+## 📍 目前狀態
+專案已完成階段性的性能大洗牌，運行效能大幅提升且功能更豐富。代碼已模組化，分布於 `src/` 資料夾中。同時也具備了封裝成 Windows 桌面應用程式 (Electron) 的能力。
