@@ -48,7 +48,11 @@ const I18N = {
         "Mexico City": "墨西哥城", "Sydney": "雪梨", "Melbourne": "墨爾本", "Auckland": "奧克蘭",
         "Cairo": "開羅", "Johannesburg": "約翰尼斯堡",
         about: '關於本程式', system: '系統', features: '進階功能',
-        cancel: '取消', add: '新增', clickToEdit: '點擊以編輯'
+        cancel: '取消', add: '新增', clickToEdit: '點擊以編輯',
+        clockLayoutTitle: '時鐘版面樣式',
+        layout_classic: '經典橫排', layout_stacked: '堆疊式', layout_minimal: '極簡風', layout_split: '左右分離', layout_digital: '數位儀表',
+        use12Hour: '12 / 24 小時制切換', hourlyChime: '整點報時提示音', showSeconds: '顯示秒數', showDate: '顯示日期', showNextEvent: '顯示下一個事件倒數',
+        hourlyChimeTitle: '整點報時', eventToday: '就在今天！'
     },
     'en': {
         lang: 'English', locale: 'en-US',
@@ -86,6 +90,8 @@ const I18N = {
         alarmSound: 'Alarm Sound', notifications: 'Notifications', soundNone: 'None', soundBeep: 'Beep', soundDigital: 'Digital', soundBell: 'Bell', testSound: 'Test Sound',
         about: 'About App', system: 'System', features: 'Features',
         cancel: 'Cancel', add: 'Add', clickToEdit: 'Click to edit',
+        clockLayoutTitle: 'Clock Layout',
+        layout_classic: 'Classic', layout_stacked: 'Stacked', layout_minimal: 'Minimal', layout_split: 'Split', layout_digital: 'Digital',
         showProgressRing: 'Progress Ring', enableMiniTask: 'Mini Task List', enableFocusAnalytics: 'Focus Analytics', enableMeetingPlanner: 'Meeting Planner', focusGoal: 'Current Goal', focusStats: 'Focus Stats', exportImage: 'Export as Image', exporting: 'Exporting...',
         ringPosition: 'Ring Position', ringLeft: 'Left of Number', ringRight: 'Right of Number', ringBackground: 'Background Centered',
         autoZenMode: 'Auto Zen Mode on Start',
@@ -98,7 +104,9 @@ const I18N = {
         "Amsterdam": "Amsterdam", "Zurich": "Zurich", "New York": "New York", "Los Angeles": "Los Angeles",
         "Chicago": "Chicago", "Toronto": "Toronto", "Vancouver": "Vancouver", "São Paulo": "São Paulo",
         "Mexico City": "Mexico City", "Sydney": "Sydney", "Melbourne": "Melbourne", "Auckland": "Auckland",
-        "Cairo": "Cairo", "Johannesburg": "Johannesburg"
+        "Cairo": "Cairo", "Johannesburg": "Johannesburg",
+        use12Hour: '12/24 Hour Format', hourlyChime: 'Hourly Chime', showSeconds: 'Show Seconds', showDate: 'Show Date', showNextEvent: 'Event Countdown',
+        hourlyChimeTitle: 'Hourly Chime', eventToday: 'Today!'
     },
     'ja': {
         lang: '日本語', locale: 'ja-JP',
@@ -146,7 +154,11 @@ const I18N = {
         "Amsterdam": "アムステルダム", "Zurich": "チューリッヒ", "New York": "ニューヨーク", "Los Angeles": "ロサンゼルス",
         "Chicago": "シカゴ", "Toronto": "トロント", "Vancouver": "バンクーバー", "São Paulo": "サンパウロ",
         "Mexico City": "メキシコシティ", "Sydney": "シドニー", "Melbourne": "メルボルン", "Auckland": "オークランド",
-        "Cairo": "カイロ", "Johannesburg": "ヨハネスブルグ"
+        "Cairo": "カイロ", "Johannesburg": "ヨハネスブルグ",
+        clockLayoutTitle: '時計レイアウト',
+        layout_classic: 'クラシック', layout_stacked: 'スタック', layout_minimal: 'ミニマル', layout_split: 'スプリット', layout_digital: 'デジタル',
+        use12Hour: '12/24時間表示', hourlyChime: '毎時チャイム', showSeconds: '秒を表示', showDate: '日付を表示', showNextEvent: '次のイベント',
+        hourlyChimeTitle: '毎時チャイム', eventToday: '今日です！'
     }
 };
 

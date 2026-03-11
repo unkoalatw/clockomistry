@@ -1,3 +1,8 @@
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { createRoot } from 'react-dom/client';
 import html2canvas from 'html2canvas';
@@ -24,6 +29,7 @@ const triggerSuccess = () => {
 };
 import { Maximize2, Minimize2, Timer, Clock, Monitor, Play, Pause, RotateCcw, AlertCircle, Globe, StopCircle, Settings, X, Check, Plus, Search, Type, Upload, Palette, ArrowLeft, Coffee, Brain, CalendarDays, Languages, Trash2, ChevronLeft, ChevronRight, Calendar, CloudSun, Share2, Download, LayoutTemplate, Sparkles, Delete, Camera, CheckSquare, BarChart2, Sliders, Target, Edit3, Sunrise, Sunset, LayoutGrid, LayoutPanelTop, RefreshCw } from 'lucide-react';
 const APP_VERSION = '1.3.0';
+
 // --- IndexedDB 管理 (用於儲存大體積字型) ---
 const DB_NAME = 'ClockomistryDB';
 const STORE_NAME = 'fonts';
@@ -47,6 +53,7 @@ const getFontFromDB = async () => {
   const request = tx.objectStore(STORE_NAME).get('customFont');
   return new Promise(resolve => request.onsuccess = () => resolve(request.result));
 };
+
 // --- 國際化 (i18n) ---
 const I18N = {
   'zh-TW': {
@@ -216,7 +223,20 @@ const I18N = {
     features: '進階功能',
     cancel: '取消',
     add: '新增',
-    clickToEdit: '點擊以編輯'
+    clickToEdit: '點擊以編輯',
+    clockLayoutTitle: '時鐘版面樣式',
+    layout_classic: '經典橫排',
+    layout_stacked: '堆疊式',
+    layout_minimal: '極簡風',
+    layout_split: '左右分離',
+    layout_digital: '數位儀表',
+    use12Hour: '12 / 24 小時制切換',
+    hourlyChime: '整點報時提示音',
+    showSeconds: '顯示秒數',
+    showDate: '顯示日期',
+    showNextEvent: '顯示下一個事件倒數',
+    hourlyChimeTitle: '整點報時',
+    eventToday: '就在今天！'
   },
   'en': {
     lang: 'English',
@@ -327,6 +347,12 @@ const I18N = {
     cancel: 'Cancel',
     add: 'Add',
     clickToEdit: 'Click to edit',
+    clockLayoutTitle: 'Clock Layout',
+    layout_classic: 'Classic',
+    layout_stacked: 'Stacked',
+    layout_minimal: 'Minimal',
+    layout_split: 'Split',
+    layout_digital: 'Digital',
     showProgressRing: 'Progress Ring',
     enableMiniTask: 'Mini Task List',
     enableFocusAnalytics: 'Focus Analytics',
@@ -385,7 +411,14 @@ const I18N = {
     "Melbourne": "Melbourne",
     "Auckland": "Auckland",
     "Cairo": "Cairo",
-    "Johannesburg": "Johannesburg"
+    "Johannesburg": "Johannesburg",
+    use12Hour: '12/24 Hour Format',
+    hourlyChime: 'Hourly Chime',
+    showSeconds: 'Show Seconds',
+    showDate: 'Show Date',
+    showNextEvent: 'Event Countdown',
+    hourlyChimeTitle: 'Hourly Chime',
+    eventToday: 'Today!'
   },
   'ja': {
     lang: '日本語',
@@ -548,9 +581,23 @@ const I18N = {
     "Melbourne": "メルボルン",
     "Auckland": "オークランド",
     "Cairo": "カイロ",
-    "Johannesburg": "ヨハネスブルグ"
+    "Johannesburg": "ヨハネスブルグ",
+    clockLayoutTitle: '時計レイアウト',
+    layout_classic: 'クラシック',
+    layout_stacked: 'スタック',
+    layout_minimal: 'ミニマル',
+    layout_split: 'スプリット',
+    layout_digital: 'デジタル',
+    use12Hour: '12/24時間表示',
+    hourlyChime: '毎時チャイム',
+    showSeconds: '秒を表示',
+    showDate: '日付を表示',
+    showNextEvent: '次のイベント',
+    hourlyChimeTitle: '毎時チャイム',
+    eventToday: '今日です！'
   }
 };
+
 // --- 配置與常數 ---
 const DEFAULT_THEMES = {
   modern: {
@@ -751,8 +798,9 @@ const ALL_ZONES = [
   label: 'Johannesburg',
   region: 'Africa'
 }];
+
 // --- Memoized Components ---
-const ProgressRing = React.memo(_ref => {
+const ProgressRing = /*#__PURE__*/React.memo(_ref => {
   let {
     progress,
     accent,
@@ -816,7 +864,7 @@ const ProgressRing = React.memo(_ref => {
     transform: "rotate(-90 50 50)"
   })));
 });
-const WeatherWidget = React.memo(_ref2 => {
+const WeatherWidget = /*#__PURE__*/React.memo(_ref2 => {
   let {
     weather,
     accent
@@ -844,7 +892,7 @@ const WeatherWidget = React.memo(_ref2 => {
     className: "text-purple-400"
   }), weather.sunset)));
 });
-const ClockDisplay = React.memo(_ref3 => {
+const ClockDisplay = /*#__PURE__*/React.memo(_ref3 => {
   let {
     h,
     m,
@@ -853,9 +901,15 @@ const ClockDisplay = React.memo(_ref3 => {
     showMillis,
     accent,
     dateLabel,
-    isZenMode
+    isZenMode,
+    clockLayout,
+    showSeconds = true,
+    ampm = ''
   } = _ref3;
-  return /*#__PURE__*/React.createElement("div", {
+  const layout = clockLayout || 'classic';
+
+  // --- Layout: Classic (原始水平排列) ---
+  if (layout === 'classic') return /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col items-center select-none"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-baseline font-bold tracking-tighter tabular-nums drop-shadow-2xl transition-all"
@@ -865,17 +919,128 @@ const ClockDisplay = React.memo(_ref3 => {
     className: "leading-none animate-pulse ".concat(accent, " text-[25vw] md:text-[200px]")
   }, ":"), /*#__PURE__*/React.createElement("span", {
     className: "leading-none text-[25vw] md:text-[200px]"
-  }, m), /*#__PURE__*/React.createElement("div", {
+  }, m), showSeconds && /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col ml-2 md:ml-4 justify-end pb-[2vw] md:pb-12"
   }, /*#__PURE__*/React.createElement("span", {
     className: "opacity-50 font-medium text-[10vw] md:text-[60px]"
   }, s), showMillis && /*#__PURE__*/React.createElement("span", {
     className: "".concat(accent, " opacity-80 text-[5vw] md:text-[30px]")
-  }, ms))), /*#__PURE__*/React.createElement("div", {
+  }, ms))), ampm && /*#__PURE__*/React.createElement("div", {
+    className: "text-[5vw] md:text-[32px] font-light tracking-[0.3em] opacity-50 mt-1 ".concat(accent)
+  }, ampm), dateLabel && /*#__PURE__*/React.createElement("div", {
     className: "mt-2 md:mt-4 font-light tracking-[0.3em] opacity-80 uppercase text-center transition-all text-lg md:text-3xl"
   }, dateLabel));
+
+  // --- Layout: Stacked (垂直堆疊式) ---
+  if (layout === 'stacked') return /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-col items-center select-none"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-col items-center font-bold tracking-tighter tabular-nums drop-shadow-2xl transition-all leading-[0.85]"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-[30vw] md:text-[220px]"
+  }, h), /*#__PURE__*/React.createElement("span", {
+    className: "text-[30vw] md:text-[220px] ".concat(accent)
+  }, m)), showSeconds && /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-3 mt-2 md:mt-4"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "opacity-40 font-medium text-[8vw] md:text-[48px] tabular-nums"
+  }, s), showMillis && /*#__PURE__*/React.createElement("span", {
+    className: "".concat(accent, " opacity-60 text-[5vw] md:text-[30px] tabular-nums")
+  }, ".", ms)), ampm && /*#__PURE__*/React.createElement("div", {
+    className: "text-[4vw] md:text-[28px] font-light tracking-[0.3em] opacity-50 mt-2 ".concat(accent)
+  }, ampm), dateLabel && /*#__PURE__*/React.createElement("div", {
+    className: "mt-4 md:mt-6 font-light tracking-[0.3em] opacity-80 uppercase text-center text-lg md:text-3xl"
+  }, dateLabel));
+
+  // --- Layout: Minimal (極簡式) ---
+  if (layout === 'minimal') return /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-col items-center select-none"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "font-extralight tracking-[-0.04em] tabular-nums drop-shadow-2xl transition-all text-[28vw] md:text-[240px] leading-none"
+  }, /*#__PURE__*/React.createElement("span", null, h), /*#__PURE__*/React.createElement("span", {
+    className: "".concat(accent, " animate-pulse")
+  }, ":"), /*#__PURE__*/React.createElement("span", null, m)), ampm && /*#__PURE__*/React.createElement("div", {
+    className: "text-[4vw] md:text-[24px] font-light tracking-[0.5em] opacity-40 mt-2 ".concat(accent)
+  }, ampm), dateLabel && /*#__PURE__*/React.createElement("div", {
+    className: "mt-6 md:mt-10 font-light tracking-[0.5em] opacity-60 uppercase text-center text-sm md:text-xl"
+  }, dateLabel));
+
+  // --- Layout: Split (左右分離式) ---
+  if (layout === 'split') return /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-col items-center select-none"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-[4vw] md:gap-12 font-bold tabular-nums drop-shadow-2xl transition-all"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-col items-center"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-[28vw] md:text-[200px] leading-none tracking-tighter"
+  }, h), /*#__PURE__*/React.createElement("span", {
+    className: "text-[3vw] md:text-base opacity-30 tracking-[0.4em] uppercase font-light mt-1"
+  }, ampm || 'hr')), /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-col items-center gap-2 opacity-30"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-2 h-2 md:w-3 md:h-3 rounded-full ".concat(accent, " bg-current animate-pulse")
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "w-2 h-2 md:w-3 md:h-3 rounded-full ".concat(accent, " bg-current animate-pulse")
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-col items-center"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-[28vw] md:text-[200px] leading-none tracking-tighter"
+  }, m), /*#__PURE__*/React.createElement("span", {
+    className: "text-[3vw] md:text-base opacity-30 tracking-[0.4em] uppercase font-light mt-1"
+  }, "min")), showSeconds && /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-col items-center"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-[10vw] md:text-[72px] leading-none tracking-tighter opacity-40"
+  }, s), showMillis && /*#__PURE__*/React.createElement("span", {
+    className: "".concat(accent, " opacity-60 text-[4vw] md:text-[28px] mt-1")
+  }, ms))), dateLabel && /*#__PURE__*/React.createElement("div", {
+    className: "mt-6 md:mt-8 font-light tracking-[0.3em] opacity-80 uppercase text-center text-lg md:text-3xl"
+  }, dateLabel));
+
+  // --- Layout: Digital (數位儀表板式) ---
+  if (layout === 'digital') return /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-col items-center select-none"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-[2vw] md:gap-4 tabular-nums drop-shadow-2xl transition-all"
+  }, [h[0], h[1]].map((d, i) => /*#__PURE__*/React.createElement("div", {
+    key: "h".concat(i),
+    className: "bg-white/5 border border-white/10 rounded-2xl md:rounded-3xl px-[3vw] py-[2vw] md:px-8 md:py-4 backdrop-blur-sm"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-[18vw] md:text-[140px] font-bold leading-none block"
+  }, d))), /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-col gap-[2vw] md:gap-4 mx-1 md:mx-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-[2vw] h-[2vw] md:w-3 md:h-3 rounded-full ".concat(accent, " bg-current animate-pulse")
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "w-[2vw] h-[2vw] md:w-3 md:h-3 rounded-full ".concat(accent, " bg-current animate-pulse")
+  })), [m[0], m[1]].map((d, i) => /*#__PURE__*/React.createElement("div", {
+    key: "m".concat(i),
+    className: "bg-white/5 border border-white/10 rounded-2xl md:rounded-3xl px-[3vw] py-[2vw] md:px-8 md:py-4 backdrop-blur-sm"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-[18vw] md:text-[140px] font-bold leading-none block"
+  }, d)))), (showSeconds || ampm) && /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-3 mt-4 md:mt-6"
+  }, showSeconds && /*#__PURE__*/React.createElement("div", {
+    className: "bg-white/5 border border-white/10 rounded-xl px-4 py-2 backdrop-blur-sm"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-[6vw] md:text-[36px] font-bold tabular-nums opacity-60"
+  }, s)), showSeconds && showMillis && /*#__PURE__*/React.createElement("div", {
+    className: "bg-white/5 border border-white/10 rounded-xl px-4 py-2 backdrop-blur-sm"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-[4vw] md:text-[24px] font-bold tabular-nums ".concat(accent, " opacity-80")
+  }, ms)), ampm && /*#__PURE__*/React.createElement("div", {
+    className: "bg-white/5 border border-white/10 rounded-xl px-4 py-2 backdrop-blur-sm"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-[4vw] md:text-[24px] font-bold ".concat(accent, " opacity-80")
+  }, ampm))), dateLabel && /*#__PURE__*/React.createElement("div", {
+    className: "mt-4 md:mt-6 font-light tracking-[0.3em] opacity-80 uppercase text-center text-lg md:text-3xl"
+  }, dateLabel));
+
+  // fallback
+  return null;
 });
-const NavigationBar = React.memo(_ref4 => {
+const NavigationBar = /*#__PURE__*/React.memo(_ref4 => {
   let {
     mode,
     setMode,
@@ -886,16 +1051,13 @@ const NavigationBar = React.memo(_ref4 => {
     setShowSettings,
     setIsZenMode,
     isCleanMode,
-    setIsMiniMode,
     t
   } = _ref4;
   return /*#__PURE__*/React.createElement("div", {
     className: "hide-on-export fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 flex items-center justify-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-[2rem] sm:rounded-full backdrop-blur-xl bg-white/5 border border-white/20 shadow-2xl transition-all duration-500 z-40 w-max max-w-[96vw] sm:max-w-2xl sm:w-auto ".concat(showControls && !isCleanMode ? 'translate-y-0 opacity-100' : 'translate-y-32 opacity-0 pointer-events-none')
-  }, /*#__PURE__*/React.createElement("style", null, ".hide-scroll::-webkit-scrollbar { display: none; }"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
     className: "flex bg-white/5 rounded-full p-1 gap-1 flex-none overflow-x-auto overflow-y-hidden snap-x snap-mandatory hide-scroll max-w-[65vw] sm:max-w-none",
     style: {
-      scrollbarWidth: 'none',
-      msOverflowStyle: 'none',
       WebkitOverflowScrolling: 'touch'
     }
   }, [{
@@ -947,1043 +1109,29 @@ const NavigationBar = React.memo(_ref4 => {
     size: 20
   }))));
 });
-// --- Custom Hooks for Local Storage ---
-function useLocalString(key, initialValue) {
-  const [value, setValue] = useState(() => {
-    const item = window.localStorage.getItem(key);
-    if (item !== null) return item;
-    return typeof initialValue === 'function' ? initialValue() : initialValue;
-  });
-  useEffect(() => {
-    window.localStorage.setItem(key, value);
-  }, [key, value]);
-  return [value, setValue];
-}
-function useLocalBoolean(key, initialValue) {
-  const [value, setValue] = useState(() => {
-    const item = window.localStorage.getItem(key);
-    return item !== null ? item === 'true' : initialValue;
-  });
-  useEffect(() => {
-    window.localStorage.setItem(key, value);
-  }, [key, value]);
-  return [value, setValue];
-}
-function useLocalJSON(key, initialValue, parser) {
-  const [value, setValue] = useState(() => {
-    try {
-      const item = window.localStorage.getItem(key);
-      if (!item) return typeof initialValue === 'function' ? initialValue() : initialValue;
-      const parsed = JSON.parse(item);
-      return parser ? parser(parsed) : parsed;
-    } catch (e) {
-      return typeof initialValue === 'function' ? initialValue() : initialValue;
-    }
-  });
-  useEffect(() => {
-    window.localStorage.setItem(key, JSON.stringify(value));
-  }, [key, value]);
-  return [value, setValue];
-}
-const formatTime = date => {
-  const h = date.getHours().toString().padStart(2, '0');
-  const m = date.getMinutes().toString().padStart(2, '0');
-  const s = date.getSeconds().toString().padStart(2, '0');
-  const ms = Math.floor(date.getMilliseconds() / 10).toString().padStart(2, '0');
-  return {
-    h,
-    m,
-    s,
-    ms
-  };
-};
-const formatDuration = ms => {
-  const m = Math.floor(ms / 60000).toString().padStart(2, '0');
-  const s = Math.floor(ms % 60000 / 1000).toString().padStart(2, '0');
-  const cs = Math.floor(ms % 1000 / 10).toString().padStart(2, '0');
-  return {
-    m,
-    s,
-    cs
-  };
-};
-function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
-function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
-function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
-function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
-function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
-function App() {
-  const [time, setTime] = useState(new Date());
-  const [theme, setTheme] = useLocalString('clock_theme', 'modern');
-  const [font, setFont] = useLocalString('clock_font', 'modern');
-  const [showMillis, setShowMillis] = useLocalBoolean('clock_millis', true);
-  const [showProgressRing, setShowProgressRing] = useLocalBoolean('clock_progressRing', true);
-  const [ringPosition, setRingPosition] = useLocalString('clock_ringPosition', 'left');
-  const [enableMiniTask, setEnableMiniTask] = useLocalBoolean('clock_miniTask', true);
-  const [enableFocusAnalytics, setEnableFocusAnalytics] = useLocalBoolean('clock_focusAnalytics', true);
-  const [enableMeetingPlanner, setEnableMeetingPlanner] = useLocalBoolean('clock_meetingPlanner', true);
-
-  // New Automation Settings
-  const [autoZenMode, setAutoZenMode] = useLocalBoolean('clock_autoZenMode', true);
-  const [selectedZones, setSelectedZones] = useLocalJSON('clock_zones', () => [ALL_ZONES.find(z => z.id === 'Asia/Taipei'), ALL_ZONES.find(z => z.id === 'America/New_York'), ALL_ZONES.find(z => z.id === 'Europe/London'), ALL_ZONES.find(z => z.id === 'Asia/Tokyo')].filter(Boolean), parsed => {
-    const zones = parsed.map(item => {
-      const id = typeof item === 'string' ? item : item.id;
-      return ALL_ZONES.find(z => z.id === id);
-    }).filter(Boolean);
-    if (zones.length > 0) return zones;
-    return null; // fallback
-  });
-  const [mode, setMode] = useState('clock');
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isZenMode, setIsZenMode] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
-  const [showSettings, setShowSettings] = useState(false);
-  const [activeSettingsTab, setActiveSettingsTab] = useState('appearance');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [hasCustomFont, setHasCustomFont] = useState(false);
-  const [hasAgreed, setHasAgreed] = useLocalBoolean('clock_agreed', false);
-  const [customColors, setCustomColors] = useLocalJSON('clock_custom_colors', {
-    bg1: '#0a0a1a',
-    bg2: '#1a1a3e',
-    bg3: '#0a0a1a',
-    text: '#e2e8f0',
-    accent: '#22d3ee'
-  });
-  const [customBgImage, setCustomBgImage] = useLocalString('clock_custom_bg', '');
-  const [lang, setLang] = useLocalString('clock_lang', () => {
-    const browserLang = navigator.language.split('-')[0];
-    if (I18N[browserLang]) return browserLang;
-    if (navigator.language === 'zh-CN' || navigator.language === 'zh-HK') return 'zh-TW';
-    return 'zh-TW';
-  });
-
-  // Anniversary 狀態
-  const [anniversaries, setAnniversaries] = useLocalJSON('clock_anniversaries', []);
-  const [isAddingEvent, setIsAddingEvent] = useState(false);
-  const [newEventName, setNewEventName] = useState('');
-  const [newEventDate, setNewEventDate] = useState('');
-
-  // Advance Features 狀態
-  const [focusGoal, setFocusGoal] = useLocalString('clock_focusGoal', '');
-  const [focusStats, setFocusStats] = useLocalJSON('clock_focusStats', {});
-  const [meetingOffset, setMeetingOffset] = useState(0);
-
-  // Weather 狀態
-  const [weather, setWeather] = useState({
-    temp: '--',
-    condition: '',
-    city: '--',
-    sunrise: null,
-    sunset: null
-  });
-
-  // Life Calendar & Mini Mode
-  const [birthDate, setBirthDate] = useLocalString('clock_birthdate', '2000-01-01');
-
-  // Auto-detect OBS
-  const isOBS = useMemo(() => typeof window.obsstudio !== 'undefined', []);
-
-  // If OBS, the UI becomes super clean
-  const isCleanMode = isOBS;
-
-  // Apply transparent bg if OBS
-  useEffect(() => {
-    if (isCleanMode) {
-      document.body.style.backgroundColor = 'transparent';
-    } else {
-      document.body.style.backgroundColor = '';
-    }
-  }, [isCleanMode]);
-
-  // Screen Saver 狀態
-  const [isScreenSaverActive, setIsScreenSaverActive] = useState(false);
-  const [lastActivity, setLastActivity] = useState(Date.now());
-  const [ssPos, setSsPos] = useState({
-    x: 40,
-    y: 40
-  });
-  const ssVelocity = useRef({
-    x: 0.15,
-    y: 0.12
-  });
-
-  // i18n helper
-  const t = useCallback(key => (I18N[lang] || I18N['zh-TW'])[key] || key, [lang]);
-
-  // Timer 狀態
-  const [timerSeconds, setTimerSeconds] = useState(25 * 60);
-  const [isTimerRunning, setIsTimerRunning] = useState(false);
-  const [timerInitial, setTimerInitial] = useState(25 * 60);
-  const [isEditingTimer, setIsEditingTimer] = useState(false);
-  const [timerInput, setTimerInput] = useState('000000');
-  const handleTimerInput = val => {
-    if (val === 'del') {
-      setTimerInput(prev => '0' + prev.slice(0, 5));
-    } else if (val === '00') {
-      setTimerInput(prev => (prev + '00').slice(-6));
-    } else {
-      setTimerInput(prev => (prev + val).slice(-6));
-    }
-  };
-  const getTimerInputSeconds = () => {
-    const h = parseInt(timerInput.slice(0, 2), 10);
-    const m = parseInt(timerInput.slice(2, 4), 10);
-    const s = parseInt(timerInput.slice(4, 6), 10);
-    return h * 3600 + m * 60 + s;
-  };
-
-  // Pomodoro 狀態
-  const [pomoMode, setPomoMode] = useState('work'); // 'work', 'short', 'long'
-  const [pomoSeconds, setPomoSeconds] = useState(25 * 60);
-  const [isPomoRunning, setIsPomoRunning] = useState(false);
-
-  // Alarm & Notification 狀態
-  const [alarmSound, setAlarmSound] = useLocalString('clock_alarmSound', 'beep');
-  const [notificationsEnabled, setNotificationsEnabled] = useLocalBoolean('clock_notifications', true);
-  const audioRef = useRef(null);
-  const playAlarm = useCallback(() => {
-    if (alarmSound === 'none') return;
-    if (!audioRef.current) audioRef.current = new Audio();
-    audioRef.current.src = "public/audio/".concat(alarmSound, ".ogg");
-    audioRef.current.play().catch(e => console.log('Audio play failed', e));
-  }, [alarmSound]);
-  const showNotification = useCallback((title, body) => {
-    if (!notificationsEnabled || !('Notification' in window) || Notification.permission !== 'granted') return;
-    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-      navigator.serviceWorker.ready.then(registration => {
-        registration.showNotification(title, {
-          body: body,
-          icon: 'icons/icon-192.png',
-          vibrate: [200, 100, 200, 100, 200, 100, 200]
-        });
-      });
-    } else {
-      new Notification(title, {
-        body,
-        icon: 'icons/icon-192.png'
-      });
-    }
-  }, [notificationsEnabled]);
-  const handleToggleNotifications = async () => {
-    if (!notificationsEnabled) {
-      if (!('Notification' in window)) {
-        showError('Browser does not support notifications');
-        return;
-      }
-      if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
-        const permission = await Notification.requestPermission();
-        if (permission === 'granted') setNotificationsEnabled(true);
-      } else if (Notification.permission === 'granted') {
-        setNotificationsEnabled(true);
-      }
-    } else {
-      setNotificationsEnabled(false);
-    }
-  };
-
-  // Stopwatch 狀態
-  const [stopwatchTime, setStopwatchTime] = useState(0);
-  const [isStopwatchRunning, setIsStopwatchRunning] = useState(false);
-  const [laps, setLaps] = useState([]);
-
-  // Multi-Timer 狀態
-  const [multiTimers, setMultiTimers] = useState([]);
-  const multiTimerIdRef = useRef(0);
-
-  // Calendar 狀態
-  const [calendarDate, setCalendarDate] = useState(new Date());
-  const containerRef = useRef(null);
-  const requestRef = useRef();
-  const previousTimeRef = useRef();
-  const fileInputRef = useRef(null);
-  const bgImageInputRef = useRef(null);
-
-  // --- 持久化設定 ---
-  // The explicit useEffect syncing logic is now automatically managed by the custom hooks above!
-
-  // 螢幕保護自動偵測
-  useEffect(() => {
-    const updateActivity = () => {
-      setLastActivity(Date.now());
-      if (isScreenSaverActive) setIsScreenSaverActive(false);
-    };
-    const events = ['mousemove', 'keydown', 'touchstart', 'scroll'];
-    events.forEach(e => window.addEventListener(e, updateActivity, {
-      passive: true
-    }));
-    return () => events.forEach(e => window.removeEventListener(e, updateActivity));
-  }, [isScreenSaverActive]);
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (!isScreenSaverActive && Date.now() - lastActivity > 5 * 60 * 1000) {
-        setIsScreenSaverActive(true);
-      }
-    }, 30000); // 降低檢測頻率
-    return () => clearInterval(interval);
-  }, [lastActivity, isScreenSaverActive]);
-
-  // 螢幕保護位移邏輯 - 優化版 (使用 CSS Transition 代替每幀更新)
-  useEffect(() => {
-    if (!isScreenSaverActive) return;
-    const move = () => {
-      setSsPos({
-        x: Math.random() * 70 + 5,
-        y: Math.random() * 80 + 5
-      });
-    };
-    move();
-    const interval = setInterval(move, 4000); // 每 4 秒更換目標
-    return () => clearInterval(interval);
-  }, [isScreenSaverActive]);
-
-  // 天氣抓取
-  const fetchWeather = async () => {
-    try {
-      var _wData$daily, _wData$daily2;
-      // 使用 IP-API 獲取大致位置
-      const locRes = await fetch('https://ipapi.co/json/');
-      const loc = await locRes.json();
-      const {
-        latitude,
-        longitude,
-        city
-      } = loc;
-
-      // 使用 Open-Meteo 獲取天氣與日出日落
-      const wRes = await fetch("https://api.open-meteo.com/v1/forecast?latitude=".concat(latitude, "&longitude=").concat(longitude, "&current_weather=true&daily=sunrise,sunset&timezone=auto"));
-      const wData = await wRes.json();
-      const code = wData.current_weather.weathercode;
-      const sunriseStr = (_wData$daily = wData.daily) === null || _wData$daily === void 0 || (_wData$daily = _wData$daily.sunrise) === null || _wData$daily === void 0 ? void 0 : _wData$daily[0];
-      const sunsetStr = (_wData$daily2 = wData.daily) === null || _wData$daily2 === void 0 || (_wData$daily2 = _wData$daily2.sunset) === null || _wData$daily2 === void 0 ? void 0 : _wData$daily2[0];
-
-      // 簡易天氣代碼轉中文/英文
-      const conditionMap = {
-        0: 'Clear',
-        1: 'Cloudy',
-        2: 'Cloudy',
-        3: 'Overcast',
-        45: 'Fog',
-        48: 'Fog',
-        51: 'Drizzle',
-        61: 'Rain',
-        71: 'Snow',
-        95: 'Storm'
-      };
-      const formatHm = isoStr => {
-        if (!isoStr) return null;
-        const d = new Date(isoStr);
-        return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
-      };
-      setWeather({
-        temp: Math.round(wData.current_weather.temperature),
-        condition: conditionMap[code] || 'Cloudy',
-        city: city,
-        sunrise: formatHm(sunriseStr),
-        sunset: formatHm(sunsetStr)
-      });
-    } catch (e) {
-      console.error('Weather fetch error:', e);
-    }
-  };
-  useEffect(() => {
-    fetchWeather();
-    const interval = setInterval(fetchWeather, 30 * 60 * 1000); // 30分鐘更新一次
-    return () => clearInterval(interval);
-  }, []);
-
-  // Multi-Timer 計時邏輯
-  useEffect(() => {
-    const hasRunning = multiTimers.some(t => t.running && t.remaining > 0);
-    if (!hasRunning) return;
-    const interval = setInterval(() => {
-      setMultiTimers(prev => prev.map(t => {
-        if (!t.running || t.remaining <= 0) return t;
-        const next = t.remaining - 1;
-        if (next <= 0) {
-          playAlarm();
-          showNotification('Timer Finished', "Timer ".concat(t.label, " has finished"));
-          return _objectSpread(_objectSpread({}, t), {}, {
-            remaining: 0,
-            running: false
-          });
-        }
-        return _objectSpread(_objectSpread({}, t), {}, {
-          remaining: next
-        });
-      }));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [multiTimers, playAlarm, showNotification]);
-  const addMultiTimer = function () {
-    let minutes = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 5;
-    multiTimerIdRef.current += 1;
-    setMultiTimers(prev => [...prev, {
-      id: multiTimerIdRef.current,
-      label: "".concat(minutes, ":00"),
-      initial: minutes * 60,
-      remaining: minutes * 60,
-      running: false
-    }]);
-  };
-  const toggleMultiTimer = id => setMultiTimers(prev => prev.map(t => t.id === id ? _objectSpread(_objectSpread({}, t), {}, {
-    running: !t.running
-  }) : t));
-  const resetMultiTimer = id => setMultiTimers(prev => prev.map(t => t.id === id ? _objectSpread(_objectSpread({}, t), {}, {
-    remaining: t.initial,
-    running: false
-  }) : t));
-  const deleteMultiTimer = id => setMultiTimers(prev => prev.filter(t => t.id !== id));
-
-  // --- 主題匯出導入 ---
-  const exportTheme = () => {
-    const data = {
-      theme,
-      font,
-      customColors,
-      customBgImage
-    };
-    const code = btoa(JSON.stringify(data));
-    navigator.clipboard.writeText(code);
-  };
-  const importTheme = code => {
-    if (!code) return;
-    try {
-      const data = JSON.parse(atob(code));
-      if (data.theme) setTheme(data.theme);
-      if (data.font) setFont(data.font);
-      if (data.customColors) setCustomColors(data.customColors);
-      if (data.customBgImage !== undefined) setCustomBgImage(data.customBgImage);
-    } catch (e) {
-      setErrorMsg(t('invalidThemeCode'));
-      setTimeout(() => setErrorMsg(''), 3000);
-    }
-  };
-  const [isExporting, setIsExporting] = useState(false);
-  const handleExportImage = async () => {
-    if (!containerRef.current || isExporting) return;
-    setIsExporting(true);
-    const prevZen = isZenMode;
-    if (!prevZen) setIsZenMode(true);
-    setTimeout(async () => {
-      try {
-        const canvas = await html2canvas(containerRef.current, {
-          scale: 2,
-          backgroundColor: null,
-          ignoreElements: el => el.classList.contains('hide-on-export')
-        });
-        const link = document.createElement('a');
-        link.download = "clockomistry-".concat(Date.now(), ".png");
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-      } catch (err) {}
-      setIsZenMode(prevZen);
-      setIsExporting(false);
-    }, 500);
-  };
-
-  // 初始化時從 IndexedDB 載入字體
-  useEffect(() => {
-    const initFont = async () => {
-      const savedFont = await getFontFromDB();
-      if (savedFont) {
-        await loadCustomFont(savedFont);
-      }
-    };
-    initFont();
-  }, []);
-
-  // --- 字體載入邏輯 ---
-  const loadCustomFont = async base64Data => {
-    try {
-      const fontFace = new FontFace('CustomFont', "url(".concat(base64Data, ")"));
-      const loadedFace = await fontFace.load();
-      document.fonts.add(loadedFace);
-      setHasCustomFont(true);
-      return true;
-    } catch (e) {
-      showError(t('fontLoadError'));
-      return false;
-    }
-  };
-  const handleFontUpload = e => {
-    var _e$target$files;
-    const file = (_e$target$files = e.target.files) === null || _e$target$files === void 0 ? void 0 : _e$target$files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = async e => {
-      const data = e.target.result;
-      const success = await loadCustomFont(data);
-      if (success) {
-        await saveFontToDB(data);
-        setFont('custom');
-      }
-    };
-    reader.readAsDataURL(file);
-  };
-  const handleBgImageUpload = e => {
-    var _e$target$files2;
-    const file = (_e$target$files2 = e.target.files) === null || _e$target$files2 === void 0 ? void 0 : _e$target$files2[0];
-    if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      showError(t('imageSizeError'));
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = ev => {
-      setCustomBgImage(ev.target.result);
-      setTheme('custom');
-    };
-    reader.readAsDataURL(file);
-  };
-  const updateCustomColor = (key, value) => setCustomColors(prev => _objectSpread(_objectSpread({}, prev), {}, {
-    [key]: value
-  }));
-
-  // --- Pomodoro 邏輯 ---
-  useEffect(() => {
-    let interval = null;
-    if (isPomoRunning && pomoSeconds > 0) {
-      interval = setInterval(() => setPomoSeconds(prev => prev - 1), 1000);
-    } else if (isPomoRunning && pomoSeconds === 0) {
-      setIsPomoRunning(false);
-      playAlarm();
-      showNotification('Pomodoro Finished', "".concat(t(pomoMode), " section is complete"));
-      triggerSuccess();
-
-      // 自動切換模式或播放鈴聲（這裡先簡單處理）
-      if (pomoMode === 'work') {
-        if (enableFocusAnalytics) {
-          const today = new Date().toISOString().split('T')[0];
-          setFocusStats(prev => _objectSpread(_objectSpread({}, prev), {}, {
-            [today]: (prev[today] || 0) + 25 * 60
-          }));
-        }
-        setPomoMode('short');
-        setPomoSeconds(5 * 60);
-      } else {
-        setPomoMode('work');
-        setPomoSeconds(25 * 60);
-      }
-    }
-    return () => clearInterval(interval);
-  }, [isPomoRunning, pomoSeconds, pomoMode, playAlarm, showNotification, t]);
-  const resetPomo = modeType => {
-    setIsPomoRunning(false);
-    setPomoMode(modeType);
-    if (modeType === 'work') setPomoSeconds(25 * 60);else if (modeType === 'short') setPomoSeconds(5 * 60);else if (modeType === 'long') setPomoSeconds(15 * 60);
-  };
-
-  // --- 核心計時邏輯 ---
-  useEffect(() => {
-    const updateTime = () => {
-      setTime(new Date());
-      if (showMillis) requestRef.current = requestAnimationFrame(updateTime);
-    };
-    if (showMillis) requestRef.current = requestAnimationFrame(updateTime);else {
-      const timer = setInterval(() => setTime(new Date()), 1000);
-      return () => clearInterval(timer);
-    }
-    return () => cancelAnimationFrame(requestRef.current);
-  }, [showMillis]);
-  useEffect(() => {
-    let interval = null;
-    if (isTimerRunning && timerSeconds > 0) {
-      interval = setInterval(() => setTimerSeconds(prev => prev - 1), 1000);
-    } else if (isTimerRunning && timerSeconds === 0) {
-      playAlarm();
-      showNotification('Timer Finished', 'Your timer has finished');
-      setIsTimerRunning(false);
-      triggerSuccess();
-    }
-    return () => clearInterval(interval);
-  }, [isTimerRunning, timerSeconds, playAlarm, showNotification]);
-  useEffect(() => {
-    if (isStopwatchRunning) {
-      previousTimeRef.current = Date.now();
-      const animate = () => {
-        const now = Date.now();
-        const deltaTime = now - previousTimeRef.current;
-        previousTimeRef.current = now;
-        setStopwatchTime(prev => prev + deltaTime);
-        requestRef.current = requestAnimationFrame(animate);
-      };
-      requestRef.current = requestAnimationFrame(animate);
-    }
-    return () => cancelAnimationFrame(requestRef.current);
-  }, [isStopwatchRunning]);
-  useEffect(() => {
-    const handleFullscreenChange = () => setIsFullscreen(!!document.fullscreenElement);
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
-  }, []);
-
-  // 全域按鈕震動與快捷鍵 (Spacebar Play/Pause, Esc Reset)
-  useEffect(() => {
-    const handleBtnClick = e => {
-      if (e.target.closest('button')) triggerHaptic();
-    };
-    const handleKeyDown = e => {
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-      if (e.code === 'Space') {
-        e.preventDefault();
-        triggerHaptic();
-        if (mode === 'timer') {
-          if (isTimerRunning) setIsTimerRunning(false);else if (timerSeconds > 0) setIsTimerRunning(true);
-        } else if (mode === 'pomodoro') {
-          setIsPomoRunning(prev => !prev);
-        } else if (mode === 'stopwatch') {
-          setIsStopwatchRunning(prev => !prev);
-        }
-      } else if (e.code === 'Escape') {
-        e.preventDefault();
-        triggerHaptic();
-        if (mode === 'timer') {
-          setIsTimerRunning(false);
-          // setIsEditingTimer(true); // Let button handle editing explicitly
-        } else if (mode === 'pomodoro') {
-          resetPomo(pomoMode);
-        } else if (mode === 'stopwatch') {
-          setStopwatchTime(0);
-          setLaps([]);
-          setIsStopwatchRunning(false);
-        }
-      }
-    };
-    document.addEventListener('click', handleBtnClick);
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('click', handleBtnClick);
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [mode, isTimerRunning, timerSeconds, isPomoRunning, pomoMode, isStopwatchRunning]);
-  const [showControls, setShowControls] = useState(true);
-  const controlsTimeoutRef = useRef(null);
-  const handleMouseMove = () => {
-    setShowControls(true);
-    if (isZenMode) {
-      if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
-      controlsTimeoutRef.current = setTimeout(() => setShowControls(false), 3000);
-    }
-  };
-  const toggleFullscreen = async () => {
-    try {
-      if (!document.fullscreenElement) await containerRef.current.requestFullscreen();else await document.exitFullscreen();
-    } catch (err) {
-      showError(t('fullscreenError'));
-    }
-  };
-  const showError = msg => {
-    setErrorMsg(msg);
-    setTimeout(() => setErrorMsg(''), 3000);
-  };
-  const handleClearData = async () => {
-    if (!window.confirm(t('clearDataConfirm'))) return;
-    // 1. Clear all localStorage keys
-    localStorage.clear();
-    // 2. Clear all cookies for this origin
-    document.cookie.split(';').forEach(c => {
-      document.cookie = c.replace(/^ +/, '').replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/');
-    });
-    // 3. Clear all SW caches
-    if ('caches' in window) {
-      const keys = await caches.keys();
-      await Promise.all(keys.map(k => caches.delete(k)));
-    }
-    // 4. Unregister service workers
-    if ('serviceWorker' in navigator) {
-      const regs = await navigator.serviceWorker.getRegistrations();
-      await Promise.all(regs.map(r => r.unregister()));
-    }
-    showError(t('clearDataDone'));
-    setTimeout(() => window.location.reload(true), 1800);
-  };
-  const [isDownloadingApp, setIsDownloadingApp] = useState(false);
-  const handleDownloadApp = async () => {
-    if (isDownloadingApp) return;
-    setIsDownloadingApp(true);
-    try {
-      var _data$assets;
-      const res = await fetch('https://api.github.com/repos/unkoalatw/clockomistry/releases/latest');
-      if (!res.ok) throw new Error('Network error');
-      const data = await res.json();
-      const apkAsset = (_data$assets = data.assets) === null || _data$assets === void 0 ? void 0 : _data$assets.find(a => a.name.endsWith('.apk'));
-      if (apkAsset && apkAsset.browser_download_url) {
-        window.open(apkAsset.browser_download_url, '_blank');
-      } else {
-        showError('APK not found in the latest release.');
-      }
-    } catch (err) {
-      showError('Failed to fetch release from GitHub.');
-    } finally {
-      setIsDownloadingApp(false);
-    }
-  };
-  const [updateStatus, setUpdateStatus] = useState(null); // null | 'checking' | 'latest' | 'new'
-  const [latestVersion, setLatestVersion] = useState(null);
-  const handleCheckUpdate = async () => {
-    setUpdateStatus('checking');
-    try {
-      var _data$tag_name;
-      // Fetch package.json or use release tag from GitHub API
-      const res = await fetch('https://api.github.com/repos/unkoalatw/clockomistry/releases/latest');
-      if (!res.ok) throw new Error('Network error');
-      const data = await res.json();
-      const remoteTag = ((_data$tag_name = data.tag_name) === null || _data$tag_name === void 0 ? void 0 : _data$tag_name.replace(/^v/, '')) || '';
-      setLatestVersion(remoteTag);
-      if (remoteTag && remoteTag !== APP_VERSION) {
-        setUpdateStatus('new');
-      } else {
-        setUpdateStatus('latest');
-        setTimeout(() => setUpdateStatus(null), 3000);
-      }
-    } catch (err) {
-      // If no release exists yet, try to force-refresh SW
-      setUpdateStatus('latest');
-      setTimeout(() => setUpdateStatus(null), 3000);
-    }
-  };
-  const handleForceUpdate = async () => {
-    // 1. Force SW update
-    if ('serviceWorker' in navigator) {
-      const regs = await navigator.serviceWorker.getRegistrations();
-      await Promise.all(regs.map(r => r.update()));
-    }
-    // 2. Clear caches
-    if ('caches' in window) {
-      const keys = await caches.keys();
-      await Promise.all(keys.map(k => caches.delete(k)));
-    }
-    // 3. Hard reload
-    window.location.reload(true);
-  };
-  const formatDate = date => date.toLocaleDateString(t('locale'), {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
-  const getWorldTime = timezone => {
-    try {
-      const d = new Date(Date.now() + meetingOffset * 3600 * 1000);
-      const s = d.toLocaleTimeString('en-US', {
-        timeZone: timezone,
-        hour12: false,
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-      const [h, m] = s.split(':');
-      return {
-        h,
-        m
-      };
-    } catch (e) {
-      return {
-        h: '--',
-        m: '--'
-      };
-    }
-  };
-  const filteredZones = useMemo(() => ALL_ZONES.filter(z => z.label.toLowerCase().includes(searchQuery.toLowerCase())), [searchQuery]);
-  const currentTheme = theme === 'custom' ? {
-    name: 'themeCustom',
-    bg: '',
-    text: '',
-    accent: 'custom-accent',
-    card: 'custom-card backdrop-blur-3xl',
-    gradient: '',
-    button: 'hover:bg-white/20',
-    settingsBg: 'custom-settings'
-  } : DEFAULT_THEMES[theme] || DEFAULT_THEMES.modern;
-  const {
-    h,
-    m,
-    s,
-    ms
-  } = formatTime(time);
-  const stopwatch = formatDuration(stopwatchTime);
-  const currentFontStyle = useMemo(() => {
-    var _DEFAULT_FONTS$font;
-    return font === 'custom' && hasCustomFont ? {
-      fontFamily: 'CustomFont'
-    } : ((_DEFAULT_FONTS$font = DEFAULT_FONTS[font]) === null || _DEFAULT_FONTS$font === void 0 ? void 0 : _DEFAULT_FONTS$font.style) || {};
-  }, [font, hasCustomFont]);
-  const containerStyle = theme === 'custom' && !isCleanMode ? _objectSpread(_objectSpread({}, currentFontStyle), {}, {
-    background: customBgImage ? "linear-gradient(".concat(customColors.bg1, "cc, ").concat(customColors.bg1, "cc), url(").concat(customBgImage, ") center/cover no-repeat fixed") : "linear-gradient(135deg, ".concat(customColors.bg1, ", ").concat(customColors.bg2, ", ").concat(customColors.bg3, ")"),
-    color: customColors.text
-  }) : currentFontStyle;
-  const calendarView = useMemo(() => {
-    if (mode !== 'calendar') return null;
-    const year = calendarDate.getFullYear();
-    const month = calendarDate.getMonth();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const today = new Date();
-    const isCurrentMonth = month === today.getMonth() && year === today.getFullYear();
-    const isTodayDate = d => d === today.getDate() && isCurrentMonth;
-
-    // Sunday-start like Google Calendar
-    const firstDayOfWeek = new Date(year, month, 1).getDay();
-    const prevMonthDays = new Date(year, month, 0).getDate();
-
-    // Build 6 rows × 7 cols = 42 cells
-    const cells = [];
-    for (let i = firstDayOfWeek - 1; i >= 0; i--) cells.push({
-      day: prevMonthDays - i,
-      type: 'prev'
-    });
-    for (let i = 1; i <= daysInMonth; i++) cells.push({
-      day: i,
-      type: 'current'
-    });
-    let nextDay = 1;
-    while (cells.length < 42) cells.push({
-      day: nextDay++,
-      type: 'next'
-    });
-    const dayLabels = [t('sun'), t('mon'), t('tue'), t('wed'), t('thu'), t('fri'), t('sat')];
-    const monthNames = (I18N[lang] || I18N['zh-TW']).months;
-    const grid7 = {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(7, 1fr)'
-    };
-    return /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: 'flex',
-        flexDirection: 'column',
-        width: '100%',
-        maxWidth: 540,
-        userSelect: 'none',
-        marginTop: '48px'
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: 12,
-        marginBottom: 20
-      }
-    }, /*#__PURE__*/React.createElement("button", {
-      onClick: () => setCalendarDate(new Date()),
-      style: {
-        padding: '8px 20px',
-        borderRadius: 9999,
-        border: '1px solid rgba(255,255,255,0.2)',
-        fontSize: 14,
-        fontWeight: 500,
-        background: 'transparent',
-        color: 'inherit',
-        cursor: 'pointer'
-      },
-      onMouseEnter: e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)',
-      onMouseLeave: e => e.currentTarget.style.background = 'transparent'
-    }, t('today')), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: 2
-      }
-    }, /*#__PURE__*/React.createElement("button", {
-      onClick: () => setCalendarDate(new Date(year, month - 1, 1)),
-      style: {
-        padding: 6,
-        borderRadius: '50%',
-        background: 'transparent',
-        border: 'none',
-        color: 'inherit',
-        cursor: 'pointer'
-      }
-    }, /*#__PURE__*/React.createElement(ChevronLeft, {
-      size: 22
-    })), /*#__PURE__*/React.createElement("button", {
-      onClick: () => setCalendarDate(new Date(year, month + 1, 1)),
-      style: {
-        padding: 6,
-        borderRadius: '50%',
-        background: 'transparent',
-        border: 'none',
-        color: 'inherit',
-        cursor: 'pointer'
-      }
-    }, /*#__PURE__*/React.createElement(ChevronRight, {
-      size: 22
-    })))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 24,
-        fontWeight: 400,
-        opacity: 0.9,
-        letterSpacing: -0.5,
-        marginBottom: 24
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontWeight: 600,
-        marginRight: 8,
-        color: "var(--".concat(currentTheme.accent, ")")
-      }
-    }, year), /*#__PURE__*/React.createElement("span", null, monthNames[month])), /*#__PURE__*/React.createElement("div", {
-      style: grid7
-    }, dayLabels.map((lbl, i) => /*#__PURE__*/React.createElement("div", {
-      key: i,
-      style: {
-        width: '100%',
-        textAlign: 'center',
-        fontSize: 11,
-        fontWeight: 600,
-        textTransform: 'uppercase',
-        letterSpacing: 1,
-        paddingBottom: 12,
-        color: 'rgba(255,255,255,0.4)',
-        userSelect: 'none'
-      }
-    }, lbl)), /*#__PURE__*/React.createElement("div", {
-      style: _objectSpread(_objectSpread({}, grid7), {}, {
-        gridColumn: '1 / -1',
-        borderTop: '1px solid rgba(255,255,255,0.1)'
-      })
-    }, cells.map((cell, i) => {
-      const isToday = cell.type === 'current' && isTodayDate(cell.day);
-      const colIndex = i % 7;
-      const isSun = colIndex === 0;
-      const isSat = colIndex === 6;
-      const borderStyle = '1px solid rgba(255,255,255,0.05)';
-      return /*#__PURE__*/React.createElement("div", {
-        key: i,
-        style: {
-          position: 'relative',
-          minHeight: 56,
-          borderBottom: borderStyle,
-          borderRight: borderStyle,
-          borderLeft: colIndex === 0 ? borderStyle : 'none',
-          cursor: cell.type === 'current' ? 'pointer' : 'default'
-        },
-        className: "hover:bg-white/5 transition-colors",
-        onClick: () => {
-          if (cell.type === 'current') {
-            const selectedDateStr = "".concat(year, "-").concat(String(month + 1).padStart(2, '0'), "-").concat(String(cell.day).padStart(2, '0'));
-            setNewEventDate(selectedDateStr);
-            setNewEventName('');
-            setIsAddingEvent(true);
-            setMode('anniversary');
-          }
-        }
-      }, /*#__PURE__*/React.createElement("div", {
-        style: {
-          position: 'absolute',
-          top: 6,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: 28,
-          height: 28,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: 13,
-          borderRadius: '50%',
-          fontWeight: isToday ? 700 : 400,
-          background: isToday ? '#3b82f6' : 'transparent',
-          color: isToday ? '#fff' : cell.type !== 'current' ? 'rgba(255,255,255,0.2)' : isSun ? 'rgba(248,113,113,0.8)' : isSat ? 'rgba(96,165,250,0.7)' : 'inherit',
-          transition: 'all 0.15s'
-        }
-      }, cell.day));
-    }))));
-  }, [calendarDate, currentTheme, lang, mode]);
-  const mementoView = useMemo(() => {
-    if (mode !== 'memento') return null;
-    const weeksPerYear = 52;
-    const years = 80;
-    const totalWeeksCount = weeksPerYear * years;
-    let livedWeeksCount = 0;
-    if (birthDate) {
-      const livedMillis = Date.now() - new Date(birthDate).getTime();
-      livedWeeksCount = Math.max(0, Math.floor(livedMillis / (1000 * 60 * 60 * 24 * 7)));
-    }
-    const pct = birthDate ? Math.min(100, Math.floor(livedWeeksCount / totalWeeksCount * 100)) : 0;
-    return /*#__PURE__*/React.createElement("div", {
-      className: "w-full mt-8"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "flex justify-between text-xs opacity-60 mb-4 px-2 font-mono uppercase tracking-[0.2em]"
-    }, /*#__PURE__*/React.createElement("span", null, t('livedWeeks'), " : ", livedWeeksCount), /*#__PURE__*/React.createElement("span", null, pct, "% - ", t('totalWeeks'))), /*#__PURE__*/React.createElement("div", {
-      className: "relative w-full rounded-2xl overflow-hidden bg-black/50 border flex border-white/5 p-4 sm:p-6",
-      style: {
-        display: 'grid',
-        gridTemplateColumns: "repeat(".concat(weeksPerYear, ", 1fr)"),
-        gap: '2px',
-        alignContent: 'start'
-      }
-    }, Array.from({
-      length: totalWeeksCount
-    }).map((_, i) => {
-      const isLived = i < livedWeeksCount;
-      return /*#__PURE__*/React.createElement("div", {
-        key: i,
-        className: "w-full aspect-square rounded-[1px] ".concat(isLived ? 'bg-indigo-400' : 'bg-white/10'),
-        style: {
-          opacity: isLived ? 0.9 : 0.2
-        },
-        title: "Week ".concat(i + 1)
-      });
-    })));
-  }, [birthDate, lang, currentTheme, mode]);
-  return /*#__PURE__*/React.createElement("div", {
-    ref: containerRef,
-    onMouseMove: handleMouseMove,
-    style: containerStyle,
-    className: "h-[100dvh] w-full flex flex-col items-center pt-4 sm:pt-8 pb-32 transition-all duration-1000 ".concat(theme !== 'custom' && !isCleanMode ? "bg-gradient-to-br ".concat(currentTheme.gradient, " ").concat(currentTheme.text) : '', " ").concat(isCleanMode ? 'bg-transparent text-white' : '', " overflow-hidden relative selection:bg-pink-500 selection:text-white")
-  }, theme === 'custom' && /*#__PURE__*/React.createElement("style", null, "\n                .custom-accent { color: ".concat(customColors.accent, "; }\n                .custom-card { background: ").concat(customColors.bg1, "33; border-color: ").concat(customColors.text, "1a; box-shadow: 0 8px 32px 0 rgba(0,0,0,0.36); }\n                .custom-settings { background: ").concat(customColors.bg1, "e6; backdrop-filter: blur(64px); }\n            ")), /*#__PURE__*/React.createElement("div", {
-    className: "hide-on-export fixed top-8 left-1/2 -translate-x-1/2 z-[100] transition-all duration-300 ".concat(errorMsg ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none')
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "px-6 py-3 rounded-full shadow-lg backdrop-blur-md flex items-center gap-2 bg-slate-800/90 text-white"
-  }, /*#__PURE__*/React.createElement(AlertCircle, {
-    size: 18
-  }), /*#__PURE__*/React.createElement("span", {
-    className: "text-sm font-medium"
-  }, errorMsg))), showSettings && /*#__PURE__*/React.createElement("div", {
-    className: "fixed inset-0 z-[60] ".concat(currentTheme.settingsBg, " backdrop-blur-3xl animate-in fade-in duration-300 flex flex-col md:flex-row overflow-hidden")
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "md:w-1/3 lg:w-1/4 p-8 md:p-12 border-b md:border-b-0 md:border-r border-white/10 flex flex-col"
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => setShowSettings(false),
-    className: "mb-4 sm:mb-8 p-2 -ml-2 hover:bg-white/10 rounded-full flex items-center gap-2 opacity-60 hover:opacity-100 group w-max"
-  }, /*#__PURE__*/React.createElement(ArrowLeft, {
-    size: 24,
-    className: "group-hover:-translate-x-1 transition-transform"
-  }), /*#__PURE__*/React.createElement("span", null, t('back'))), /*#__PURE__*/React.createElement("h2", {
-    className: "text-4xl font-bold tracking-wider mb-2"
-  }, t('settings')), /*#__PURE__*/React.createElement("p", {
-    className: "opacity-50 text-lg mb-8"
-  }, t('settingsDesc')), /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-row md:flex-col gap-2 overflow-x-auto hide-scroll pb-2 md:pb-0"
-  }, [{
-    id: 'appearance',
-    icon: Palette,
-    label: t('appearance')
-  }, {
-    id: 'general',
-    icon: Settings,
-    label: t('general')
-  }, {
-    id: 'features',
-    icon: Globe,
-    label: t('features')
-  }, {
-    id: 'system',
-    icon: Download,
-    label: t('system')
-  }, {
-    id: 'about',
-    icon: AlertCircle,
-    label: t('about')
-  }].map(tab => /*#__PURE__*/React.createElement("button", {
-    key: tab.id,
-    onClick: () => setActiveSettingsTab(tab.id),
-    className: "flex items-center gap-3 px-5 py-4 rounded-2xl transition-all whitespace-nowrap text-left ".concat(activeSettingsTab === tab.id ? 'bg-white/10 font-bold text-white shadow-lg' : 'opacity-60 hover:opacity-100 hover:bg-white/5')
-  }, /*#__PURE__*/React.createElement(tab.icon, {
-    size: 20,
-    className: activeSettingsTab === tab.id ? currentTheme.accent : ''
-  }), tab.label)))), /*#__PURE__*/React.createElement("div", {
-    className: "flex-1 overflow-y-auto custom-scrollbar p-6 md:p-12"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "max-w-3xl mx-auto space-y-12 pb-24"
-  }, activeSettingsTab === 'appearance' && /*#__PURE__*/React.createElement("section", {
+const AppearanceSettings = /*#__PURE__*/React.memo(_ref6 => {
+  let {
+    t,
+    currentTheme,
+    DEFAULT_THEMES,
+    theme,
+    setTheme,
+    customColors,
+    updateCustomColor,
+    customBgImage,
+    setCustomBgImage,
+    bgImageInputRef,
+    handleBgImageUpload,
+    DEFAULT_FONTS,
+    font,
+    setFont,
+    fileInputRef,
+    handleFontUpload,
+    hasCustomFont,
+    clockLayout,
+    setClockLayout
+  } = _ref6;
+  return /*#__PURE__*/React.createElement("section", {
     className: "space-y-6 animate-fade-in"
   }, /*#__PURE__*/React.createElement("h3", {
     className: "text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"
@@ -1991,8 +1139,8 @@ function App() {
     size: 24
   }), " ", t('appearance')), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-2 sm:grid-cols-4 gap-4"
-  }, Object.entries(DEFAULT_THEMES).map(_ref => {
-    let [key, thm] = _ref;
+  }, Object.entries(DEFAULT_THEMES).map(_ref7 => {
+    let [key, thm] = _ref7;
     return /*#__PURE__*/React.createElement("button", {
       key: key,
       onClick: () => setTheme(key),
@@ -2013,22 +1161,13 @@ function App() {
   }), /*#__PURE__*/React.createElement("span", {
     className: "text-sm"
   }, t('custom')))), theme === 'custom' && /*#__PURE__*/React.createElement("div", {
-    className: "mt-6 p-6 rounded-2xl bg-white/5 border border-white/10",
-    style: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 20
-    }
+    className: "mt-6 p-6 rounded-2xl bg-white/5 border border-white/10 flex flex-col gap-5"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
-    className: "text-sm font-medium opacity-80",
-    style: {
-      display: 'block',
-      marginBottom: 12
-    }
+    className: "text-sm font-medium opacity-80 block mb-3"
   }, t('bgGradient')), /*#__PURE__*/React.createElement("div", {
     className: "flex gap-4 items-center"
-  }, [['bg1', t('color1')], ['bg2', t('color2')], ['bg3', t('color3')]].map(_ref2 => {
-    let [k, l] = _ref2;
+  }, [['bg1', t('color1')], ['bg2', t('color2')], ['bg3', t('color3')]].map(_ref8 => {
+    let [k, l] = _ref8;
     return /*#__PURE__*/React.createElement("label", {
       key: k,
       className: "flex flex-col items-center gap-1 cursor-pointer"
@@ -2045,27 +1184,19 @@ function App() {
         background: 'transparent'
       }
     }), /*#__PURE__*/React.createElement("span", {
-      className: "opacity-50",
-      style: {
-        fontSize: 10
-      }
+      className: "opacity-50 text-[10px]"
     }, l));
   }), /*#__PURE__*/React.createElement("div", {
-    className: "flex-1 rounded-lg border border-white/10",
+    className: "flex-1 rounded-lg border border-white/10 h-10",
     style: {
-      height: 40,
       background: "linear-gradient(135deg, ".concat(customColors.bg1, ", ").concat(customColors.bg2, ", ").concat(customColors.bg3, ")")
     }
   }))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
-    className: "text-sm font-medium opacity-80",
-    style: {
-      display: 'block',
-      marginBottom: 12
-    }
+    className: "text-sm font-medium opacity-80 block mb-3"
   }, t('textAccent')), /*#__PURE__*/React.createElement("div", {
     className: "flex gap-4 items-center"
-  }, [['text', t('text')], ['accent', t('accent')]].map(_ref3 => {
-    let [k, l] = _ref3;
+  }, [['text', t('text')], ['accent', t('accent')]].map(_ref9 => {
+    let [k, l] = _ref9;
     return /*#__PURE__*/React.createElement("label", {
       key: k,
       className: "flex flex-col items-center gap-1 cursor-pointer"
@@ -2082,17 +1213,10 @@ function App() {
         background: 'transparent'
       }
     }), /*#__PURE__*/React.createElement("span", {
-      className: "opacity-50",
-      style: {
-        fontSize: 10
-      }
+      className: "opacity-50 text-[10px]"
     }, l));
   }))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
-    className: "text-sm font-medium opacity-80",
-    style: {
-      display: 'block',
-      marginBottom: 12
-    }
+    className: "text-sm font-medium opacity-80 block mb-3"
   }, t('bgImage')), /*#__PURE__*/React.createElement("div", {
     className: "flex gap-3 items-center"
   }, /*#__PURE__*/React.createElement("button", {
@@ -2112,20 +1236,85 @@ function App() {
     accept: "image/*",
     onChange: handleBgImageUpload
   })), customBgImage && /*#__PURE__*/React.createElement("div", {
-    className: "w-full rounded-xl overflow-hidden border border-white/10",
-    style: {
-      height: 96,
-      marginTop: 12
-    }
+    className: "w-full rounded-xl overflow-hidden border border-white/10 h-24 mt-3"
   }, /*#__PURE__*/React.createElement("img", {
     src: customBgImage,
-    style: {
-      width: '100%',
-      height: '100%',
-      objectFit: 'cover',
-      opacity: 0.6
-    }
+    className: "w-full h-full object-cover opacity-60"
   })))), /*#__PURE__*/React.createElement("div", {
+    className: "pt-6"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-lg opacity-80 block mb-4"
+  }, /*#__PURE__*/React.createElement(LayoutGrid, {
+    size: 20,
+    className: "inline mr-2 align-text-bottom"
+  }), t('clockLayoutTitle')), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-2 sm:grid-cols-3 gap-4"
+  }, [{
+    id: 'classic',
+    icon: () => /*#__PURE__*/React.createElement("div", {
+      className: "flex items-baseline gap-0.5 font-bold tabular-nums"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "text-2xl"
+    }, "12"), /*#__PURE__*/React.createElement("span", {
+      className: "text-lg opacity-50 animate-pulse"
+    }, ":"), /*#__PURE__*/React.createElement("span", {
+      className: "text-2xl"
+    }, "30"), /*#__PURE__*/React.createElement("span", {
+      className: "text-xs opacity-40 ml-0.5"
+    }, "45"))
+  }, {
+    id: 'stacked',
+    icon: () => /*#__PURE__*/React.createElement("div", {
+      className: "flex flex-col items-center font-bold tabular-nums leading-[0.9]"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "text-2xl"
+    }, "12"), /*#__PURE__*/React.createElement("span", {
+      className: "text-2xl opacity-70"
+    }, "30"))
+  }, {
+    id: 'minimal',
+    icon: () => /*#__PURE__*/React.createElement("div", {
+      className: "font-extralight tabular-nums text-2xl tracking-tight"
+    }, "12", /*#__PURE__*/React.createElement("span", {
+      className: "opacity-50"
+    }, ":"), "30")
+  }, {
+    id: 'split',
+    icon: () => /*#__PURE__*/React.createElement("div", {
+      className: "flex items-center gap-2 font-bold tabular-nums"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "text-xl"
+    }, "12"), /*#__PURE__*/React.createElement("div", {
+      className: "flex flex-col gap-0.5"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "w-1 h-1 rounded-full bg-current opacity-50"
+    }), /*#__PURE__*/React.createElement("div", {
+      className: "w-1 h-1 rounded-full bg-current opacity-50"
+    })), /*#__PURE__*/React.createElement("span", {
+      className: "text-xl"
+    }, "30"))
+  }, {
+    id: 'digital',
+    icon: () => /*#__PURE__*/React.createElement("div", {
+      className: "flex items-center gap-1 tabular-nums"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "bg-white/10 rounded px-1 py-0.5 text-sm font-bold"
+    }, "1"), /*#__PURE__*/React.createElement("div", {
+      className: "bg-white/10 rounded px-1 py-0.5 text-sm font-bold"
+    }, "2"), /*#__PURE__*/React.createElement("span", {
+      className: "text-xs opacity-40 mx-0.5"
+    }, ":"), /*#__PURE__*/React.createElement("div", {
+      className: "bg-white/10 rounded px-1 py-0.5 text-sm font-bold"
+    }, "3"), /*#__PURE__*/React.createElement("div", {
+      className: "bg-white/10 rounded px-1 py-0.5 text-sm font-bold"
+    }, "0"))
+  }].map(layout => /*#__PURE__*/React.createElement("button", {
+    key: layout.id,
+    onClick: () => setClockLayout(layout.id),
+    className: "flex flex-col items-center justify-center gap-3 p-5 rounded-2xl border transition-all min-h-[90px] ".concat(clockLayout === layout.id ? 'bg-white/10 border-white/50 scale-105 shadow-lg' : 'border-white/10 hover:bg-white/5')
+  }, /*#__PURE__*/React.createElement(layout.icon, null), /*#__PURE__*/React.createElement("span", {
+    className: "text-xs opacity-60"
+  }, t('layout_' + layout.id)))))), /*#__PURE__*/React.createElement("div", {
     className: "pt-6"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex justify-between items-center mb-4"
@@ -2144,8 +1333,8 @@ function App() {
     onChange: handleFontUpload
   })), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-1 sm:grid-cols-2 gap-4"
-  }, Object.entries(DEFAULT_FONTS).map(_ref4 => {
-    let [key, f] = _ref4;
+  }, Object.entries(DEFAULT_FONTS).map(_ref0 => {
+    let [key, f] = _ref0;
     return /*#__PURE__*/React.createElement("button", {
       key: key,
       onClick: () => setFont(key),
@@ -2155,7 +1344,21 @@ function App() {
   }), hasCustomFont && /*#__PURE__*/React.createElement("button", {
     onClick: () => setFont('custom'),
     className: "p-4 rounded-2xl border col-span-full ".concat(font === 'custom' ? "bg-white/10 border-white/30 shadow-lg" : 'border-white/10 hover:bg-white/5')
-  }, t('imported'))))), activeSettingsTab === 'features' && /*#__PURE__*/React.createElement("section", {
+  }, t('imported')))));
+});
+const FeaturesSettings = /*#__PURE__*/React.memo(_ref1 => {
+  let {
+    t,
+    searchQuery,
+    setSearchQuery,
+    filteredZones,
+    selectedZones,
+    setSelectedZones,
+    I18N,
+    lang,
+    setLang
+  } = _ref1;
+  return /*#__PURE__*/React.createElement("section", {
     className: "space-y-12 animate-fade-in"
   }, /*#__PURE__*/React.createElement("div", {
     className: "space-y-6"
@@ -2181,11 +1384,7 @@ function App() {
     return /*#__PURE__*/React.createElement("button", {
       key: zone.id,
       onClick: () => {
-        if (isSelected) {
-          setSelectedZones(prev => prev.filter(z => z.id !== zone.id));
-        } else {
-          setSelectedZones(prev => [...prev, zone]);
-        }
+        if (isSelected) setSelectedZones(prev => prev.filter(z => z.id !== zone.id));else setSelectedZones(prev => [...prev, zone]);
       },
       className: "p-3 rounded-lg text-left flex justify-between items-center transition-all ".concat(isSelected ? 'bg-blue-500/20 border border-blue-500/50' : 'bg-white/5 hover:bg-white/10 border border-transparent')
     }, /*#__PURE__*/React.createElement("span", {
@@ -2202,14 +1401,49 @@ function App() {
     size: 24
   }), " ", t('language')), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-2 sm:grid-cols-3 gap-4"
-  }, Object.entries(I18N).map(_ref5 => {
-    let [key, val] = _ref5;
+  }, Object.entries(I18N).map(_ref10 => {
+    let [key, val] = _ref10;
     return /*#__PURE__*/React.createElement("button", {
       key: key,
       onClick: () => setLang(key),
       className: "p-4 rounded-2xl border text-center text-sm transition-all ".concat(lang === key ? 'bg-white/10 border-white/50 shadow-lg scale-105' : 'border-white/5 hover:bg-white/5')
     }, val.lang);
-  })))), activeSettingsTab === 'general' && /*#__PURE__*/React.createElement("section", {
+  }))));
+});
+const GeneralSettings = /*#__PURE__*/React.memo(_ref11 => {
+  let {
+    t,
+    showMillis,
+    setShowMillis,
+    notificationsEnabled,
+    handleToggleNotifications,
+    autoZenMode,
+    setAutoZenMode,
+    showProgressRing,
+    setShowProgressRing,
+    enableMiniTask,
+    setEnableMiniTask,
+    enableFocusAnalytics,
+    setEnableFocusAnalytics,
+    enableMeetingPlanner,
+    setEnableMeetingPlanner,
+    ringPosition,
+    setRingPosition,
+    alarmSound,
+    setAlarmSound,
+    playAlarm,
+    use12Hour,
+    setUse12Hour,
+    hourlyChime,
+    setHourlyChime,
+    showSeconds,
+    setShowSeconds,
+    showDate,
+    setShowDate,
+    showNextEvent,
+    setShowNextEvent
+  } = _ref11;
+  return /*#__PURE__*/React.createElement("section", {
     className: "space-y-12 animate-fade-in"
   }, /*#__PURE__*/React.createElement("div", {
     className: "space-y-6"
@@ -2219,8 +1453,8 @@ function App() {
     size: 24
   }), " ", t('general')), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-1 sm:grid-cols-2 gap-4"
-  }, [['showMillis', showMillis, setShowMillis], ['notifications', notificationsEnabled, handleToggleNotifications], ['autoZenMode', autoZenMode, setAutoZenMode], ['showProgressRing', showProgressRing, setShowProgressRing], ['enableMiniTask', enableMiniTask, setEnableMiniTask], ['enableFocusAnalytics', enableFocusAnalytics, setEnableFocusAnalytics], ['enableMeetingPlanner', enableMeetingPlanner, setEnableMeetingPlanner]].map(_ref6 => {
-    let [k, val, setVal] = _ref6;
+  }, [['showMillis', showMillis, setShowMillis], ['notifications', notificationsEnabled, handleToggleNotifications], ['autoZenMode', autoZenMode, setAutoZenMode], ['showProgressRing', showProgressRing, setShowProgressRing], ['enableMiniTask', enableMiniTask, setEnableMiniTask], ['enableFocusAnalytics', enableFocusAnalytics, setEnableFocusAnalytics], ['enableMeetingPlanner', enableMeetingPlanner, setEnableMeetingPlanner], ['use12Hour', use12Hour, setUse12Hour], ['hourlyChime', hourlyChime, setHourlyChime], ['showSeconds', showSeconds, setShowSeconds], ['showDate', showDate, setShowDate], ['showNextEvent', showNextEvent, setShowNextEvent]].map(_ref12 => {
+    let [k, val, setVal] = _ref12;
     return /*#__PURE__*/React.createElement("label", {
       key: k,
       className: "flex items-center justify-between p-6 rounded-2xl bg-white/5 cursor-pointer hover:bg-white/10 transition-colors"
@@ -2257,7 +1491,17 @@ function App() {
     key: sk,
     onClick: () => setAlarmSound(sk),
     className: "p-4 rounded-xl text-center text-sm transition-all border ".concat(alarmSound === sk ? 'bg-white/10 border-white/50 scale-105' : 'bg-white/5 border-transparent hover:bg-white/10')
-  }, t("sound".concat(sk.charAt(0).toUpperCase() + sk.slice(1))))))))), activeSettingsTab === 'about' && /*#__PURE__*/React.createElement("section", {
+  }, t("sound".concat(sk.charAt(0).toUpperCase() + sk.slice(1)))))))));
+});
+const AboutSettings = /*#__PURE__*/React.memo(_ref13 => {
+  let {
+    t,
+    exportTheme,
+    handleExportImage,
+    isExporting,
+    importTheme
+  } = _ref13;
+  return /*#__PURE__*/React.createElement("section", {
     className: "space-y-12 animate-fade-in"
   }, /*#__PURE__*/React.createElement("div", {
     className: "space-y-6"
@@ -2307,7 +1551,21 @@ function App() {
   }, t('cookies')), /*#__PURE__*/React.createElement("a", {
     href: "disclaimer.html",
     className: "p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-center text-sm transition-all"
-  }, t('disclaimer'))))), activeSettingsTab === 'system' && /*#__PURE__*/React.createElement("section", {
+  }, t('disclaimer')))));
+});
+const SystemSettings = /*#__PURE__*/React.memo(_ref14 => {
+  let {
+    t,
+    isDownloadingApp,
+    handleDownloadApp,
+    APP_VERSION,
+    updateStatus,
+    handleForceUpdate,
+    handleCheckUpdate,
+    latestVersion,
+    handleClearData
+  } = _ref14;
+  return /*#__PURE__*/React.createElement("section", {
     className: "space-y-12 animate-fade-in"
   }, /*#__PURE__*/React.createElement("div", {
     className: "space-y-6"
@@ -2349,7 +1607,7 @@ function App() {
     className: "w-full py-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold tracking-wide active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
   }, /*#__PURE__*/React.createElement(Download, {
     size: 18
-  }), t('updateNow'), " (v", latestVersion, ")") : /*#__PURE__*/React.createElement("button", {
+  }), " ", t('updateNow'), " (v", latestVersion, ")") : /*#__PURE__*/React.createElement("button", {
     onClick: handleCheckUpdate,
     disabled: updateStatus === 'checking',
     className: "w-full py-4 rounded-xl border font-medium active:scale-95 transition-all flex items-center justify-center gap-2 ".concat(updateStatus === 'latest' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-white/5 border-white/20 hover:bg-white/10')
@@ -2371,7 +1629,221 @@ function App() {
     className: "w-full py-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 font-medium hover:bg-red-500/25 hover:border-red-500/60 active:scale-95 transition-all flex items-center justify-center gap-2"
   }, /*#__PURE__*/React.createElement(Trash2, {
     size: 18
-  }), t('clearDataBtn')))))))), !hasAgreed && /*#__PURE__*/React.createElement("div", {
+  }), " ", t('clearDataBtn')))));
+});
+const SettingsOverlay = /*#__PURE__*/React.memo(_ref15 => {
+  let {
+    showSettings,
+    setShowSettings,
+    activeSettingsTab,
+    setActiveSettingsTab,
+    t,
+    currentTheme,
+    DEFAULT_THEMES,
+    theme,
+    setTheme,
+    customColors,
+    updateCustomColor,
+    customBgImage,
+    setCustomBgImage,
+    bgImageInputRef,
+    handleBgImageUpload,
+    DEFAULT_FONTS,
+    font,
+    setFont,
+    fileInputRef,
+    handleFontUpload,
+    hasCustomFont,
+    searchQuery,
+    setSearchQuery,
+    filteredZones,
+    selectedZones,
+    setSelectedZones,
+    I18N,
+    lang,
+    setLang,
+    showMillis,
+    setShowMillis,
+    notificationsEnabled,
+    handleToggleNotifications,
+    autoZenMode,
+    setAutoZenMode,
+    showProgressRing,
+    setShowProgressRing,
+    enableMiniTask,
+    setEnableMiniTask,
+    enableFocusAnalytics,
+    setEnableFocusAnalytics,
+    enableMeetingPlanner,
+    setEnableMeetingPlanner,
+    ringPosition,
+    setRingPosition,
+    alarmSound,
+    setAlarmSound,
+    playAlarm,
+    exportTheme,
+    handleExportImage,
+    isExporting,
+    importTheme,
+    isDownloadingApp,
+    handleDownloadApp,
+    APP_VERSION,
+    updateStatus,
+    handleForceUpdate,
+    handleCheckUpdate,
+    latestVersion,
+    handleClearData,
+    clockLayout,
+    setClockLayout,
+    use12Hour,
+    setUse12Hour,
+    hourlyChime,
+    setHourlyChime,
+    showSeconds,
+    setShowSeconds,
+    showDate,
+    setShowDate,
+    showNextEvent,
+    setShowNextEvent
+  } = _ref15;
+  if (!showSettings) return null;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "fixed inset-0 z-[60] ".concat(currentTheme.settingsBg, " backdrop-blur-3xl animate-in fade-in duration-300 flex flex-col md:flex-row overflow-hidden")
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "md:w-1/3 lg:w-1/4 p-8 md:p-12 border-b md:border-b-0 md:border-r border-white/10 flex flex-col"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setShowSettings(false),
+    className: "mb-4 sm:mb-8 p-2 -ml-2 hover:bg-white/10 rounded-full flex items-center gap-2 opacity-60 hover:opacity-100 group w-max"
+  }, /*#__PURE__*/React.createElement(ArrowLeft, {
+    size: 24,
+    className: "group-hover:-translate-x-1 transition-transform"
+  }), /*#__PURE__*/React.createElement("span", null, t('back'))), /*#__PURE__*/React.createElement("h2", {
+    className: "text-4xl font-bold tracking-wider mb-2"
+  }, t('settings')), /*#__PURE__*/React.createElement("p", {
+    className: "opacity-50 text-lg mb-8"
+  }, t('settingsDesc')), /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-row md:flex-col gap-2 overflow-x-auto hide-scroll pb-2 md:pb-0"
+  }, [{
+    id: 'appearance',
+    icon: Palette,
+    label: t('appearance')
+  }, {
+    id: 'general',
+    icon: Settings,
+    label: t('general')
+  }, {
+    id: 'features',
+    icon: Globe,
+    label: t('features')
+  }, {
+    id: 'system',
+    icon: Download,
+    label: t('system')
+  }, {
+    id: 'about',
+    icon: AlertCircle,
+    label: t('about')
+  }].map(tab => /*#__PURE__*/React.createElement("button", {
+    key: tab.id,
+    onClick: () => setActiveSettingsTab(tab.id),
+    className: "flex items-center gap-3 px-5 py-4 rounded-2xl transition-all whitespace-nowrap text-left ".concat(activeSettingsTab === tab.id ? 'bg-white/10 font-bold text-white shadow-lg' : 'opacity-60 hover:opacity-100 hover:bg-white/5')
+  }, /*#__PURE__*/React.createElement(tab.icon, {
+    size: 20,
+    className: activeSettingsTab === tab.id ? currentTheme.accent : ''
+  }), tab.label)))), /*#__PURE__*/React.createElement("div", {
+    className: "flex-1 overflow-y-auto custom-scrollbar p-6 md:p-12"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "max-w-3xl mx-auto space-y-12 pb-24"
+  }, activeSettingsTab === 'appearance' && /*#__PURE__*/React.createElement(AppearanceSettings, {
+    t: t,
+    currentTheme: currentTheme,
+    DEFAULT_THEMES: DEFAULT_THEMES,
+    theme: theme,
+    setTheme: setTheme,
+    customColors: customColors,
+    updateCustomColor: updateCustomColor,
+    customBgImage: customBgImage,
+    setCustomBgImage: setCustomBgImage,
+    bgImageInputRef: bgImageInputRef,
+    handleBgImageUpload: handleBgImageUpload,
+    DEFAULT_FONTS: DEFAULT_FONTS,
+    font: font,
+    setFont: setFont,
+    fileInputRef: fileInputRef,
+    handleFontUpload: handleFontUpload,
+    hasCustomFont: hasCustomFont,
+    clockLayout: clockLayout,
+    setClockLayout: setClockLayout
+  }), activeSettingsTab === 'features' && /*#__PURE__*/React.createElement(FeaturesSettings, {
+    t: t,
+    searchQuery: searchQuery,
+    setSearchQuery: setSearchQuery,
+    filteredZones: filteredZones,
+    selectedZones: selectedZones,
+    setSelectedZones: setSelectedZones,
+    I18N: I18N,
+    lang: lang,
+    setLang: setLang
+  }), activeSettingsTab === 'general' && /*#__PURE__*/React.createElement(GeneralSettings, {
+    t: t,
+    showMillis: showMillis,
+    setShowMillis: setShowMillis,
+    notificationsEnabled: notificationsEnabled,
+    handleToggleNotifications: handleToggleNotifications,
+    autoZenMode: autoZenMode,
+    setAutoZenMode: setAutoZenMode,
+    showProgressRing: showProgressRing,
+    setShowProgressRing: setShowProgressRing,
+    enableMiniTask: enableMiniTask,
+    setEnableMiniTask: setEnableMiniTask,
+    enableFocusAnalytics: enableFocusAnalytics,
+    setEnableFocusAnalytics: setEnableFocusAnalytics,
+    enableMeetingPlanner: enableMeetingPlanner,
+    setEnableMeetingPlanner: setEnableMeetingPlanner,
+    ringPosition: ringPosition,
+    setRingPosition: setRingPosition,
+    alarmSound: alarmSound,
+    setAlarmSound: setAlarmSound,
+    playAlarm: playAlarm,
+    use12Hour: use12Hour,
+    setUse12Hour: setUse12Hour,
+    hourlyChime: hourlyChime,
+    setHourlyChime: setHourlyChime,
+    showSeconds: showSeconds,
+    setShowSeconds: setShowSeconds,
+    showDate: showDate,
+    setShowDate: setShowDate,
+    showNextEvent: showNextEvent,
+    setShowNextEvent: setShowNextEvent
+  }), activeSettingsTab === 'about' && /*#__PURE__*/React.createElement(AboutSettings, {
+    t: t,
+    exportTheme: exportTheme,
+    handleExportImage: handleExportImage,
+    isExporting: isExporting,
+    importTheme: importTheme
+  }), activeSettingsTab === 'system' && /*#__PURE__*/React.createElement(SystemSettings, {
+    t: t,
+    isDownloadingApp: isDownloadingApp,
+    handleDownloadApp: handleDownloadApp,
+    APP_VERSION: APP_VERSION,
+    updateStatus: updateStatus,
+    handleForceUpdate: handleForceUpdate,
+    handleCheckUpdate: handleCheckUpdate,
+    latestVersion: latestVersion,
+    handleClearData: handleClearData
+  }))));
+});
+const SplashOverlay = /*#__PURE__*/React.memo(_ref16 => {
+  let {
+    hasAgreed,
+    setHasAgreed,
+    lang,
+    setLang,
+    I18N,
+    t
+  } = _ref16;
+  if (hasAgreed) return null;
+  return /*#__PURE__*/React.createElement("div", {
     className: "fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden select-none",
     style: {
       background: 'linear-gradient(160deg, #020420 0%, #0a1628 30%, #111d3a 50%, #0d1a2f 70%, #040812 100%)'
@@ -2413,8 +1885,8 @@ function App() {
     className: "bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500"
   }, "omistry")), /*#__PURE__*/React.createElement("div", {
     className: "flex gap-2 justify-center mt-6"
-  }, Object.entries(I18N).map(_ref7 => {
-    let [key, val] = _ref7;
+  }, Object.entries(I18N).map(_ref17 => {
+    let [key, val] = _ref17;
     return /*#__PURE__*/React.createElement("button", {
       key: key,
       onClick: () => setLang(key),
@@ -2451,7 +1923,18 @@ function App() {
     className: "relative"
   }, t('agree')))), /*#__PURE__*/React.createElement("div", {
     className: "absolute bottom-8 text-[10px] text-slate-600 tracking-[0.3em] uppercase"
-  }, t('splashBottom'))), isScreenSaverActive && /*#__PURE__*/React.createElement("div", {
+  }, t('splashBottom')));
+});
+const ScreenSaverOverlay = /*#__PURE__*/React.memo(_ref18 => {
+  let {
+    isScreenSaverActive,
+    ssPos,
+    h,
+    m,
+    t
+  } = _ref18;
+  if (!isScreenSaverActive) return null;
+  return /*#__PURE__*/React.createElement("div", {
     className: "fixed inset-0 z-[200] bg-black select-none cursor-none flex items-center justify-center"
   }, /*#__PURE__*/React.createElement("div", {
     className: "absolute flex flex-col items-center transition-all duration-[4000ms] ease-linear",
@@ -2465,74 +1948,20 @@ function App() {
     className: "animate-pulse"
   }, ":"), m), /*#__PURE__*/React.createElement("div", {
     className: "mt-4 text-sm opacity-20 tracking-[1em] uppercase"
-  }, t('ssHint')))), /*#__PURE__*/React.createElement("div", {
-    className: "absolute inset-0 overflow-hidden pointer-events-none transition-opacity duration-1000 ".concat(isZenMode ? 'opacity-20' : 'opacity-100')
-  }, /*#__PURE__*/React.createElement("style", null, "\n                    /* Hide UI during clean/zen mode (smoothly) */\n                    .hide-on-export { transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease; }\n                    .glass-panel { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }\n                    \n                    /* Custom Scrollbar */\n                    .custom-scrollbar::-webkit-scrollbar { width: 4px; }\n                    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }\n                    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 4px; }\n                    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }\n\n                    /* Smooth transitions for Zen Mode scaling */\n                    .transition-zen { transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }\n                    @keyframes ambientFloat1 {\n                        0%, 100% { transform: translate(0, 0) scale(1); }\n                        33% { transform: translate(5vw, 5vh) scale(1.1); }\n                        66% { transform: translate(-5vw, 10vh) scale(0.9); }\n                    }\n                    @keyframes ambientFloat2 {\n                        0%, 100% { transform: translate(0, 0) scale(1); }\n                        33% { transform: translate(-5vw, -5vh) scale(1.2); }\n                        66% { transform: translate(5vw, -10vh) scale(0.8); }\n                    }\n                    .ambient-blob-1 { animation: ambientFloat1 25s ease-in-out infinite alternate; }\n                    .ambient-blob-2 { animation: ambientFloat2 30s ease-in-out infinite alternate; }\n                    \n                    /* Global tactical button squish */\n                    button:active { transform: scale(0.93) !important; transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1) !important; }\n                "), /*#__PURE__*/React.createElement("div", {
-    className: "ambient-blob-1 absolute top-[10%] left-[10%] w-[50vw] h-[50vw] rounded-full blur-[80px] opacity-20 bg-blue-500/40"
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "ambient-blob-2 absolute bottom-[10%] right-[10%] w-[50vw] h-[50vw] rounded-full blur-[80px] opacity-20 bg-purple-500/40"
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "relative z-10 w-full my-auto shrink max-h-[calc(100dvh-80px)] overflow-hidden max-w-[95vw] md:max-w-4xl rounded-[30px] sm:rounded-[48px] transition-zen flex flex-col items-center justify-start min-h-[40vh] ".concat(!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0', " ").concat(isZenMode ? 'scale-[1.05]' : '', " ").concat(isCleanMode ? 'scale-[0.85]' : '')
-  }, !isCleanMode && !isZenMode && /*#__PURE__*/React.createElement("div", {
-    className: "w-full flex flex-col items-center pt-4 sm:pt-6 pb-2 shrink-0 z-50 transition-opacity duration-300"
-  }, ['timer', 'pomodoro', 'stopwatch'].includes(mode) && /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-center gap-2 bg-black/40 backdrop-blur-xl p-1.5 rounded-full border border-white/10 shadow-lg shadow-black/20",
-    style: {
-      transition: 'opacity 0.3s ease'
-    }
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => setMode('pomodoro'),
-    className: "px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ".concat(mode === 'pomodoro' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100')
-  }, t('tabPomodoro')), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setMode('timer'),
-    className: "px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ".concat(mode === 'timer' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100')
-  }, t('tabTimer')), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setMode('stopwatch'),
-    className: "px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ".concat(mode === 'stopwatch' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100')
-  }, t('tabStopwatch'))), ['calendar', 'anniversary', 'memento'].includes(mode) && /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-center gap-2 bg-black/40 backdrop-blur-xl p-1.5 rounded-full border border-white/10 shadow-lg shadow-black/20",
-    style: {
-      transition: 'opacity 0.3s ease'
-    }
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => setMode('calendar'),
-    className: "px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ".concat(mode === 'calendar' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100')
-  }, t('tabMonthly')), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setMode('anniversary'),
-    className: "px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ".concat(mode === 'anniversary' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100')
-  }, t('tabEvents')), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setMode('memento'),
-    className: "px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ".concat(mode === 'memento' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100')
-  }, t('tabLife'))), mode === 'pomodoro' && /*#__PURE__*/React.createElement("div", {
-    className: "w-full flex justify-center mt-4 shrink-0 z-40"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex gap-4 transition-opacity duration-300"
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => resetPomo('work'),
-    className: "px-4 py-1.5 rounded-full text-sm border transition-all ".concat(pomoMode === 'work' ? "bg-white/10 border-white/50 ".concat(currentTheme.accent) : 'border-transparent opacity-50')
-  }, t('work')), /*#__PURE__*/React.createElement("button", {
-    onClick: () => resetPomo('short'),
-    className: "px-4 py-1.5 rounded-full text-sm border transition-all ".concat(pomoMode === 'short' ? "bg-white/10 border-white/50 ".concat(currentTheme.accent) : 'border-transparent opacity-50')
-  }, t('break')), /*#__PURE__*/React.createElement("button", {
-    onClick: () => resetPomo('long'),
-    className: "px-4 py-1.5 rounded-full text-sm border transition-all ".concat(pomoMode === 'long' ? "bg-white/10 border-white/50 ".concat(currentTheme.accent) : 'border-transparent opacity-50')
-  }, t('long'))))), /*#__PURE__*/React.createElement("div", {
-    className: "w-full flex-1 overflow-y-auto custom-scrollbar flex flex-col items-center justify-start ".concat(isCleanMode || isZenMode || mode === 'clock' || mode === 'world' ? 'p-6 sm:p-12' : 'px-6 sm:px-12 pb-12 pt-4 sm:pt-6')
-  }, mode === 'clock' && /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-col items-center select-none"
-  }, /*#__PURE__*/React.createElement(WeatherWidget, {
-    weather: weather,
-    accent: currentTheme.accent
-  }), /*#__PURE__*/React.createElement(ClockDisplay, {
-    h: h,
-    m: m,
-    s: s,
-    ms: ms,
-    showMillis: showMillis,
-    accent: currentTheme.accent,
-    dateLabel: formatDate(time),
-    isZenMode: isZenMode
-  })), mode === 'world' && /*#__PURE__*/React.createElement("div", {
+  }, t('ssHint'))));
+});
+const WorldClockView = /*#__PURE__*/React.memo(_ref19 => {
+  let {
+    enableMeetingPlanner,
+    meetingOffset,
+    setMeetingOffset,
+    currentTheme,
+    selectedZones,
+    getWorldTime,
+    t,
+    setShowSettings
+  } = _ref19;
+  return /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col items-center select-none w-full"
   }, enableMeetingPlanner && /*#__PURE__*/React.createElement("div", {
     className: "w-full max-w-lg mb-8 px-6 py-4 rounded-3xl bg-white/5 border border-white/10 flex flex-col gap-4 animate-fade-in"
@@ -2570,7 +1999,128 @@ function App() {
     className: "mt-8 flex items-center gap-2 text-sm opacity-50 hover:opacity-100 transition-opacity"
   }, /*#__PURE__*/React.createElement(Settings, {
     size: 14
-  }), " ", t('addEditZones'))), mode === 'timer' && /*#__PURE__*/React.createElement("div", {
+  }), " ", t('addEditZones')));
+});
+const AnniversaryView = /*#__PURE__*/React.memo(_ref20 => {
+  let {
+    anniversaries,
+    setAnniversaries,
+    t,
+    currentTheme,
+    isAddingEvent,
+    setIsAddingEvent,
+    newEventName,
+    setNewEventName,
+    newEventDate,
+    setNewEventDate
+  } = _ref20;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-col items-center select-none w-full max-w-lg mt-12"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-full max-h-[50vh] overflow-y-auto custom-scrollbar space-y-4 p-2"
+  }, anniversaries.length === 0 && /*#__PURE__*/React.createElement("div", {
+    className: "text-center opacity-40 py-12"
+  }, /*#__PURE__*/React.createElement(Sparkles, {
+    size: 48,
+    className: "mx-auto mb-4 opacity-20"
+  }), /*#__PURE__*/React.createElement("p", {
+    className: "text-lg"
+  }, t('addEvent'))), anniversaries.map(ev => {
+    const target = new Date(ev.date);
+    const diff = target - new Date();
+    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+    const isFuture = days >= 0;
+    return /*#__PURE__*/React.createElement("div", {
+      key: ev.id,
+      className: "flex items-center justify-between p-6 rounded-[2rem] bg-white/5 border border-white/10 group hover:bg-white/10 transition-all"
+    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+      className: "text-xl font-bold"
+    }, ev.label), /*#__PURE__*/React.createElement("div", {
+      className: "text-xs opacity-40 mt-1 uppercase tracking-widest"
+    }, ev.date)), /*#__PURE__*/React.createElement("div", {
+      className: "flex items-center gap-6"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "text-right"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "text-3xl font-black ".concat(isFuture ? currentTheme.accent : 'opacity-40')
+    }, Math.abs(days)), /*#__PURE__*/React.createElement("div", {
+      className: "text-[10px] opacity-40 uppercase tracking-tighter"
+    }, isFuture ? t('daysLeft') : t('daysAgo'))), /*#__PURE__*/React.createElement("button", {
+      onClick: () => setAnniversaries(prev => prev.filter(a => a.id !== ev.id)),
+      className: "p-2 rounded-full opacity-0 group-hover:opacity-100 hover:bg-red-500/20 transition-all"
+    }, /*#__PURE__*/React.createElement(Trash2, {
+      size: 16
+    }))));
+  })), isAddingEvent ? /*#__PURE__*/React.createElement("div", {
+    className: "mt-8 p-6 rounded-3xl bg-white/10 border border-white/20 w-full animate-in fade-in zoom-in-95 duration-300"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    placeholder: t('eventName'),
+    value: newEventName,
+    onChange: e => setNewEventName(e.target.value),
+    className: "w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 mb-3 outline-none focus:border-white/30"
+  }), /*#__PURE__*/React.createElement("input", {
+    type: "date",
+    value: newEventDate,
+    onChange: e => setNewEventDate(e.target.value),
+    className: "w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 mb-4 outline-none focus:border-white/30"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-3"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setIsAddingEvent(false),
+    className: "flex-1 py-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors uppercase tracking-widest text-xs font-bold"
+  }, t('cancel') || 'Cancel'), /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      if (newEventName && newEventDate) {
+        setAnniversaries([...anniversaries, {
+          id: Date.now(),
+          label: newEventName,
+          date: newEventDate
+        }]);
+        setIsAddingEvent(false);
+        setNewEventName('');
+        setNewEventDate('');
+      }
+    },
+    className: "flex-1 py-3 rounded-xl bg-blue-500 hover:bg-blue-600 transition-colors uppercase tracking-widest text-xs font-bold"
+  }, t('add') || 'Add'))) : /*#__PURE__*/React.createElement("button", {
+    onClick: () => setIsAddingEvent(true),
+    className: "mt-8 px-8 py-3 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 flex items-center gap-2 transition-all"
+  }, /*#__PURE__*/React.createElement(Plus, {
+    size: 20
+  }), " ", t('addEvent')));
+});
+const TimerView = /*#__PURE__*/React.memo(_ref21 => {
+  let {
+    isEditingTimer,
+    timerInput,
+    handleTimerInput,
+    getTimerInputSeconds,
+    setTimerInitial,
+    setTimerSeconds,
+    setIsEditingTimer,
+    setIsTimerRunning,
+    autoZenMode,
+    isZenMode,
+    setIsZenMode,
+    timerSeconds,
+    timerInitial,
+    showProgressRing,
+    theme,
+    currentTheme,
+    ringPosition,
+    isTimerRunning,
+    t,
+    showControls,
+    isCleanMode,
+    multiTimers,
+    toggleMultiTimer,
+    resetMultiTimer,
+    deleteMultiTimer,
+    addMultiTimer,
+    setTimerInput
+  } = _ref21;
+  return /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col items-center select-none w-full max-w-lg mt-4 sm:mt-8"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col items-center mb-6 sm:mb-12 w-full"
@@ -2651,9 +2201,7 @@ function App() {
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       if (!isTimerRunning && timerSeconds <= 0) {
-        if (timerInitial > 0) {
-          setTimerSeconds(timerInitial);
-        } else {
+        if (timerInitial > 0) setTimerSeconds(timerInitial);else {
           setIsEditingTimer(true);
           setTimerInput('000000');
           return;
@@ -2723,7 +2271,33 @@ function App() {
     key: m,
     onClick: () => addMultiTimer(m),
     className: "px-3 py-1.5 rounded-full bg-white/10 border border-white/10 hover:bg-white/20 text-xs sm:text-sm transition-all"
-  }, "+", m, "m"))))), mode === 'pomodoro' && /*#__PURE__*/React.createElement("div", {
+  }, "+", m, "m")))));
+});
+const PomodoroView = /*#__PURE__*/React.memo(_ref22 => {
+  let {
+    ringPosition,
+    showProgressRing,
+    pomoSeconds,
+    pomoMode,
+    theme,
+    currentTheme,
+    isPomoRunning,
+    autoZenMode,
+    isZenMode,
+    setIsZenMode,
+    setIsPomoRunning,
+    resetPomo,
+    t,
+    showControls,
+    isCleanMode,
+    enableMiniTask,
+    focusGoal,
+    setFocusGoal,
+    enableFocusAnalytics,
+    focusStats,
+    customColors
+  } = _ref22;
+  return /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col items-center select-none mt-2 sm:mt-4"
   }, /*#__PURE__*/React.createElement("div", {
     className: "relative flex justify-center items-center w-full mt-2 p-2 sm:p-4 flex-col ".concat(ringPosition === 'left' ? 'md:flex-row' : ringPosition === 'right' ? 'md:flex-row-reverse' : 'md:flex-col')
@@ -2801,7 +2375,23 @@ function App() {
       },
       title: ds ? "".concat(ds, ": ").concat(Math.floor(val / 60), "m") : ''
     });
-  })))), mode === 'stopwatch' && /*#__PURE__*/React.createElement("div", {
+  }))));
+});
+const StopwatchView = /*#__PURE__*/React.memo(_ref23 => {
+  let {
+    stopwatch,
+    setIsStopwatchRunning,
+    isStopwatchRunning,
+    currentTheme,
+    setLaps,
+    laps,
+    stopwatchTime,
+    setStopwatchTime,
+    t,
+    showControls,
+    isCleanMode
+  } = _ref23;
+  return /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col items-center select-none w-full min-w-[300px] mt-2 sm:mt-12"
   }, /*#__PURE__*/React.createElement("div", {
     className: "text-[15vw] md:text-[120px] font-bold tracking-tighter tabular-nums flex items-baseline"
@@ -2839,81 +2429,24 @@ function App() {
       key: i,
       className: "flex justify-between px-6 py-2 border-b border-white/5 opacity-80"
     }, /*#__PURE__*/React.createElement("span", null, t('lap'), " ", laps.length - i), /*#__PURE__*/React.createElement("span", null, d.m, ":", d.s, ".", d.cs));
-  }))), mode === 'calendar' && calendarView, mode === 'anniversary' && /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-col items-center select-none w-full max-w-lg mt-12"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "w-full max-h-[50vh] overflow-y-auto custom-scrollbar space-y-4 p-2"
-  }, anniversaries.length === 0 && /*#__PURE__*/React.createElement("div", {
-    className: "text-center opacity-40 py-12"
-  }, /*#__PURE__*/React.createElement(Sparkles, {
-    size: 48,
-    className: "mx-auto mb-4 opacity-20"
-  }), /*#__PURE__*/React.createElement("p", {
-    className: "text-lg"
-  }, t('addEvent'))), anniversaries.map(ev => {
-    const target = new Date(ev.date);
-    const diff = target - new Date();
-    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-    const isFuture = days >= 0;
-    return /*#__PURE__*/React.createElement("div", {
-      key: ev.id,
-      className: "flex items-center justify-between p-6 rounded-[2rem] bg-white/5 border border-white/10 group hover:bg-white/10 transition-all"
-    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-      className: "text-xl font-bold"
-    }, ev.label), /*#__PURE__*/React.createElement("div", {
-      className: "text-xs opacity-40 mt-1 uppercase tracking-widest"
-    }, ev.date)), /*#__PURE__*/React.createElement("div", {
-      className: "flex items-center gap-6"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "text-right"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "text-3xl font-black ".concat(isFuture ? currentTheme.accent : 'opacity-40')
-    }, Math.abs(days)), /*#__PURE__*/React.createElement("div", {
-      className: "text-[10px] opacity-40 uppercase tracking-tighter"
-    }, isFuture ? t('daysLeft') : t('daysAgo'))), /*#__PURE__*/React.createElement("button", {
-      onClick: () => setAnniversaries(prev => prev.filter(a => a.id !== ev.id)),
-      className: "p-2 rounded-full opacity-0 group-hover:opacity-100 hover:bg-red-500/20 transition-all"
-    }, /*#__PURE__*/React.createElement(Trash2, {
-      size: 16
-    }))));
-  })), isAddingEvent ? /*#__PURE__*/React.createElement("div", {
-    className: "mt-8 p-6 rounded-3xl bg-white/10 border border-white/20 w-full animate-in fade-in zoom-in-95 duration-300"
-  }, /*#__PURE__*/React.createElement("input", {
-    type: "text",
-    placeholder: t('eventName'),
-    value: newEventName,
-    onChange: e => setNewEventName(e.target.value),
-    className: "w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 mb-3 outline-none focus:border-white/30"
-  }), /*#__PURE__*/React.createElement("input", {
-    type: "date",
-    value: newEventDate,
-    onChange: e => setNewEventDate(e.target.value),
-    className: "w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 mb-4 outline-none focus:border-white/30"
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "flex gap-3"
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => setIsAddingEvent(false),
-    className: "flex-1 py-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors uppercase tracking-widest text-xs font-bold"
-  }, t('cancel') || 'Cancel'), /*#__PURE__*/React.createElement("button", {
-    onClick: () => {
-      if (newEventName && newEventDate) {
-        setAnniversaries([...anniversaries, {
-          id: Date.now(),
-          label: newEventName,
-          date: newEventDate
-        }]);
-        setIsAddingEvent(false);
-        setNewEventName('');
-        setNewEventDate('');
-      }
-    },
-    className: "flex-1 py-3 rounded-xl bg-blue-500 hover:bg-blue-600 transition-colors uppercase tracking-widest text-xs font-bold"
-  }, t('add') || 'Add'))) : /*#__PURE__*/React.createElement("button", {
-    onClick: () => setIsAddingEvent(true),
-    className: "mt-8 px-8 py-3 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 flex items-center gap-2 transition-all"
-  }, /*#__PURE__*/React.createElement(Plus, {
-    size: 20
-  }), " ", t('addEvent'))), mode === 'memento' && /*#__PURE__*/React.createElement("div", {
+  })));
+});
+const MementoView = /*#__PURE__*/React.memo(_ref24 => {
+  let {
+    birthDate,
+    setBirthDate,
+    t
+  } = _ref24;
+  const weeksPerYear = 52;
+  const years = 80;
+  const totalWeeksCount = weeksPerYear * years;
+  let livedWeeksCount = 0;
+  if (birthDate) {
+    const livedMillis = Date.now() - new Date(birthDate).getTime();
+    livedWeeksCount = Math.max(0, Math.floor(livedMillis / (1000 * 60 * 60 * 24 * 7)));
+  }
+  const pct = birthDate ? Math.min(100, Math.floor(livedWeeksCount / totalWeeksCount * 100)) : 0;
+  return /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col items-center select-none w-full max-w-2xl animate-fade-in relative mt-12"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col mb-8 text-center bg-black/40 backdrop-blur-md px-12 py-6 rounded-[2rem] border border-white/10 w-full pb-8"
@@ -2927,11 +2460,1399 @@ function App() {
     type: "date",
     value: birthDate,
     onChange: e => setBirthDate(e.target.value),
-    className: "bg-white/10 border border-white/20 rounded-xl px-4 py-2 outline-none text-white text-lg w-full max-w-xs transition-all hover:bg-white/20 focus:bg-white/20 focus:border-white/40 font-mono tracking-widest",
+    className: "bg-white/10 border border-white/20 rounded-xl px-4 py-2 outline-none text-white text-lg w-full max-w-xs transition-with-all hover:bg-white/20 focus:bg-white/20 focus:border-white/40 font-mono tracking-widest",
     style: {
       colorScheme: 'dark'
     }
-  })), mementoView)))), /*#__PURE__*/React.createElement("div", {
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "w-full mt-8"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex justify-between text-xs opacity-60 mb-4 px-2 font-mono uppercase tracking-[0.2em]"
+  }, /*#__PURE__*/React.createElement("span", null, t('livedWeeks'), " : ", livedWeeksCount), /*#__PURE__*/React.createElement("span", null, pct, "% - ", t('totalWeeks'))), /*#__PURE__*/React.createElement("div", {
+    className: "relative w-full rounded-2xl overflow-hidden bg-black/50 border border-white/5 p-4 sm:p-6",
+    style: {
+      display: 'grid',
+      gridTemplateColumns: "repeat(".concat(weeksPerYear, ", 1fr)"),
+      gap: '2px',
+      alignContent: 'start'
+    }
+  }, Array.from({
+    length: totalWeeksCount
+  }).map((_, i) => {
+    const isLived = i < livedWeeksCount;
+    return /*#__PURE__*/React.createElement("div", {
+      key: i,
+      className: "w-full aspect-square rounded-[1px] ".concat(isLived ? 'bg-indigo-400' : 'bg-white/10'),
+      style: {
+        opacity: isLived ? 0.9 : 0.2
+      },
+      title: "Week ".concat(i + 1)
+    });
+  })))));
+});
+const CalendarView = /*#__PURE__*/React.memo(_ref25 => {
+  let {
+    calendarDate,
+    setCalendarDate,
+    t,
+    currentTheme,
+    lang,
+    I18N,
+    setIsAddingEvent,
+    setNewEventName,
+    setNewEventDate,
+    setMode
+  } = _ref25;
+  const year = calendarDate.getFullYear();
+  const month = calendarDate.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const today = new Date();
+  const isCurrentMonth = month === today.getMonth() && year === today.getFullYear();
+  const firstDayOfWeek = new Date(year, month, 1).getDay();
+  const prevMonthDays = new Date(year, month, 0).getDate();
+  const cells = [];
+  for (let i = firstDayOfWeek - 1; i >= 0; i--) cells.push({
+    day: prevMonthDays - i,
+    type: 'prev'
+  });
+  for (let i = 1; i <= daysInMonth; i++) cells.push({
+    day: i,
+    type: 'current',
+    isToday: i === today.getDate() && isCurrentMonth
+  });
+  let nextDay = 1;
+  while (cells.length < 42) cells.push({
+    day: nextDay++,
+    type: 'next'
+  });
+  const dayLabels = [t('sun'), t('mon'), t('tue'), t('wed'), t('thu'), t('fri'), t('sat')];
+  const monthNames = (I18N[lang] || I18N['zh-TW']).months;
+  const grid7 = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(7, 1fr)'
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-col w-full max-w-[540px] select-none mt-12"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-3 mb-5"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setCalendarDate(new Date()),
+    className: "px-5 py-2 rounded-full border border-white/20 text-sm font-medium bg-transparent hover:bg-white/10 transition-colors"
+  }, t('today')), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-0.5"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setCalendarDate(new Date(year, month - 1, 1)),
+    className: "p-1.5 rounded-full hover:bg-white/10 transition-colors"
+  }, /*#__PURE__*/React.createElement(ChevronLeft, {
+    size: 22
+  })), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setCalendarDate(new Date(year, month + 1, 1)),
+    className: "p-1.5 rounded-full hover:bg-white/10 transition-colors"
+  }, /*#__PURE__*/React.createElement(ChevronRight, {
+    size: 22
+  })))), /*#__PURE__*/React.createElement("div", {
+    className: "text-2xl mb-6"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "font-semibold mr-2 ".concat(currentTheme.accent)
+  }, year), /*#__PURE__*/React.createElement("span", {
+    className: "opacity-90"
+  }, monthNames[month])), /*#__PURE__*/React.createElement("div", {
+    style: grid7
+  }, dayLabels.map((lbl, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    className: "text-center text-[11px] font-semibold uppercase tracking-wider pb-3 opacity-40"
+  }, lbl)), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-7 col-span-full border-t border-white/10"
+  }, cells.map((cell, i) => {
+    const isToday = cell.type === 'current' && cell.isToday;
+    const colIndex = i % 7;
+    return /*#__PURE__*/React.createElement("div", {
+      key: i,
+      onClick: () => {
+        if (cell.type === 'current') {
+          setNewEventDate("".concat(year, "-").concat(String(month + 1).padStart(2, '0'), "-").concat(String(cell.day).padStart(2, '0')));
+          setNewEventName('');
+          setIsAddingEvent(true);
+          setMode('anniversary');
+        }
+      },
+      className: "relative min-h-[56px] border-b border-r border-white/5 hover:bg-white/5 transition-colors cursor-pointer ".concat(colIndex === 0 ? 'border-l' : '')
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "absolute top-1.5 left-1/2 -translate-x-1/2 w-7 h-7 flex items-center justify-center text-xs rounded-full transition-all ".concat(isToday ? 'bg-blue-500 font-bold text-white' : cell.type !== 'current' ? 'opacity-20' : colIndex === 0 ? 'text-red-400' : colIndex === 6 ? 'text-blue-400' : '')
+    }, cell.day));
+  }))));
+});
+
+// --- Custom Hooks for Local Storage ---
+function useLocalString(key, initialValue) {
+  const [value, setValue] = useState(() => {
+    const item = window.localStorage.getItem(key);
+    if (item !== null) return item;
+    return typeof initialValue === 'function' ? initialValue() : initialValue;
+  });
+  useEffect(() => {
+    window.localStorage.setItem(key, value);
+  }, [key, value]);
+  return [value, setValue];
+}
+function useLocalBoolean(key, initialValue) {
+  const [value, setValue] = useState(() => {
+    const item = window.localStorage.getItem(key);
+    return item !== null ? item === 'true' : initialValue;
+  });
+  useEffect(() => {
+    window.localStorage.setItem(key, value);
+  }, [key, value]);
+  return [value, setValue];
+}
+function useLocalJSON(key, initialValue, parser) {
+  const [value, setValue] = useState(() => {
+    try {
+      const item = window.localStorage.getItem(key);
+      if (!item) return typeof initialValue === 'function' ? initialValue() : initialValue;
+      const parsed = JSON.parse(item);
+      return parser ? parser(parsed) : parsed;
+    } catch (e) {
+      return typeof initialValue === 'function' ? initialValue() : initialValue;
+    }
+  });
+  useEffect(() => {
+    window.localStorage.setItem(key, JSON.stringify(value));
+  }, [key, value]);
+  return [value, setValue];
+}
+const formatTime = date => {
+  const h = date.getHours().toString().padStart(2, '0');
+  const m = date.getMinutes().toString().padStart(2, '0');
+  const s = date.getSeconds().toString().padStart(2, '0');
+  const ms = Math.floor(date.getMilliseconds() / 10).toString().padStart(2, '0');
+  return {
+    h,
+    m,
+    s,
+    ms
+  };
+};
+const formatDuration = ms => {
+  const m = Math.floor(ms / 60000).toString().padStart(2, '0');
+  const s = Math.floor(ms % 60000 / 1000).toString().padStart(2, '0');
+  const cs = Math.floor(ms % 1000 / 10).toString().padStart(2, '0');
+  return {
+    m,
+    s,
+    cs
+  };
+};
+
+// --- Custom Hook for Weather ---
+function useWeather() {
+  const [weather, setWeather] = useState({
+    temp: '--',
+    condition: '',
+    city: '--',
+    sunrise: null,
+    sunset: null
+  });
+  const fetchWeather = async () => {
+    try {
+      var _wData$daily, _wData$daily2;
+      const locRes = await fetch('https://ipapi.co/json/');
+      if (!locRes.ok) return;
+      const loc = await locRes.json();
+      const {
+        latitude,
+        longitude,
+        city
+      } = loc;
+      const wRes = await fetch("https://api.open-meteo.com/v1/forecast?latitude=".concat(latitude, "&longitude=").concat(longitude, "&current_weather=true&daily=sunrise,sunset&timezone=auto"));
+      if (!wRes.ok) return;
+      const wData = await wRes.json();
+      const code = wData.current_weather.weathercode;
+      const sunriseStr = (_wData$daily = wData.daily) === null || _wData$daily === void 0 || (_wData$daily = _wData$daily.sunrise) === null || _wData$daily === void 0 ? void 0 : _wData$daily[0];
+      const sunsetStr = (_wData$daily2 = wData.daily) === null || _wData$daily2 === void 0 || (_wData$daily2 = _wData$daily2.sunset) === null || _wData$daily2 === void 0 ? void 0 : _wData$daily2[0];
+      const conditionMap = {
+        0: 'Clear',
+        1: 'Cloudy',
+        2: 'Cloudy',
+        3: 'Overcast',
+        45: 'Fog',
+        48: 'Fog',
+        51: 'Drizzle',
+        61: 'Rain',
+        71: 'Snow',
+        95: 'Storm'
+      };
+      const formatHm = isoStr => {
+        if (!isoStr) return null;
+        const d = new Date(isoStr);
+        return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+      };
+      setWeather({
+        temp: Math.round(wData.current_weather.temperature),
+        condition: conditionMap[code] || 'Cloudy',
+        city: city,
+        sunrise: formatHm(sunriseStr),
+        sunset: formatHm(sunsetStr)
+      });
+    } catch (e) {
+      console.error('Weather fetch error:', e);
+    }
+  };
+  useEffect(() => {
+    fetchWeather();
+    const interval = setInterval(fetchWeather, 30 * 60 * 1000); // 30 minutes
+    return () => clearInterval(interval);
+  }, []);
+  return weather;
+}
+
+// --- Custom Hook for Multi-Timers ---
+function useMultiTimers(_ref26) {
+  let {
+    playAlarm,
+    showNotification
+  } = _ref26;
+  const [multiTimers, setMultiTimers] = useState([]);
+  const multiTimerIdRef = useRef(0);
+  useEffect(() => {
+    const hasRunning = multiTimers.some(t => t.running && t.remaining > 0);
+    if (!hasRunning) return;
+    const interval = setInterval(() => {
+      setMultiTimers(prev => prev.map(t => {
+        if (!t.running || t.remaining <= 0) return t;
+        const next = t.remaining - 1;
+        if (next <= 0) {
+          playAlarm();
+          showNotification('Timer Finished', "Timer ".concat(t.label, " has finished"));
+          return _objectSpread(_objectSpread({}, t), {}, {
+            remaining: 0,
+            running: false
+          });
+        }
+        return _objectSpread(_objectSpread({}, t), {}, {
+          remaining: next
+        });
+      }));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [multiTimers, playAlarm, showNotification]);
+  const addMultiTimer = useCallback(function () {
+    let minutes = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 5;
+    multiTimerIdRef.current += 1;
+    setMultiTimers(prev => [...prev, {
+      id: multiTimerIdRef.current,
+      label: "".concat(minutes, ":00"),
+      initial: minutes * 60,
+      remaining: minutes * 60,
+      running: false
+    }]);
+  }, []);
+  const toggleMultiTimer = useCallback(id => setMultiTimers(prev => prev.map(t => t.id === id ? _objectSpread(_objectSpread({}, t), {}, {
+    running: !t.running
+  }) : t)), []);
+  const resetMultiTimer = useCallback(id => setMultiTimers(prev => prev.map(t => t.id === id ? _objectSpread(_objectSpread({}, t), {}, {
+    remaining: t.initial,
+    running: false
+  }) : t)), []);
+  const deleteMultiTimer = useCallback(id => setMultiTimers(prev => prev.filter(t => t.id !== id)), []);
+  return {
+    multiTimers,
+    addMultiTimer,
+    toggleMultiTimer,
+    resetMultiTimer,
+    deleteMultiTimer
+  };
+}
+
+// --- Custom Hook for System Settings & Update ---
+function useSystemSettings(_ref27) {
+  let {
+    t,
+    showError,
+    setFont,
+    setTheme,
+    setCustomColors,
+    setCustomBgImage,
+    APP_VERSION,
+    theme,
+    font,
+    customColors,
+    customBgImage
+  } = _ref27;
+  const [isExporting, setIsExporting] = useState(false);
+  const [updateStatus, setUpdateStatus] = useState(null);
+  const [latestVersion, setLatestVersion] = useState(null);
+  const [isDownloadingApp, setIsDownloadingApp] = useState(false);
+  const [hasCustomFont, setHasCustomFont] = useState(false);
+  const exportTheme = () => {
+    const data = {
+      theme,
+      font,
+      customColors,
+      customBgImage
+    };
+    const code = btoa(JSON.stringify(data));
+    navigator.clipboard.writeText(code);
+  };
+  const importTheme = code => {
+    if (!code) return;
+    try {
+      const data = JSON.parse(atob(code));
+      if (data.theme) setTheme(data.theme);
+      if (data.font) setFont(data.font);
+      if (data.customColors) setCustomColors(data.customColors);
+      if (data.customBgImage !== undefined) setCustomBgImage(data.customBgImage);
+    } catch (e) {
+      showError(t('invalidThemeCode'));
+    }
+  };
+  const handleClearData = async () => {
+    if (!window.confirm(t('clearDataConfirm'))) return;
+    localStorage.clear();
+    document.cookie.split(';').forEach(c => {
+      document.cookie = c.replace(/^ +/, '').replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/');
+    });
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+    }
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r => r.unregister()));
+    }
+    showError(t('clearDataDone'));
+    setTimeout(() => window.location.reload(true), 1800);
+  };
+  const handleDownloadApp = async () => {
+    if (isDownloadingApp) return;
+    setIsDownloadingApp(true);
+    try {
+      var _data$assets;
+      const res = await fetch('https://api.github.com/repos/unkoalatw/clockomistry/releases/latest');
+      if (!res.ok) throw new Error('Network error');
+      const data = await res.json();
+      const apkAsset = (_data$assets = data.assets) === null || _data$assets === void 0 ? void 0 : _data$assets.find(a => a.name.endsWith('.apk'));
+      if (apkAsset && apkAsset.browser_download_url) {
+        window.open(apkAsset.browser_download_url, '_blank');
+      } else {
+        showError('APK not found in the latest release.');
+      }
+    } catch (err) {
+      showError('Failed to fetch release from GitHub.');
+    } finally {
+      setIsDownloadingApp(false);
+    }
+  };
+  const handleCheckUpdate = async () => {
+    setUpdateStatus('checking');
+    try {
+      var _data$tag_name;
+      const res = await fetch('https://api.github.com/repos/unkoalatw/clockomistry/releases/latest');
+      if (!res.ok) throw new Error('Network error');
+      const data = await res.json();
+      const remoteTag = ((_data$tag_name = data.tag_name) === null || _data$tag_name === void 0 ? void 0 : _data$tag_name.replace(/^v/, '')) || '';
+      setLatestVersion(remoteTag);
+      if (remoteTag && remoteTag !== APP_VERSION) {
+        setUpdateStatus('new');
+      } else {
+        setUpdateStatus('latest');
+        setTimeout(() => setUpdateStatus(null), 3000);
+      }
+    } catch (err) {
+      setUpdateStatus('latest');
+      setTimeout(() => setUpdateStatus(null), 3000);
+    }
+  };
+  const handleForceUpdate = async () => {
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r => r.update()));
+    }
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+    }
+    window.location.reload(true);
+  };
+  const loadCustomFont = async base64Data => {
+    try {
+      const fontFace = new FontFace('CustomFont', "url(".concat(base64Data, ")"));
+      const loadedFace = await fontFace.load();
+      document.fonts.add(loadedFace);
+      setHasCustomFont(true);
+      return true;
+    } catch (e) {
+      showError(t('fontLoadError'));
+      return false;
+    }
+  };
+  const handleFontUpload = e => {
+    var _e$target$files;
+    const file = (_e$target$files = e.target.files) === null || _e$target$files === void 0 ? void 0 : _e$target$files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async e => {
+      const data = e.target.result;
+      const success = await loadCustomFont(data);
+      if (success) {
+        await saveFontToDB(data);
+        setFont('custom');
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+  const handleBgImageUpload = e => {
+    var _e$target$files2;
+    const file = (_e$target$files2 = e.target.files) === null || _e$target$files2 === void 0 ? void 0 : _e$target$files2[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      showError(t('imageSizeError'));
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = ev => {
+      setCustomBgImage(ev.target.result);
+      setTheme('custom');
+    };
+    reader.readAsDataURL(file);
+  };
+  return {
+    exportTheme,
+    importTheme,
+    handleClearData,
+    handleDownloadApp,
+    handleCheckUpdate,
+    handleForceUpdate,
+    loadCustomFont,
+    handleFontUpload,
+    handleBgImageUpload,
+    isExporting,
+    setIsExporting,
+    updateStatus,
+    latestVersion,
+    isDownloadingApp,
+    hasCustomFont,
+    setHasCustomFont
+  };
+}
+
+// --- Timer Hook ---
+function useTimer(_ref28) {
+  let {
+    playAlarm,
+    showNotification,
+    triggerSuccess
+  } = _ref28;
+  const [timerSeconds, setTimerSeconds] = useState(25 * 60);
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [timerInitial, setTimerInitial] = useState(25 * 60);
+  const [isEditingTimer, setIsEditingTimer] = useState(false);
+  const [timerInput, setTimerInput] = useState('000000');
+  const handleTimerInput = val => {
+    if (val === 'del') {
+      setTimerInput(prev => '0' + prev.slice(0, 5));
+    } else if (val === '00') {
+      setTimerInput(prev => (prev + '00').slice(-6));
+    } else {
+      setTimerInput(prev => (prev + val).slice(-6));
+    }
+  };
+  const getTimerInputSeconds = () => {
+    const h = parseInt(timerInput.slice(0, 2), 10);
+    const m = parseInt(timerInput.slice(2, 4), 10);
+    const s = parseInt(timerInput.slice(4, 6), 10);
+    return h * 3600 + m * 60 + s;
+  };
+  useEffect(() => {
+    let interval = null;
+    if (isTimerRunning && timerSeconds > 0) {
+      interval = setInterval(() => setTimerSeconds(prev => prev - 1), 1000);
+    } else if (isTimerRunning && timerSeconds === 0) {
+      playAlarm();
+      showNotification('Timer Finished', 'Your timer has finished');
+      setIsTimerRunning(false);
+      if (triggerSuccess) triggerSuccess();
+    }
+    return () => clearInterval(interval);
+  }, [isTimerRunning, timerSeconds, playAlarm, showNotification, triggerSuccess]);
+  return {
+    timerSeconds,
+    setTimerSeconds,
+    isTimerRunning,
+    setIsTimerRunning,
+    timerInitial,
+    setTimerInitial,
+    isEditingTimer,
+    setIsEditingTimer,
+    timerInput,
+    setTimerInput,
+    handleTimerInput,
+    getTimerInputSeconds
+  };
+}
+
+// --- Pomodoro Hook ---
+function usePomodoro(_ref29) {
+  let {
+    playAlarm,
+    showNotification,
+    triggerSuccess,
+    enableFocusAnalytics,
+    setFocusStats,
+    t
+  } = _ref29;
+  const [pomoMode, setPomoMode] = useState('work'); // 'work', 'short', 'long'
+  const [pomoSeconds, setPomoSeconds] = useState(25 * 60);
+  const [isPomoRunning, setIsPomoRunning] = useState(false);
+  useEffect(() => {
+    let interval = null;
+    if (isPomoRunning && pomoSeconds > 0) {
+      interval = setInterval(() => setPomoSeconds(prev => prev - 1), 1000);
+    } else if (isPomoRunning && pomoSeconds === 0) {
+      setIsPomoRunning(false);
+      playAlarm();
+      showNotification('Pomodoro Finished', "".concat(t(pomoMode), " section is complete"));
+      if (triggerSuccess) triggerSuccess();
+      if (pomoMode === 'work') {
+        if (enableFocusAnalytics && setFocusStats) {
+          const today = new Date().toISOString().split('T')[0];
+          setFocusStats(prev => _objectSpread(_objectSpread({}, prev), {}, {
+            [today]: (prev[today] || 0) + 25 * 60
+          }));
+        }
+        setPomoMode('short');
+        setPomoSeconds(5 * 60);
+      } else {
+        setPomoMode('work');
+        setPomoSeconds(25 * 60);
+      }
+    }
+    return () => clearInterval(interval);
+  }, [isPomoRunning, pomoSeconds, pomoMode, playAlarm, showNotification, triggerSuccess, enableFocusAnalytics, setFocusStats, t]);
+  const resetPomo = modeType => {
+    setIsPomoRunning(false);
+    setPomoMode(modeType);
+    if (modeType === 'work') setPomoSeconds(25 * 60);else if (modeType === 'short') setPomoSeconds(5 * 60);else if (modeType === 'long') setPomoSeconds(15 * 60);
+  };
+  return {
+    pomoMode,
+    setPomoMode,
+    pomoSeconds,
+    setPomoSeconds,
+    isPomoRunning,
+    setIsPomoRunning,
+    resetPomo
+  };
+}
+
+// --- Stopwatch Hook ---
+function useStopwatch() {
+  const [stopwatchTime, setStopwatchTime] = useState(0);
+  const [isStopwatchRunning, setIsStopwatchRunning] = useState(false);
+  const [laps, setLaps] = useState([]);
+  const previousTimeRef = useRef();
+  const requestRef = useRef();
+  useEffect(() => {
+    if (isStopwatchRunning) {
+      previousTimeRef.current = Date.now();
+      const animate = () => {
+        const now = Date.now();
+        const deltaTime = now - previousTimeRef.current;
+        previousTimeRef.current = now;
+        setStopwatchTime(prev => prev + deltaTime);
+        requestRef.current = requestAnimationFrame(animate);
+      };
+      requestRef.current = requestAnimationFrame(animate);
+    }
+    return () => cancelAnimationFrame(requestRef.current);
+  }, [isStopwatchRunning]);
+  return {
+    stopwatchTime,
+    setStopwatchTime,
+    isStopwatchRunning,
+    setIsStopwatchRunning,
+    laps,
+    setLaps
+  };
+}
+function App() {
+  const [time, setTime] = useState(new Date());
+  const [theme, setTheme] = useLocalString('clock_theme', 'modern');
+  const [font, setFont] = useLocalString('clock_font', 'modern');
+  const [clockLayout, setClockLayout] = useLocalString('clock_layout', 'classic');
+  const [showMillis, setShowMillis] = useLocalBoolean('clock_millis', true);
+  const [showProgressRing, setShowProgressRing] = useLocalBoolean('clock_progressRing', true);
+  const [ringPosition, setRingPosition] = useLocalString('clock_ringPosition', 'left');
+  const [enableMiniTask, setEnableMiniTask] = useLocalBoolean('clock_miniTask', true);
+  const [enableFocusAnalytics, setEnableFocusAnalytics] = useLocalBoolean('clock_focusAnalytics', true);
+  const [enableMeetingPlanner, setEnableMeetingPlanner] = useLocalBoolean('clock_meetingPlanner', true);
+
+  // New practical features
+  const [use12Hour, setUse12Hour] = useLocalBoolean('clock_use12Hour', false);
+  const [hourlyChime, setHourlyChime] = useLocalBoolean('clock_hourlyChime', false);
+  const [showSeconds, setShowSeconds] = useLocalBoolean('clock_showSeconds', true);
+  const [showDate, setShowDate] = useLocalBoolean('clock_showDate', true);
+  const [showNextEvent, setShowNextEvent] = useLocalBoolean('clock_showNextEvent', false);
+
+  // New Automation Settings
+  const [autoZenMode, setAutoZenMode] = useLocalBoolean('clock_autoZenMode', true);
+  const [selectedZones, setSelectedZones] = useLocalJSON('clock_zones', () => [ALL_ZONES.find(z => z.id === 'Asia/Taipei'), ALL_ZONES.find(z => z.id === 'America/New_York'), ALL_ZONES.find(z => z.id === 'Europe/London'), ALL_ZONES.find(z => z.id === 'Asia/Tokyo')].filter(Boolean), parsed => {
+    const zones = parsed.map(item => {
+      const id = typeof item === 'string' ? item : item.id;
+      return ALL_ZONES.find(z => z.id === id);
+    }).filter(Boolean);
+    if (zones.length > 0) return zones;
+    return null; // fallback
+  });
+  const [mode, setMode] = useState('clock');
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isZenMode, setIsZenMode] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [showSettings, setShowSettings] = useState(false);
+  const [activeSettingsTab, setActiveSettingsTab] = useState('appearance');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [hasAgreed, setHasAgreed] = useLocalBoolean('clock_agreed', false);
+  const [customColors, setCustomColors] = useLocalJSON('clock_custom_colors', {
+    bg1: '#0a0a1a',
+    bg2: '#1a1a3e',
+    bg3: '#0a0a1a',
+    text: '#e2e8f0',
+    accent: '#22d3ee'
+  });
+  const [customBgImage, setCustomBgImage] = useLocalString('clock_custom_bg', '');
+  const [lang, setLang] = useLocalString('clock_lang', () => {
+    const browserLang = navigator.language.split('-')[0];
+    if (I18N[browserLang]) return browserLang;
+    if (navigator.language === 'zh-CN' || navigator.language === 'zh-HK') return 'zh-TW';
+    return 'zh-TW';
+  });
+
+  // Anniversary 狀態
+  const [anniversaries, setAnniversaries] = useLocalJSON('clock_anniversaries', []);
+  const [isAddingEvent, setIsAddingEvent] = useState(false);
+  const [newEventName, setNewEventName] = useState('');
+  const [newEventDate, setNewEventDate] = useState('');
+
+  // Advance Features 狀態
+  const [focusGoal, setFocusGoal] = useLocalString('clock_focusGoal', '');
+  const [focusStats, setFocusStats] = useLocalJSON('clock_focusStats', {});
+  const [meetingOffset, setMeetingOffset] = useState(0);
+
+  // Life Calendar & Mini Mode
+  const [birthDate, setBirthDate] = useLocalString('clock_birthdate', '2000-01-01');
+
+  // Auto-detect OBS
+  const isOBS = useMemo(() => typeof window.obsstudio !== 'undefined', []);
+
+  // If OBS, the UI becomes super clean
+  const isCleanMode = isOBS;
+
+  // Apply transparent bg if OBS
+  useEffect(() => {
+    if (isCleanMode) {
+      document.body.style.backgroundColor = 'transparent';
+    } else {
+      document.body.style.backgroundColor = '';
+    }
+  }, [isCleanMode]);
+
+  // Screen Saver 狀態
+  const [isScreenSaverActive, setIsScreenSaverActive] = useState(false);
+  const [lastActivity, setLastActivity] = useState(Date.now());
+  const [ssPos, setSsPos] = useState({
+    x: 40,
+    y: 40
+  });
+  const ssVelocity = useRef({
+    x: 0.15,
+    y: 0.12
+  });
+
+  // i18n helper
+  const t = useCallback(key => (I18N[lang] || I18N['zh-TW'])[key] || key, [lang]);
+
+  // Alarm & Notification 狀態 (must be before timer/pomodoro hooks)
+  const [alarmSound, setAlarmSound] = useLocalString('clock_alarmSound', 'beep');
+  const [notificationsEnabled, setNotificationsEnabled] = useLocalBoolean('clock_notifications', true);
+  const audioRef = useRef(null);
+  const playAlarm = useCallback(() => {
+    if (alarmSound === 'none') return;
+    if (!audioRef.current) audioRef.current = new Audio();
+    audioRef.current.src = "public/audio/".concat(alarmSound, ".ogg");
+    audioRef.current.play().catch(e => console.log('Audio play failed', e));
+  }, [alarmSound]);
+  const showNotification = useCallback((title, body) => {
+    if (!notificationsEnabled || !('Notification' in window) || Notification.permission !== 'granted') return;
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.ready.then(registration => {
+        registration.showNotification(title, {
+          body: body,
+          icon: 'icons/icon-192.png',
+          vibrate: [200, 100, 200, 100, 200, 100, 200]
+        });
+      });
+    } else {
+      new Notification(title, {
+        body,
+        icon: 'icons/icon-192.png'
+      });
+    }
+  }, [notificationsEnabled]);
+  const {
+    timerSeconds,
+    setTimerSeconds,
+    isTimerRunning,
+    setIsTimerRunning,
+    timerInitial,
+    setTimerInitial,
+    isEditingTimer,
+    setIsEditingTimer,
+    timerInput,
+    setTimerInput,
+    handleTimerInput,
+    getTimerInputSeconds
+  } = useTimer({
+    playAlarm,
+    showNotification,
+    triggerSuccess
+  });
+  const {
+    pomoMode,
+    setPomoMode,
+    pomoSeconds,
+    setPomoSeconds,
+    isPomoRunning,
+    setIsPomoRunning,
+    resetPomo
+  } = usePomodoro({
+    playAlarm,
+    showNotification,
+    triggerSuccess,
+    enableFocusAnalytics,
+    setFocusStats,
+    t
+  });
+  const {
+    stopwatchTime,
+    setStopwatchTime,
+    isStopwatchRunning,
+    setIsStopwatchRunning,
+    laps,
+    setLaps
+  } = useStopwatch();
+  const handleToggleNotifications = async () => {
+    if (!notificationsEnabled) {
+      if (!('Notification' in window)) {
+        showError('Browser does not support notifications');
+        return;
+      }
+      if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') setNotificationsEnabled(true);
+      } else if (Notification.permission === 'granted') {
+        setNotificationsEnabled(true);
+      }
+    } else {
+      setNotificationsEnabled(false);
+    }
+  };
+
+  // Calendar 狀態
+  const [calendarDate, setCalendarDate] = useState(new Date());
+  const containerRef = useRef(null);
+  const requestRef = useRef();
+  const previousTimeRef = useRef();
+  const fileInputRef = useRef(null);
+  const bgImageInputRef = useRef(null);
+
+  // --- 持久化設定 ---
+  // The explicit useEffect syncing logic is now automatically managed by the custom hooks above!
+
+  // 螢幕保護自動偵測 (debounced to reduce state updates)
+  useEffect(() => {
+    let debounceTimer = null;
+    const updateActivity = () => {
+      if (debounceTimer) return;
+      debounceTimer = setTimeout(() => {
+        debounceTimer = null;
+      }, 1000);
+      setLastActivity(Date.now());
+      if (isScreenSaverActive) setIsScreenSaverActive(false);
+    };
+    const events = ['mousemove', 'keydown', 'touchstart', 'scroll'];
+    events.forEach(e => window.addEventListener(e, updateActivity, {
+      passive: true
+    }));
+    return () => {
+      events.forEach(e => window.removeEventListener(e, updateActivity));
+      if (debounceTimer) clearTimeout(debounceTimer);
+    };
+  }, [isScreenSaverActive]);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!isScreenSaverActive && Date.now() - lastActivity > 5 * 60 * 1000) {
+        setIsScreenSaverActive(true);
+      }
+    }, 30000); // 降低檢測頻率
+    return () => clearInterval(interval);
+  }, [lastActivity, isScreenSaverActive]);
+
+  // 螢幕保護位移邏輯 - 優化版 (使用 CSS Transition 代替每幀更新)
+  useEffect(() => {
+    if (!isScreenSaverActive) return;
+    const move = () => {
+      setSsPos({
+        x: Math.random() * 70 + 5,
+        y: Math.random() * 80 + 5
+      });
+    };
+    move();
+    const interval = setInterval(move, 4000); // 每 4 秒更換目標
+    return () => clearInterval(interval);
+  }, [isScreenSaverActive]);
+  const weather = useWeather();
+  const {
+    multiTimers,
+    addMultiTimer,
+    toggleMultiTimer,
+    resetMultiTimer,
+    deleteMultiTimer
+  } = useMultiTimers({
+    playAlarm,
+    showNotification
+  });
+
+  // 整點報時 - 每小時整點播放提示音
+  const lastChimeHourRef = useRef(-1);
+  useEffect(() => {
+    if (!hourlyChime) return;
+    const currentHour = time.getHours();
+    const currentMin = time.getMinutes();
+    if (currentMin === 0 && currentHour !== lastChimeHourRef.current) {
+      lastChimeHourRef.current = currentHour;
+      playAlarm();
+      if (showNotification) {
+        const displayH = use12Hour ? currentHour % 12 || 12 : currentHour;
+        const ampm = use12Hour ? currentHour < 12 ? ' AM' : ' PM' : '';
+        showNotification(t('hourlyChimeTitle') || '整點報時', "".concat(displayH, ":00").concat(ampm));
+      }
+    }
+  }, [time, hourlyChime, playAlarm, showNotification, use12Hour]);
+
+  // 下一個事件倒數
+  const nextEvent = useMemo(() => {
+    if (!showNextEvent || !anniversaries || anniversaries.length === 0) return null;
+    const now = new Date();
+    let closest = null;
+    let closestDays = Infinity;
+    for (const ev of anniversaries) {
+      const target = new Date(ev.date);
+      const diff = target - now;
+      const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+      if (days >= 0 && days < closestDays) {
+        closestDays = days;
+        closest = {
+          label: ev.label,
+          days
+        };
+      }
+    }
+    return closest;
+  }, [showNextEvent, anniversaries, Math.floor(Date.now() / 3600000)]);
+  const handleExportImage = async () => {
+    if (!containerRef.current || isExporting) return;
+    setIsExporting(true);
+    const prevZen = isZenMode;
+    if (!prevZen) setIsZenMode(true);
+    setTimeout(async () => {
+      try {
+        const canvas = await html2canvas(containerRef.current, {
+          scale: 2,
+          backgroundColor: null,
+          ignoreElements: el => el.classList.contains('hide-on-export')
+        });
+        const link = document.createElement('a');
+        link.download = "clockomistry-".concat(Date.now(), ".png");
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      } catch (err) {}
+      setIsZenMode(prevZen);
+      setIsExporting(false);
+    }, 500);
+  };
+
+  // 初始化時從 IndexedDB 載入字體
+  useEffect(() => {
+    const initFont = async () => {
+      const savedFont = await getFontFromDB();
+      if (savedFont) {
+        await loadCustomFont(savedFont);
+      }
+    };
+    initFont();
+  }, []);
+  const updateCustomColor = (key, value) => setCustomColors(prev => _objectSpread(_objectSpread({}, prev), {}, {
+    [key]: value
+  }));
+
+  // 核心計時 - millis 模式節流至約 30fps 以減少不必要的渲染
+  useEffect(() => {
+    if (showMillis) {
+      let lastUpdate = 0;
+      const updateTime = timestamp => {
+        if (timestamp - lastUpdate >= 33) {
+          // ~30fps instead of 60fps
+          lastUpdate = timestamp;
+          setTime(new Date());
+        }
+        requestRef.current = requestAnimationFrame(updateTime);
+      };
+      requestRef.current = requestAnimationFrame(updateTime);
+    } else {
+      setTime(new Date());
+      const timer = setInterval(() => setTime(new Date()), 1000);
+      return () => clearInterval(timer);
+    }
+    return () => cancelAnimationFrame(requestRef.current);
+  }, [showMillis]);
+  useEffect(() => {
+    const handleFullscreenChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  // 全域按鈕震動與快捷鍵 (Spacebar Play/Pause, Esc Reset)
+  useEffect(() => {
+    const handleBtnClick = e => {
+      if (e.target.closest('button')) triggerHaptic();
+    };
+    const handleKeyDown = e => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (e.code === 'Space') {
+        e.preventDefault();
+        triggerHaptic();
+        if (mode === 'timer') {
+          if (isTimerRunning) setIsTimerRunning(false);else if (timerSeconds > 0) setIsTimerRunning(true);
+        } else if (mode === 'pomodoro') {
+          setIsPomoRunning(prev => !prev);
+        } else if (mode === 'stopwatch') {
+          setIsStopwatchRunning(prev => !prev);
+        }
+      } else if (e.code === 'Escape') {
+        e.preventDefault();
+        triggerHaptic();
+        if (mode === 'timer') {
+          setIsTimerRunning(false);
+          // setIsEditingTimer(true); // Let button handle editing explicitly
+        } else if (mode === 'pomodoro') {
+          resetPomo(pomoMode);
+        } else if (mode === 'stopwatch') {
+          setStopwatchTime(0);
+          setLaps([]);
+          setIsStopwatchRunning(false);
+        }
+      }
+    };
+    document.addEventListener('click', handleBtnClick);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('click', handleBtnClick);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [mode, isTimerRunning, timerSeconds, isPomoRunning, pomoMode, isStopwatchRunning]);
+  const [showControls, setShowControls] = useState(true);
+  const controlsTimeoutRef = useRef(null);
+  const handleMouseMove = () => {
+    setShowControls(true);
+    if (isZenMode) {
+      if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
+      controlsTimeoutRef.current = setTimeout(() => setShowControls(false), 3000);
+    }
+  };
+  const toggleFullscreen = async () => {
+    try {
+      if (!document.fullscreenElement) await containerRef.current.requestFullscreen();else await document.exitFullscreen();
+    } catch (err) {
+      showError(t('fullscreenError'));
+    }
+  };
+  const showError = msg => {
+    setErrorMsg(msg);
+    setTimeout(() => setErrorMsg(''), 3000);
+  };
+  const {
+    exportTheme,
+    importTheme,
+    handleClearData,
+    handleDownloadApp,
+    handleCheckUpdate,
+    handleForceUpdate,
+    loadCustomFont,
+    handleFontUpload,
+    handleBgImageUpload,
+    isExporting,
+    setIsExporting,
+    updateStatus,
+    latestVersion,
+    isDownloadingApp,
+    hasCustomFont,
+    setHasCustomFont
+  } = useSystemSettings({
+    t,
+    showError,
+    setFont,
+    setTheme,
+    setCustomColors,
+    setCustomBgImage,
+    APP_VERSION,
+    theme,
+    font,
+    customColors,
+    customBgImage
+  });
+
+  // 日期格式化 - memoized 以避免每次渲染都呼叫昂貴的 toLocaleDateString
+  const dateLabel = useMemo(() => time.toLocaleDateString(t('locale'), {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }), [Math.floor(time.getTime() / 60000), lang]);
+  const getWorldTime = useCallback(timezone => {
+    try {
+      const d = new Date(Date.now() + meetingOffset * 3600 * 1000);
+      const s = d.toLocaleTimeString('en-US', {
+        timeZone: timezone,
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      const [h, m] = s.split(':');
+      return {
+        h,
+        m
+      };
+    } catch (e) {
+      return {
+        h: '--',
+        m: '--'
+      };
+    }
+  }, [meetingOffset]);
+  const filteredZones = useMemo(() => ALL_ZONES.filter(z => z.label.toLowerCase().includes(searchQuery.toLowerCase())), [searchQuery]);
+  const currentTheme = useMemo(() => theme === 'custom' ? {
+    name: 'themeCustom',
+    bg: '',
+    text: '',
+    accent: 'custom-accent',
+    card: 'custom-card backdrop-blur-3xl',
+    gradient: '',
+    button: 'hover:bg-white/20',
+    settingsBg: 'custom-settings'
+  } : DEFAULT_THEMES[theme] || DEFAULT_THEMES.modern, [theme]);
+  const {
+    h: rawH,
+    m,
+    s,
+    ms
+  } = formatTime(time);
+  // 12小時制轉換
+  const ampm = useMemo(() => {
+    if (!use12Hour) return '';
+    return time.getHours() < 12 ? 'AM' : 'PM';
+  }, [use12Hour, time.getHours() < 12]);
+  const h = useMemo(() => {
+    if (!use12Hour) return rawH;
+    const hour12 = time.getHours() % 12 || 12;
+    return hour12.toString().padStart(2, '0');
+  }, [use12Hour, rawH]);
+  const stopwatch = formatDuration(stopwatchTime);
+  const currentFontStyle = useMemo(() => {
+    var _DEFAULT_FONTS$font;
+    return font === 'custom' && hasCustomFont ? {
+      fontFamily: 'CustomFont'
+    } : ((_DEFAULT_FONTS$font = DEFAULT_FONTS[font]) === null || _DEFAULT_FONTS$font === void 0 ? void 0 : _DEFAULT_FONTS$font.style) || {};
+  }, [font, hasCustomFont]);
+  const containerStyle = useMemo(() => theme === 'custom' && !isCleanMode ? _objectSpread(_objectSpread({}, currentFontStyle), {}, {
+    background: customBgImage ? "linear-gradient(".concat(customColors.bg1, "cc, ").concat(customColors.bg1, "cc), url(").concat(customBgImage, ") center/cover no-repeat fixed") : "linear-gradient(135deg, ".concat(customColors.bg1, ", ").concat(customColors.bg2, ", ").concat(customColors.bg3, ")"),
+    color: customColors.text
+  }) : currentFontStyle, [theme, isCleanMode, currentFontStyle, customColors, customBgImage]);
+  return /*#__PURE__*/React.createElement("div", {
+    ref: containerRef,
+    onMouseMove: handleMouseMove,
+    style: containerStyle,
+    className: "h-[100dvh] w-full flex flex-col items-center pt-4 sm:pt-8 pb-32 transition-all duration-1000 ".concat(theme !== 'custom' && !isCleanMode ? "bg-gradient-to-br ".concat(currentTheme.gradient, " ").concat(currentTheme.text) : '', " ").concat(isCleanMode ? 'bg-transparent text-white' : '', " overflow-hidden relative selection:bg-pink-500 selection:text-white")
+  }, theme === 'custom' && /*#__PURE__*/React.createElement("style", null, "\n                .custom-accent { color: ".concat(customColors.accent, "; }\n                .custom-card { background: ").concat(customColors.bg1, "33; border-color: ").concat(customColors.text, "1a; box-shadow: 0 8px 32px 0 rgba(0,0,0,0.36); }\n                .custom-settings { background: ").concat(customColors.bg1, "e6; backdrop-filter: blur(64px); }\n            ")), /*#__PURE__*/React.createElement("div", {
+    className: "hide-on-export fixed top-8 left-1/2 -translate-x-1/2 z-[100] transition-all duration-300 ".concat(errorMsg ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none')
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "px-6 py-3 rounded-full shadow-lg backdrop-blur-md flex items-center gap-2 bg-slate-800/90 text-white"
+  }, /*#__PURE__*/React.createElement(AlertCircle, {
+    size: 18
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "text-sm font-medium"
+  }, errorMsg))), /*#__PURE__*/React.createElement(SettingsOverlay, {
+    showSettings: showSettings,
+    setShowSettings: setShowSettings,
+    activeSettingsTab: activeSettingsTab,
+    setActiveSettingsTab: setActiveSettingsTab,
+    t: t,
+    currentTheme: currentTheme,
+    DEFAULT_THEMES: DEFAULT_THEMES,
+    theme: theme,
+    setTheme: setTheme,
+    customColors: customColors,
+    updateCustomColor: updateCustomColor,
+    customBgImage: customBgImage,
+    setCustomBgImage: setCustomBgImage,
+    bgImageInputRef: bgImageInputRef,
+    handleBgImageUpload: handleBgImageUpload,
+    DEFAULT_FONTS: DEFAULT_FONTS,
+    font: font,
+    setFont: setFont,
+    fileInputRef: fileInputRef,
+    handleFontUpload: handleFontUpload,
+    hasCustomFont: hasCustomFont,
+    searchQuery: searchQuery,
+    setSearchQuery: setSearchQuery,
+    filteredZones: filteredZones,
+    selectedZones: selectedZones,
+    setSelectedZones: setSelectedZones,
+    I18N: I18N,
+    lang: lang,
+    setLang: setLang,
+    showMillis: showMillis,
+    setShowMillis: setShowMillis,
+    notificationsEnabled: notificationsEnabled,
+    handleToggleNotifications: handleToggleNotifications,
+    autoZenMode: autoZenMode,
+    setAutoZenMode: setAutoZenMode,
+    showProgressRing: showProgressRing,
+    setShowProgressRing: setShowProgressRing,
+    enableMiniTask: enableMiniTask,
+    setEnableMiniTask: setEnableMiniTask,
+    enableFocusAnalytics: enableFocusAnalytics,
+    setEnableFocusAnalytics: setEnableFocusAnalytics,
+    enableMeetingPlanner: enableMeetingPlanner,
+    setEnableMeetingPlanner: setEnableMeetingPlanner,
+    ringPosition: ringPosition,
+    setRingPosition: setRingPosition,
+    alarmSound: alarmSound,
+    setAlarmSound: setAlarmSound,
+    playAlarm: playAlarm,
+    exportTheme: exportTheme,
+    handleExportImage: handleExportImage,
+    isExporting: isExporting,
+    importTheme: importTheme,
+    isDownloadingApp: isDownloadingApp,
+    handleDownloadApp: handleDownloadApp,
+    APP_VERSION: APP_VERSION,
+    updateStatus: updateStatus,
+    handleForceUpdate: handleForceUpdate,
+    handleCheckUpdate: handleCheckUpdate,
+    latestVersion: latestVersion,
+    handleClearData: handleClearData,
+    clockLayout: clockLayout,
+    setClockLayout: setClockLayout,
+    use12Hour: use12Hour,
+    setUse12Hour: setUse12Hour,
+    hourlyChime: hourlyChime,
+    setHourlyChime: setHourlyChime,
+    showSeconds: showSeconds,
+    setShowSeconds: setShowSeconds,
+    showDate: showDate,
+    setShowDate: setShowDate,
+    showNextEvent: showNextEvent,
+    setShowNextEvent: setShowNextEvent
+  }), /*#__PURE__*/React.createElement(SplashOverlay, {
+    hasAgreed: hasAgreed,
+    setHasAgreed: setHasAgreed,
+    lang: lang,
+    setLang: setLang,
+    I18N: I18N,
+    t: t
+  }), /*#__PURE__*/React.createElement(ScreenSaverOverlay, {
+    isScreenSaverActive: isScreenSaverActive,
+    ssPos: ssPos,
+    h: h,
+    m: m,
+    t: t
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "absolute inset-0 overflow-hidden pointer-events-none transition-opacity duration-1000 ".concat(isZenMode ? 'opacity-20' : 'opacity-100')
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "ambient-blob-1 absolute top-[10%] left-[10%] w-[40vw] h-[40vw] rounded-full blur-[60px] opacity-15 bg-blue-500/40 will-change-transform"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "ambient-blob-2 absolute bottom-[10%] right-[10%] w-[40vw] h-[40vw] rounded-full blur-[60px] opacity-15 bg-purple-500/40 will-change-transform"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "relative z-10 w-full my-auto shrink max-h-[calc(100dvh-80px)] overflow-hidden max-w-[95vw] md:max-w-4xl rounded-[30px] sm:rounded-[48px] transition-zen flex flex-col items-center justify-start min-h-[40vh] ".concat(!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0', " ").concat(isZenMode ? 'scale-[1.05]' : '', " ").concat(isCleanMode ? 'scale-[0.85]' : '')
+  }, !isCleanMode && !isZenMode && /*#__PURE__*/React.createElement("div", {
+    className: "w-full flex flex-col items-center pt-4 sm:pt-6 pb-2 shrink-0 z-50 transition-opacity duration-300"
+  }, ['timer', 'pomodoro', 'stopwatch'].includes(mode) && /*#__PURE__*/React.createElement("div", {
+    className: "flex justify-center gap-2 bg-black/40 backdrop-blur-xl p-1.5 rounded-full border border-white/10 shadow-lg shadow-black/20",
+    style: {
+      transition: 'opacity 0.3s ease'
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setMode('pomodoro'),
+    className: "px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ".concat(mode === 'pomodoro' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100')
+  }, t('tabPomodoro')), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setMode('timer'),
+    className: "px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ".concat(mode === 'timer' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100')
+  }, t('tabTimer')), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setMode('stopwatch'),
+    className: "px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ".concat(mode === 'stopwatch' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100')
+  }, t('tabStopwatch'))), ['calendar', 'anniversary', 'memento'].includes(mode) && /*#__PURE__*/React.createElement("div", {
+    className: "flex justify-center gap-2 bg-black/40 backdrop-blur-xl p-1.5 rounded-full border border-white/10 shadow-lg shadow-black/20",
+    style: {
+      transition: 'opacity 0.3s ease'
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setMode('calendar'),
+    className: "px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ".concat(mode === 'calendar' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100')
+  }, t('tabMonthly')), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setMode('anniversary'),
+    className: "px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ".concat(mode === 'anniversary' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100')
+  }, t('tabEvents')), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setMode('memento'),
+    className: "px-5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all ".concat(mode === 'memento' ? 'bg-white/20 shadow-sm text-white' : 'opacity-60 hover:opacity-100')
+  }, t('tabLife'))), mode === 'pomodoro' && /*#__PURE__*/React.createElement("div", {
+    className: "w-full flex justify-center mt-4 shrink-0 z-40"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-4 transition-opacity duration-300"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => resetPomo('work'),
+    className: "px-4 py-1.5 rounded-full text-sm border transition-all ".concat(pomoMode === 'work' ? "bg-white/10 border-white/50 ".concat(currentTheme.accent) : 'border-transparent opacity-50')
+  }, t('work')), /*#__PURE__*/React.createElement("button", {
+    onClick: () => resetPomo('short'),
+    className: "px-4 py-1.5 rounded-full text-sm border transition-all ".concat(pomoMode === 'short' ? "bg-white/10 border-white/50 ".concat(currentTheme.accent) : 'border-transparent opacity-50')
+  }, t('break')), /*#__PURE__*/React.createElement("button", {
+    onClick: () => resetPomo('long'),
+    className: "px-4 py-1.5 rounded-full text-sm border transition-all ".concat(pomoMode === 'long' ? "bg-white/10 border-white/50 ".concat(currentTheme.accent) : 'border-transparent opacity-50')
+  }, t('long'))))), /*#__PURE__*/React.createElement("div", {
+    className: "w-full flex-1 overflow-y-auto custom-scrollbar flex flex-col items-center justify-start ".concat(isCleanMode || isZenMode || mode === 'clock' || mode === 'world' ? 'p-6 sm:p-12' : 'px-6 sm:px-12 pb-12 pt-4 sm:pt-6')
+  }, mode === 'clock' && /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-col items-center select-none"
+  }, /*#__PURE__*/React.createElement(WeatherWidget, {
+    weather: weather,
+    accent: currentTheme.accent
+  }), /*#__PURE__*/React.createElement(ClockDisplay, {
+    h: h,
+    m: m,
+    s: s,
+    ms: ms,
+    showMillis: showMillis,
+    accent: currentTheme.accent,
+    dateLabel: showDate ? dateLabel : null,
+    isZenMode: isZenMode,
+    clockLayout: clockLayout,
+    showSeconds: showSeconds,
+    ampm: ampm
+  }), showNextEvent && nextEvent && /*#__PURE__*/React.createElement("div", {
+    className: "mt-4 md:mt-6 flex items-center gap-3 px-6 py-3 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm animate-fade-in"
+  }, /*#__PURE__*/React.createElement(Sparkles, {
+    size: 16,
+    className: currentTheme.accent
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "text-sm opacity-80"
+  }, nextEvent.label), /*#__PURE__*/React.createElement("span", {
+    className: "text-sm font-bold ".concat(currentTheme.accent)
+  }, nextEvent.days === 0 ? t('eventToday') || '就在今天！' : "".concat(nextEvent.days, " ").concat(t('daysLeft'))))), mode === 'world' && /*#__PURE__*/React.createElement(WorldClockView, {
+    enableMeetingPlanner: enableMeetingPlanner,
+    meetingOffset: meetingOffset,
+    setMeetingOffset: setMeetingOffset,
+    currentTheme: currentTheme,
+    t: t,
+    selectedZones: selectedZones,
+    getWorldTime: getWorldTime,
+    setShowSettings: setShowSettings
+  }), mode === 'timer' && /*#__PURE__*/React.createElement(TimerView, {
+    isEditingTimer: isEditingTimer,
+    timerInput: timerInput,
+    handleTimerInput: handleTimerInput,
+    getTimerInputSeconds: getTimerInputSeconds,
+    setTimerInitial: setTimerInitial,
+    setTimerSeconds: setTimerSeconds,
+    setIsEditingTimer: setIsEditingTimer,
+    setIsTimerRunning: setIsTimerRunning,
+    autoZenMode: autoZenMode,
+    isZenMode: isZenMode,
+    setIsZenMode: setIsZenMode,
+    timerSeconds: timerSeconds,
+    timerInitial: timerInitial,
+    showProgressRing: showProgressRing,
+    theme: theme,
+    currentTheme: currentTheme,
+    ringPosition: ringPosition,
+    isTimerRunning: isTimerRunning,
+    t: t,
+    showControls: showControls,
+    isCleanMode: isCleanMode,
+    multiTimers: multiTimers,
+    toggleMultiTimer: toggleMultiTimer,
+    resetMultiTimer: resetMultiTimer,
+    deleteMultiTimer: deleteMultiTimer,
+    addMultiTimer: addMultiTimer,
+    setTimerInput: setTimerInput
+  }), mode === 'pomodoro' && /*#__PURE__*/React.createElement(PomodoroView, {
+    ringPosition: ringPosition,
+    showProgressRing: showProgressRing,
+    pomoSeconds: pomoSeconds,
+    pomoMode: pomoMode,
+    theme: theme,
+    currentTheme: currentTheme,
+    isPomoRunning: isPomoRunning,
+    autoZenMode: autoZenMode,
+    isZenMode: isZenMode,
+    setIsZenMode: setIsZenMode,
+    setIsPomoRunning: setIsPomoRunning,
+    resetPomo: resetPomo,
+    t: t,
+    showControls: showControls,
+    isCleanMode: isCleanMode,
+    enableMiniTask: enableMiniTask,
+    focusGoal: focusGoal,
+    setFocusGoal: setFocusGoal,
+    enableFocusAnalytics: enableFocusAnalytics,
+    focusStats: focusStats,
+    customColors: customColors
+  }), mode === 'stopwatch' && /*#__PURE__*/React.createElement(StopwatchView, {
+    stopwatch: stopwatch,
+    setIsStopwatchRunning: setIsStopwatchRunning,
+    isStopwatchRunning: isStopwatchRunning,
+    currentTheme: currentTheme,
+    setLaps: setLaps,
+    laps: laps,
+    stopwatchTime: stopwatchTime,
+    setStopwatchTime: setStopwatchTime,
+    t: t,
+    showControls: showControls,
+    isCleanMode: isCleanMode
+  }), mode === 'calendar' && /*#__PURE__*/React.createElement(CalendarView, {
+    calendarDate: calendarDate,
+    setCalendarDate: setCalendarDate,
+    t: t,
+    currentTheme: currentTheme,
+    lang: lang,
+    I18N: I18N,
+    setIsAddingEvent: setIsAddingEvent,
+    setNewEventName: setNewEventName,
+    setNewEventDate: setNewEventDate,
+    setMode: setMode
+  }), mode === 'anniversary' && /*#__PURE__*/React.createElement(AnniversaryView, {
+    anniversaries: anniversaries,
+    setAnniversaries: setAnniversaries,
+    isAddingEvent: isAddingEvent,
+    setIsAddingEvent: setIsAddingEvent,
+    newEventName: newEventName,
+    setNewEventName: setNewEventName,
+    newEventDate: newEventDate,
+    setNewEventDate: setNewEventDate,
+    currentTheme: currentTheme,
+    t: t
+  }), mode === 'memento' && /*#__PURE__*/React.createElement(MementoView, {
+    birthDate: birthDate,
+    setBirthDate: setBirthDate,
+    t: t
+  }))), /*#__PURE__*/React.createElement("div", {
     className: "w-full h-4 shrink-0"
   }), /*#__PURE__*/React.createElement(NavigationBar, {
     mode: mode,
