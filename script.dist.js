@@ -237,6 +237,7 @@ const I18N = {
     showSeconds: '顯示秒數',
     showDate: '顯示日期',
     showNextEvent: '顯示下一個事件倒數',
+    dashboardMode: '一體化儀表板模式',
     hourlyChimeTitle: '整點報時',
     eventToday: '就在今天！'
   },
@@ -421,6 +422,7 @@ const I18N = {
     showSeconds: 'Show Seconds',
     showDate: 'Show Date',
     showNextEvent: 'Event Countdown',
+    dashboardMode: 'Dashboard Mode',
     hourlyChimeTitle: 'Hourly Chime',
     eventToday: 'Today!'
   },
@@ -599,6 +601,7 @@ const I18N = {
     showSeconds: '秒を表示',
     showDate: '日付を表示',
     showNextEvent: '次のイベント',
+    dashboardMode: 'ダッシュボードモード',
     hourlyChimeTitle: '毎時チャイム',
     eventToday: '今日です！'
   }
@@ -1459,7 +1462,9 @@ const GeneralSettings = /*#__PURE__*/React.memo(_ref11 => {
     showDate,
     setShowDate,
     showNextEvent,
-    setShowNextEvent
+    setShowNextEvent,
+    dashboardMode,
+    setDashboardMode
   } = _ref11;
   return /*#__PURE__*/React.createElement("section", {
     className: "space-y-12 animate-fade-in"
@@ -1471,7 +1476,7 @@ const GeneralSettings = /*#__PURE__*/React.memo(_ref11 => {
     size: 24
   }), " ", t('general')), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-1 sm:grid-cols-2 gap-4"
-  }, [['showMillis', showMillis, setShowMillis], ['notifications', notificationsEnabled, handleToggleNotifications], ['autoZenMode', autoZenMode, setAutoZenMode], ['showProgressRing', showProgressRing, setShowProgressRing], ['enableMiniTask', enableMiniTask, setEnableMiniTask], ['enableFocusAnalytics', enableFocusAnalytics, setEnableFocusAnalytics], ['enableMeetingPlanner', enableMeetingPlanner, setEnableMeetingPlanner], ['use12Hour', use12Hour, setUse12Hour], ['hourlyChime', hourlyChime, setHourlyChime], ['showSeconds', showSeconds, setShowSeconds], ['showDate', showDate, setShowDate], ['showNextEvent', showNextEvent, setShowNextEvent]].map(_ref12 => {
+  }, [['showMillis', showMillis, setShowMillis], ['notifications', notificationsEnabled, handleToggleNotifications], ['autoZenMode', autoZenMode, setAutoZenMode], ['showProgressRing', showProgressRing, setShowProgressRing], ['enableMiniTask', enableMiniTask, setEnableMiniTask], ['enableFocusAnalytics', enableFocusAnalytics, setEnableFocusAnalytics], ['enableMeetingPlanner', enableMeetingPlanner, setEnableMeetingPlanner], ['use12Hour', use12Hour, setUse12Hour], ['hourlyChime', hourlyChime, setHourlyChime], ['showSeconds', showSeconds, setShowSeconds], ['showDate', showDate, setShowDate], ['showNextEvent', showNextEvent, setShowNextEvent], ['dashboardMode', dashboardMode, setDashboardMode]].map(_ref12 => {
     let [k, val, setVal] = _ref12;
     return /*#__PURE__*/React.createElement("label", {
       key: k,
@@ -1722,7 +1727,9 @@ const SettingsOverlay = /*#__PURE__*/React.memo(_ref15 => {
     showDate,
     setShowDate,
     showNextEvent,
-    setShowNextEvent
+    setShowNextEvent,
+    dashboardMode,
+    setDashboardMode
   } = _ref15;
   if (!showSettings) return null;
   return /*#__PURE__*/React.createElement("div", {
@@ -1832,7 +1839,9 @@ const SettingsOverlay = /*#__PURE__*/React.memo(_ref15 => {
     showDate: showDate,
     setShowDate: setShowDate,
     showNextEvent: showNextEvent,
-    setShowNextEvent: setShowNextEvent
+    setShowNextEvent: setShowNextEvent,
+    dashboardMode: dashboardMode,
+    setDashboardMode: setDashboardMode
   }), activeSettingsTab === 'about' && /*#__PURE__*/React.createElement(AboutSettings, {
     t: t,
     exportTheme: exportTheme,
@@ -2508,7 +2517,125 @@ const MementoView = /*#__PURE__*/React.memo(_ref24 => {
     });
   })))));
 });
-const CalendarView = /*#__PURE__*/React.memo(_ref25 => {
+const DashboardView = /*#__PURE__*/React.memo(_ref25 => {
+  let {
+    time,
+    h,
+    m,
+    s,
+    ms,
+    ampm,
+    dateLabel,
+    showSeconds,
+    clockLayout,
+    weather,
+    t,
+    currentTheme,
+    nextEvent,
+    selectedZones,
+    getWorldTime,
+    timerSeconds,
+    timerInitial,
+    isTimerRunning,
+    stopwatch,
+    focusGoal,
+    activeTab,
+    isZenMode
+  } = _ref25;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "w-full h-full max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 px-6 py-6 animate-fade-in select-none"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex-[1.8] flex flex-col gap-8"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex-1 p-8 rounded-[3rem] ".concat(currentTheme.card, " border-t border-l border-white/10 flex flex-col items-center justify-center relative overflow-hidden group")
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000"
+  }), /*#__PURE__*/React.createElement(ClockDisplay, {
+    h: h,
+    m: m,
+    s: s,
+    ms: ms,
+    ampm: ampm,
+    dateLabel: dateLabel,
+    showSeconds: showSeconds,
+    layout: clockLayout
+  }), dateLabel && /*#__PURE__*/React.createElement("div", {
+    className: "mt-4 text-sm opacity-40 tracking-[0.3em] uppercase"
+  }, dateLabel)), /*#__PURE__*/React.createElement("div", {
+    className: "p-8 rounded-[2.5rem] ".concat(currentTheme.card, " border-white/5 flex items-center justify-between")
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-6"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "p-4 rounded-3xl bg-white/5 ".concat(currentTheme.accent)
+  }, timerSeconds > 0 ? /*#__PURE__*/React.createElement(Timer, {
+    size: 32
+  }) : /*#__PURE__*/React.createElement(Target, {
+    size: 32
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "text-xl font-bold"
+  }, timerSeconds > 0 ? t('work') : focusGoal || t('focusStats')), /*#__PURE__*/React.createElement("div", {
+    className: "text-sm opacity-40 uppercase tracking-widest"
+  }, timerSeconds > 0 ? 'Current Session' : 'No Active Task'))), /*#__PURE__*/React.createElement("div", {
+    className: "text-4xl font-black tabular-nums tracking-tighter"
+  }, timerSeconds > 0 ? formatDuration(timerSeconds) : stopwatch))), /*#__PURE__*/React.createElement("div", {
+    className: "flex-1 flex flex-col gap-8"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "p-8 rounded-[2.5rem] ".concat(currentTheme.card, " border-white/5 flex flex-col gap-2")
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-3"
+  }, /*#__PURE__*/React.createElement(CloudSun, {
+    size: 24,
+    className: currentTheme.accent
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "text-2xl font-bold"
+  }, weather.city || 'Taipei')), /*#__PURE__*/React.createElement("span", {
+    className: "text-3xl font-black"
+  }, weather.temp, "\xB0C")), /*#__PURE__*/React.createElement("div", {
+    className: "text-sm opacity-40 uppercase tracking-[0.2em] mt-2"
+  }, new Intl.DateTimeFormat('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric'
+  }).format(time))), nextEvent && /*#__PURE__*/React.createElement("div", {
+    className: "p-8 rounded-[2.5rem] bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/10 relative overflow-hidden"
+  }, /*#__PURE__*/React.createElement(Sparkles, {
+    size: 120,
+    className: "absolute -right-8 -bottom-8 opacity-5 text-white"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "relative z-10"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-xs uppercase tracking-[0.3em] opacity-60 mb-2"
+  }, t('anniversary')), /*#__PURE__*/React.createElement("div", {
+    className: "text-2xl font-bold truncate mb-1"
+  }, nextEvent.label), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-baseline gap-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-4xl font-black ".concat(currentTheme.accent)
+  }, nextEvent.diff), /*#__PURE__*/React.createElement("span", {
+    className: "text-sm opacity-60 uppercase"
+  }, t('daysLeft'))))), /*#__PURE__*/React.createElement("div", {
+    className: "flex-1 p-8 rounded-[2.5rem] ".concat(currentTheme.card, " border-white/5 flex flex-col")
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-xs uppercase tracking-[0.3em] opacity-40 mb-6 flex items-center gap-2"
+  }, /*#__PURE__*/React.createElement(Globe, {
+    size: 14
+  }), " ", t('worldClock')), /*#__PURE__*/React.createElement("div", {
+    className: "space-y-6 overflow-y-auto custom-scrollbar pr-2"
+  }, selectedZones.slice(0, 3).map(zone => {
+    const tz = getWorldTime(zone.id);
+    return /*#__PURE__*/React.createElement("div", {
+      key: zone.id,
+      className: "flex justify-between items-center"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "opacity-60 font-medium"
+    }, t(zone.label)), /*#__PURE__*/React.createElement("span", {
+      className: "font-bold tabular-nums"
+    }, tz.h, ":", tz.m));
+  })))));
+});
+const CalendarView = /*#__PURE__*/React.memo(_ref26 => {
   let {
     calendarDate,
     setCalendarDate,
@@ -2520,7 +2647,7 @@ const CalendarView = /*#__PURE__*/React.memo(_ref25 => {
     setNewEventName,
     setNewEventDate,
     setMode
-  } = _ref25;
+  } = _ref26;
   const year = calendarDate.getFullYear();
   const month = calendarDate.getMonth();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -2725,11 +2852,11 @@ function useWeather() {
 }
 
 // --- Custom Hook for Multi-Timers ---
-function useMultiTimers(_ref26) {
+function useMultiTimers(_ref27) {
   let {
     playAlarm,
     showNotification
-  } = _ref26;
+  } = _ref27;
   const [multiTimers, setMultiTimers] = useState([]);
   const multiTimerIdRef = useRef(0);
   useEffect(() => {
@@ -2783,7 +2910,7 @@ function useMultiTimers(_ref26) {
 }
 
 // --- Custom Hook for System Settings & Update ---
-function useSystemSettings(_ref27) {
+function useSystemSettings(_ref28) {
   let {
     t,
     showError,
@@ -2796,7 +2923,7 @@ function useSystemSettings(_ref27) {
     font,
     customColors,
     customBgImage
-  } = _ref27;
+  } = _ref28;
   const [isExporting, setIsExporting] = useState(false);
   const [updateStatus, setUpdateStatus] = useState(null);
   const [latestVersion, setLatestVersion] = useState(null);
@@ -2955,12 +3082,12 @@ function useSystemSettings(_ref27) {
 }
 
 // --- Timer Hook ---
-function useTimer(_ref28) {
+function useTimer(_ref29) {
   let {
     playAlarm,
     showNotification,
     triggerSuccess
-  } = _ref28;
+  } = _ref29;
   const [timerSeconds, setTimerSeconds] = useState(25 * 60);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [timerInitial, setTimerInitial] = useState(25 * 60);
@@ -3010,7 +3137,7 @@ function useTimer(_ref28) {
 }
 
 // --- Pomodoro Hook ---
-function usePomodoro(_ref29) {
+function usePomodoro(_ref30) {
   let {
     playAlarm,
     showNotification,
@@ -3018,7 +3145,7 @@ function usePomodoro(_ref29) {
     enableFocusAnalytics,
     setFocusStats,
     t
-  } = _ref29;
+  } = _ref30;
   const [pomoMode, setPomoMode] = useState('work'); // 'work', 'short', 'long'
   const [pomoSeconds, setPomoSeconds] = useState(25 * 60);
   const [isPomoRunning, setIsPomoRunning] = useState(false);
@@ -3111,6 +3238,7 @@ function App() {
   const [showSeconds, setShowSeconds] = useLocalBoolean('clock_showSeconds', true);
   const [showDate, setShowDate] = useLocalBoolean('clock_showDate', true);
   const [showNextEvent, setShowNextEvent] = useLocalBoolean('clock_showNextEvent', false);
+  const [dashboardMode, setDashboardMode] = useLocalBoolean('clock_dashboardMode', false);
 
   // New Automation Settings
   const [autoZenMode, setAutoZenMode] = useLocalBoolean('clock_autoZenMode', true);
@@ -3680,7 +3808,9 @@ function App() {
     showDate: showDate,
     setShowDate: setShowDate,
     showNextEvent: showNextEvent,
-    setShowNextEvent: setShowNextEvent
+    setShowNextEvent: setShowNextEvent,
+    dashboardMode: dashboardMode,
+    setDashboardMode: setDashboardMode
   }), /*#__PURE__*/React.createElement(SplashOverlay, {
     hasAgreed: hasAgreed,
     setHasAgreed: setHasAgreed,
@@ -3701,7 +3831,7 @@ function App() {
   }), /*#__PURE__*/React.createElement("div", {
     className: "ambient-blob-2 absolute bottom-[10%] right-[10%] w-[40vw] h-[40vw] rounded-full blur-[60px] opacity-15 bg-purple-500/40 will-change-transform"
   })), /*#__PURE__*/React.createElement("div", {
-    className: "relative z-10 w-full my-auto shrink max-h-[calc(100dvh-80px)] overflow-hidden max-w-[95vw] md:max-w-4xl rounded-[30px] sm:rounded-[48px] transition-zen flex flex-col items-center justify-start min-h-[40vh] ".concat(!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0', " ").concat(isZenMode ? 'scale-[1.05]' : '', " ").concat(isCleanMode ? 'scale-[0.85]' : '')
+    className: "relative z-10 w-full my-auto shrink max-h-[calc(100dvh-80px)] overflow-hidden max-w-[95vw] ".concat(dashboardMode && mode === 'clock' ? 'md:max-w-6xl' : 'md:max-w-4xl', " rounded-[30px] sm:rounded-[48px] transition-zen flex flex-col items-center justify-start min-h-[40vh] ").concat(!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0', " ").concat(isZenMode ? 'scale-[1.05]' : '', " ").concat(isCleanMode ? 'scale-[0.85]' : '')
   }, !isCleanMode && !isZenMode && /*#__PURE__*/React.createElement("div", {
     className: "w-full flex flex-col items-center pt-4 sm:pt-6 pb-2 shrink-0 z-50 transition-opacity duration-300"
   }, ['timer', 'pomodoro', 'stopwatch'].includes(mode) && /*#__PURE__*/React.createElement("div", {
@@ -3747,7 +3877,30 @@ function App() {
     className: "px-4 py-1.5 rounded-full text-sm border transition-all ".concat(pomoMode === 'long' ? "bg-white/10 border-white/50 ".concat(currentTheme.accent) : 'border-transparent opacity-50')
   }, t('long'))))), /*#__PURE__*/React.createElement("div", {
     className: "w-full flex-1 overflow-y-auto custom-scrollbar flex flex-col items-center justify-start ".concat(isCleanMode || isZenMode || mode === 'clock' || mode === 'world' ? 'p-6 sm:p-12' : 'px-6 sm:px-12 pb-12 pt-4 sm:pt-6')
-  }, mode === 'clock' && /*#__PURE__*/React.createElement("div", {
+  }, mode === 'clock' && (dashboardMode ? /*#__PURE__*/React.createElement(DashboardView, {
+    time: time,
+    h: h,
+    m: m,
+    s: s,
+    ms: ms,
+    ampm: ampm,
+    dateLabel: showDate ? dateLabel : null,
+    showSeconds: showSeconds,
+    clockLayout: clockLayout,
+    weather: weather,
+    t: t,
+    currentTheme: currentTheme,
+    nextEvent: nextEvent,
+    selectedZones: selectedZones,
+    getWorldTime: getWorldTime,
+    timerSeconds: timerSeconds,
+    timerInitial: timerInitial,
+    isTimerRunning: isTimerRunning,
+    stopwatch: stopwatch,
+    focusGoal: focusGoal,
+    activeTab: mode,
+    isZenMode: isZenMode
+  }) : /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col items-center select-none"
   }, /*#__PURE__*/React.createElement(WeatherWidget, {
     weather: weather,
@@ -3773,7 +3926,7 @@ function App() {
     className: "text-sm opacity-80"
   }, nextEvent.label), /*#__PURE__*/React.createElement("span", {
     className: "text-sm font-bold ".concat(currentTheme.accent)
-  }, nextEvent.days === 0 ? t('eventToday') || '就在今天！' : "".concat(nextEvent.days, " ").concat(t('daysLeft'))))), mode === 'world' && /*#__PURE__*/React.createElement(WorldClockView, {
+  }, nextEvent.days === 0 ? t('eventToday') || '就在今天！' : "".concat(nextEvent.days, " ").concat(t('daysLeft')))))), mode === 'world' && /*#__PURE__*/React.createElement(WorldClockView, {
     enableMeetingPlanner: enableMeetingPlanner,
     meetingOffset: meetingOffset,
     setMeetingOffset: setMeetingOffset,

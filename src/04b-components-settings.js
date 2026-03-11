@@ -173,7 +173,7 @@ const GeneralSettings = React.memo(({
     enableMeetingPlanner, setEnableMeetingPlanner, ringPosition, setRingPosition,
     alarmSound, setAlarmSound, playAlarm,
     use12Hour, setUse12Hour, hourlyChime, setHourlyChime, showSeconds, setShowSeconds,
-    showDate, setShowDate, showNextEvent, setShowNextEvent
+    showDate, setShowDate, showNextEvent, setShowNextEvent, dashboardMode, setDashboardMode
 }) => (
     <section className="space-y-12 animate-fade-in">
         <div className="space-y-6">
@@ -190,7 +190,8 @@ const GeneralSettings = React.memo(({
                 ['hourlyChime', hourlyChime, setHourlyChime],
                 ['showSeconds', showSeconds, setShowSeconds],
                 ['showDate', showDate, setShowDate],
-                ['showNextEvent', showNextEvent, setShowNextEvent]].map(([k, val, setVal]) => (
+                ['showNextEvent', showNextEvent, setShowNextEvent],
+                ['dashboardMode', dashboardMode, setDashboardMode]].map(([k, val, setVal]) => (
                     <label key={k} className="flex items-center justify-between p-6 rounded-2xl bg-white/5 cursor-pointer hover:bg-white/10 transition-colors">
                         <span>{t(k)}</span>
                         <div onClick={() => k === 'notifications' ? handleToggleNotifications() : setVal(!val)} className={`w-14 h-8 rounded-full relative transition-colors ${val ? 'bg-blue-500' : 'bg-slate-600'}`}>
@@ -321,7 +322,7 @@ const SettingsOverlay = React.memo(({
     handleForceUpdate, handleCheckUpdate, latestVersion, handleClearData,
     clockLayout, setClockLayout,
     use12Hour, setUse12Hour, hourlyChime, setHourlyChime, showSeconds, setShowSeconds,
-    showDate, setShowDate, showNextEvent, setShowNextEvent
+    showDate, setShowDate, showNextEvent, setShowNextEvent, dashboardMode, setDashboardMode
 }) => {
     if (!showSettings) return null;
     return (
@@ -378,6 +379,7 @@ const SettingsOverlay = React.memo(({
                             showSeconds={showSeconds} setShowSeconds={setShowSeconds}
                             showDate={showDate} setShowDate={setShowDate}
                             showNextEvent={showNextEvent} setShowNextEvent={setShowNextEvent}
+                            dashboardMode={dashboardMode} setDashboardMode={setDashboardMode}
                         />
                     )}
 

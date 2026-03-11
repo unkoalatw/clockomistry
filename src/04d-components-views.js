@@ -288,6 +288,91 @@ const MementoView = React.memo(({ birthDate, setBirthDate, t }) => {
     );
 });
 
+const DashboardView = React.memo(({
+    time, h, m, s, ms, ampm, dateLabel, showSeconds, clockLayout,
+    weather, t, currentTheme, nextEvent, selectedZones, getWorldTime,
+    timerSeconds, timerInitial, isTimerRunning, stopwatch,
+    focusGoal, activeTab, isZenMode
+}) => {
+    return (
+        <div className="w-full h-full max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 px-6 py-6 animate-fade-in select-none">
+            {/* Left Column: Big Clock + Focus/Session */}
+            <div className="flex-[1.8] flex flex-col gap-8">
+                <div className={`flex-1 p-8 rounded-[3rem] ${currentTheme.card} border-t border-l border-white/10 flex flex-col items-center justify-center relative overflow-hidden group`}>
+                    {/* Background Glow */}
+                    <div className="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+                    <ClockDisplay h={h} m={m} s={s} ms={ms} ampm={ampm} dateLabel={dateLabel} showSeconds={showSeconds} layout={clockLayout} />
+                    {dateLabel && <div className="mt-4 text-sm opacity-40 tracking-[0.3em] uppercase">{dateLabel}</div>}
+                </div>
+
+                {/* Session Card (Timer or Stopwatch depending on what is active) */}
+                <div className={`p-8 rounded-[2.5rem] ${currentTheme.card} border-white/5 flex items-center justify-between`}>
+                    <div className="flex items-center gap-6">
+                        <div className={`p-4 rounded-3xl bg-white/5 ${currentTheme.accent}`}>
+                            {timerSeconds > 0 ? <Timer size={32} /> : <Target size={32} />}
+                        </div>
+                        <div>
+                            <div className="text-xl font-bold">{timerSeconds > 0 ? t('work') : focusGoal || t('focusStats')}</div>
+                            <div className="text-sm opacity-40 uppercase tracking-widest">{timerSeconds > 0 ? 'Current Session' : 'No Active Task'}</div>
+                        </div>
+                    </div>
+                    <div className="text-4xl font-black tabular-nums tracking-tighter">
+                        {timerSeconds > 0 ? formatDuration(timerSeconds) : stopwatch}
+                    </div>
+                </div>
+            </div>
+
+            {/* Right Column: Widgets */}
+            <div className="flex-1 flex flex-col gap-8">
+                {/* Weather & Date Pill */}
+                <div className={`p-8 rounded-[2.5rem] ${currentTheme.card} border-white/5 flex flex-col gap-2`}>
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <CloudSun size={24} className={currentTheme.accent} />
+                            <span className="text-2xl font-bold">{weather.city || 'Taipei'}</span>
+                        </div>
+                        <span className="text-3xl font-black">{weather.temp}°C</span>
+                    </div>
+                    <div className="text-sm opacity-40 uppercase tracking-[0.2em] mt-2">{new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'long', day: 'numeric' }).format(time)}</div>
+                </div>
+
+                {/* Next Event Widget */}
+                {nextEvent && (
+                    <div className={`p-8 rounded-[2.5rem] bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/10 relative overflow-hidden`}>
+                        <Sparkles size={120} className="absolute -right-8 -bottom-8 opacity-5 text-white" />
+                        <div className="relative z-10">
+                            <div className="text-xs uppercase tracking-[0.3em] opacity-60 mb-2">{t('anniversary')}</div>
+                            <div className="text-2xl font-bold truncate mb-1">{nextEvent.label}</div>
+                            <div className="flex items-baseline gap-2">
+                                <span className={`text-4xl font-black ${currentTheme.accent}`}>{nextEvent.diff}</span>
+                                <span className="text-sm opacity-60 uppercase">{t('daysLeft')}</span>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Mini World Clock */}
+                <div className={`flex-1 p-8 rounded-[2.5rem] ${currentTheme.card} border-white/5 flex flex-col`}>
+                    <div className="text-xs uppercase tracking-[0.3em] opacity-40 mb-6 flex items-center gap-2">
+                        <Globe size={14} /> {t('worldClock')}
+                    </div>
+                    <div className="space-y-6 overflow-y-auto custom-scrollbar pr-2">
+                        {selectedZones.slice(0, 3).map(zone => {
+                            const tz = getWorldTime(zone.id);
+                            return (
+                                <div key={zone.id} className="flex justify-between items-center">
+                                    <span className="opacity-60 font-medium">{t(zone.label)}</span>
+                                    <span className="font-bold tabular-nums">{tz.h}:{tz.m}</span>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+});
+
 const CalendarView = React.memo(({ calendarDate, setCalendarDate, t, currentTheme, lang, I18N, setIsAddingEvent, setNewEventName, setNewEventDate, setMode }) => {
     const year = calendarDate.getFullYear();
     const month = calendarDate.getMonth();

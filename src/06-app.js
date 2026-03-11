@@ -16,6 +16,7 @@ function App() {
     const [showSeconds, setShowSeconds] = useLocalBoolean('clock_showSeconds', true);
     const [showDate, setShowDate] = useLocalBoolean('clock_showDate', true);
     const [showNextEvent, setShowNextEvent] = useLocalBoolean('clock_showNextEvent', false);
+    const [dashboardMode, setDashboardMode] = useLocalBoolean('clock_dashboardMode', false);
 
     // New Automation Settings
     const [autoZenMode, setAutoZenMode] = useLocalBoolean('clock_autoZenMode', true);
@@ -454,6 +455,7 @@ function App() {
                 showSeconds={showSeconds} setShowSeconds={setShowSeconds}
                 showDate={showDate} setShowDate={setShowDate}
                 showNextEvent={showNextEvent} setShowNextEvent={setShowNextEvent}
+                dashboardMode={dashboardMode} setDashboardMode={setDashboardMode}
             />
 
             <SplashOverlay
@@ -473,7 +475,7 @@ function App() {
             </div>
 
             {/* Main Card */}
-            <div className={`relative z-10 w-full my-auto shrink max-h-[calc(100dvh-80px)] overflow-hidden max-w-[95vw] md:max-w-4xl rounded-[30px] sm:rounded-[48px] transition-zen flex flex-col items-center justify-start min-h-[40vh] ${!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0'} ${isZenMode ? 'scale-[1.05]' : ''} ${isCleanMode ? 'scale-[0.85]' : ''}`}>
+            <div className={`relative z-10 w-full my-auto shrink max-h-[calc(100dvh-80px)] overflow-hidden max-w-[95vw] ${dashboardMode && mode === 'clock' ? 'md:max-w-6xl' : 'md:max-w-4xl'} rounded-[30px] sm:rounded-[48px] transition-zen flex flex-col items-center justify-start min-h-[40vh] ${!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0'} ${isZenMode ? 'scale-[1.05]' : ''} ${isCleanMode ? 'scale-[0.85]' : ''}`}>
 
                 {/* Fixed Top Navigation Arrays */}
                 {(!isCleanMode && !isZenMode) && (
@@ -510,17 +512,30 @@ function App() {
                 {/* SCROLLABLE BODY */}
                 <div className={`w-full flex-1 overflow-y-auto custom-scrollbar flex flex-col items-center justify-start ${isCleanMode || isZenMode || mode === 'clock' || mode === 'world' ? 'p-6 sm:p-12' : 'px-6 sm:px-12 pb-12 pt-4 sm:pt-6'}`}>
                     {mode === 'clock' && (
-                        <div className="flex flex-col items-center select-none">
-                            <WeatherWidget weather={weather} accent={currentTheme.accent} />
-                            <ClockDisplay h={h} m={m} s={s} ms={ms} showMillis={showMillis} accent={currentTheme.accent} dateLabel={showDate ? dateLabel : null} isZenMode={isZenMode} clockLayout={clockLayout} showSeconds={showSeconds} ampm={ampm} />
-                            {showNextEvent && nextEvent && (
-                                <div className="mt-4 md:mt-6 flex items-center gap-3 px-6 py-3 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm animate-fade-in">
-                                    <Sparkles size={16} className={currentTheme.accent} />
-                                    <span className="text-sm opacity-80">{nextEvent.label}</span>
-                                    <span className={`text-sm font-bold ${currentTheme.accent}`}>{nextEvent.days === 0 ? (t('eventToday') || '就在今天！') : `${nextEvent.days} ${t('daysLeft')}`}</span>
-                                </div>
-                            )}
-                        </div>
+                        dashboardMode ? (
+                            <DashboardView
+                                time={time} h={h} m={m} s={s} ms={ms} ampm={ampm}
+                                dateLabel={showDate ? dateLabel : null} showSeconds={showSeconds}
+                                clockLayout={clockLayout} weather={weather}
+                                t={t} currentTheme={currentTheme} nextEvent={nextEvent}
+                                selectedZones={selectedZones} getWorldTime={getWorldTime}
+                                timerSeconds={timerSeconds} timerInitial={timerInitial}
+                                isTimerRunning={isTimerRunning} stopwatch={stopwatch}
+                                focusGoal={focusGoal} activeTab={mode} isZenMode={isZenMode}
+                            />
+                        ) : (
+                            <div className="flex flex-col items-center select-none">
+                                <WeatherWidget weather={weather} accent={currentTheme.accent} />
+                                <ClockDisplay h={h} m={m} s={s} ms={ms} showMillis={showMillis} accent={currentTheme.accent} dateLabel={showDate ? dateLabel : null} isZenMode={isZenMode} clockLayout={clockLayout} showSeconds={showSeconds} ampm={ampm} />
+                                {showNextEvent && nextEvent && (
+                                    <div className="mt-4 md:mt-6 flex items-center gap-3 px-6 py-3 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm animate-fade-in">
+                                        <Sparkles size={16} className={currentTheme.accent} />
+                                        <span className="text-sm opacity-80">{nextEvent.label}</span>
+                                        <span className={`text-sm font-bold ${currentTheme.accent}`}>{nextEvent.days === 0 ? (t('eventToday') || '就在今天！') : `${nextEvent.days} ${t('daysLeft')}`}</span>
+                                    </div>
+                                )}
+                            </div>
+                        )
                     )}
 
                     {mode === 'world' && (
