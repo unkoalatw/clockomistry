@@ -2206,7 +2206,7 @@ const TimerView = /*#__PURE__*/React.memo(_ref21 => {
     accent: theme === 'custom' ? 'custom-accent text-white' : currentTheme.accent,
     position: ringPosition
   }), /*#__PURE__*/React.createElement("div", {
-    className: "font-bold tracking-tighter tabular-nums drop-shadow-2xl cursor-pointer hover:opacity-80 transition-all flex items-baseline gap-1 md:gap-2 z-10 text-[15vw] md:text-[120px]",
+    className: "font-bold tracking-tighter tabular-nums drop-shadow-2xl cursor-pointer hover:opacity-80 transition-all flex items-baseline gap-1 md:gap-2 z-10 text-[12vw] md:text-[100px]",
     onClick: () => {
       if (!isTimerRunning) {
         setIsEditingTimer(true);
@@ -2220,10 +2220,22 @@ const TimerView = /*#__PURE__*/React.memo(_ref21 => {
   }, "min")), /*#__PURE__*/React.createElement("span", null, (timerSeconds % 60).toString().padStart(2, '0'), /*#__PURE__*/React.createElement("span", {
     className: "font-light opacity-50 ml-1 ".concat(isZenMode ? 'text-[4vw] md:text-[32px]' : 'text-[3vw] md:text-[24px]')
   }, "s"))), !isTimerRunning && /*#__PURE__*/React.createElement("div", {
-    className: "absolute -bottom-8 left-1/2 -translate-x-1/2 flex items-center justify-center gap-2 text-sm opacity-50 transition-opacity pointer-events-none"
+    className: "absolute -bottom-14 left-1/2 -translate-x-1/2 flex flex-col items-center justify-center gap-3 transition-opacity z-20"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2 text-sm opacity-50 pointer-events-none"
   }, /*#__PURE__*/React.createElement(Edit3, {
-    size: 16
-  }), " ", /*#__PURE__*/React.createElement("span", null, t('clickToEdit') || 'Click to edit')))), /*#__PURE__*/React.createElement("div", {
+    size: 14
+  }), " ", /*#__PURE__*/React.createElement("span", null, t('clickToEdit') || 'Click to edit')), /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-2"
+  }, [1, 5, 10, 25].map(m => /*#__PURE__*/React.createElement("button", {
+    key: m,
+    onClick: e => {
+      e.stopPropagation();
+      setTimerInitial(timerInitial + m * 60);
+      setTimerSeconds(timerSeconds + m * 60);
+    },
+    className: "px-3 py-1.5 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 text-xs font-bold transition-all backdrop-blur-md"
+  }, "+", m, "m")))))), /*#__PURE__*/React.createElement("div", {
     className: "mt-8 flex gap-6 z-30 relative ".concat(isEditingTimer ? 'hidden' : '', " ").concat(!showControls && !isCleanMode ? 'opacity-0 pointer-events-none' : 'opacity-100 transition-opacity duration-500')
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
@@ -2474,33 +2486,33 @@ const MementoView = /*#__PURE__*/React.memo(_ref24 => {
   }
   const pct = birthDate ? Math.min(100, Math.floor(livedWeeksCount / totalWeeksCount * 100)) : 0;
   return /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-col items-center select-none w-full max-w-2xl animate-fade-in relative mt-12"
+    className: "flex flex-col items-center select-none w-full max-w-md animate-fade-in relative mt-12"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-col mb-8 text-center bg-black/40 backdrop-blur-md px-12 py-6 rounded-[2rem] border border-white/10 w-full pb-8"
+    className: "flex flex-col mb-8 text-center bg-black/40 backdrop-blur-md px-6 py-6 rounded-3xl border border-white/10 w-full pb-8"
   }, /*#__PURE__*/React.createElement("h2", {
-    className: "text-3xl font-black tracking-widest uppercase mb-6 mt-2"
+    className: "text-2xl font-black tracking-widest uppercase mb-6 mt-2"
   }, t('memento')), /*#__PURE__*/React.createElement("label", {
-    className: "text-sm opacity-80 flex flex-col items-center gap-3 w-full"
+    className: "text-sm opacity-80 flex flex-col items-center gap-2 w-full"
   }, /*#__PURE__*/React.createElement("span", {
     className: "uppercase tracking-widest text-white/50"
   }, t('birthDate')), /*#__PURE__*/React.createElement("input", {
     type: "date",
     value: birthDate,
     onChange: e => setBirthDate(e.target.value),
-    className: "bg-white/10 border border-white/20 rounded-xl px-4 py-2 outline-none text-white text-lg w-full max-w-xs transition-with-all hover:bg-white/20 focus:bg-white/20 focus:border-white/40 font-mono tracking-widest",
+    className: "bg-white/10 border border-white/20 rounded-xl px-3 py-2 outline-none text-white text-base w-full max-w-[200px] transition-with-all hover:bg-white/20 focus:bg-white/20 focus:border-white/40 font-mono tracking-widest",
     style: {
       colorScheme: 'dark'
     }
   })), /*#__PURE__*/React.createElement("div", {
-    className: "w-full mt-8"
+    className: "w-full mt-6"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-between text-xs opacity-60 mb-4 px-2 font-mono uppercase tracking-[0.2em]"
+    className: "flex justify-between text-[10px] opacity-60 mb-3 px-1 font-mono uppercase tracking-[0.2em]"
   }, /*#__PURE__*/React.createElement("span", null, t('livedWeeks'), " : ", livedWeeksCount), /*#__PURE__*/React.createElement("span", null, pct, "% - ", t('totalWeeks'))), /*#__PURE__*/React.createElement("div", {
-    className: "relative w-full rounded-2xl overflow-hidden bg-black/50 border border-white/5 p-4 sm:p-6",
+    className: "relative w-full rounded-xl overflow-hidden bg-black/50 border border-white/5 p-3",
     style: {
       display: 'grid',
       gridTemplateColumns: "repeat(".concat(weeksPerYear, ", 1fr)"),
-      gap: '2px',
+      gap: '1px',
       alignContent: 'start'
     }
   }, Array.from({
@@ -2509,7 +2521,7 @@ const MementoView = /*#__PURE__*/React.memo(_ref24 => {
     const isLived = i < livedWeeksCount;
     return /*#__PURE__*/React.createElement("div", {
       key: i,
-      className: "w-full aspect-square rounded-[1px] ".concat(isLived ? 'bg-indigo-400' : 'bg-white/10'),
+      className: "w-full aspect-square ".concat(isLived ? 'bg-indigo-400' : 'bg-white/10'),
       style: {
         opacity: isLived ? 0.9 : 0.2
       },

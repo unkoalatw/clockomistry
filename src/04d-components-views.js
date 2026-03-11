@@ -127,14 +127,21 @@ const TimerView = React.memo(({
             ) : (
                 <div className={`relative flex justify-center items-center w-full mt-2 p-2 sm:p-4 flex-col ${ringPosition === 'left' ? 'md:flex-row' : ringPosition === 'right' ? 'md:flex-row-reverse' : 'md:flex-col'}`}>
                     {showProgressRing && <ProgressRing progress={timerInitial > 0 ? (timerSeconds / timerInitial) * 100 : 0} accent={theme === 'custom' ? 'custom-accent text-white' : currentTheme.accent} position={ringPosition} />}
-                    <div className={`font-bold tracking-tighter tabular-nums drop-shadow-2xl cursor-pointer hover:opacity-80 transition-all flex items-baseline gap-1 md:gap-2 z-10 text-[15vw] md:text-[120px]`} onClick={() => { if (!isTimerRunning) { setIsEditingTimer(true); setTimerInput('000000'); } }}>
+                    <div className={`font-bold tracking-tighter tabular-nums drop-shadow-2xl cursor-pointer hover:opacity-80 transition-all flex items-baseline gap-1 md:gap-2 z-10 text-[12vw] md:text-[100px]`} onClick={() => { if (!isTimerRunning) { setIsEditingTimer(true); setTimerInput('000000'); } }}>
                         {timerSeconds >= 3600 && <span>{Math.floor(timerSeconds / 3600).toString().padStart(2, '0')}<span className={`font-light opacity-50 ml-1 ${isZenMode ? 'text-[4vw] md:text-[32px]' : 'text-[3vw] md:text-[24px]'}`}>h</span></span>}
                         <span>{Math.floor((timerSeconds % 3600) / 60).toString().padStart(2, '0')}<span className={`font-light opacity-50 ml-1 ${isZenMode ? 'text-[4vw] md:text-[32px]' : 'text-[3vw] md:text-[24px]'}`}>min</span></span>
                         <span>{(timerSeconds % 60).toString().padStart(2, '0')}<span className={`font-light opacity-50 ml-1 ${isZenMode ? 'text-[4vw] md:text-[32px]' : 'text-[3vw] md:text-[24px]'}`}>s</span></span>
                     </div>
                     {!isTimerRunning && (
-                        <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex items-center justify-center gap-2 text-sm opacity-50 transition-opacity pointer-events-none">
-                            <Edit3 size={16} /> <span>{t('clickToEdit') || 'Click to edit'}</span>
+                        <div className="absolute -bottom-14 left-1/2 -translate-x-1/2 flex flex-col items-center justify-center gap-3 transition-opacity z-20">
+                            <div className="flex items-center gap-2 text-sm opacity-50 pointer-events-none">
+                                <Edit3 size={14} /> <span>{t('clickToEdit') || 'Click to edit'}</span>
+                            </div>
+                            <div className="flex gap-2">
+                                {[1, 5, 10, 25].map(m => (
+                                    <button key={m} onClick={(e) => { e.stopPropagation(); setTimerInitial(timerInitial + m * 60); setTimerSeconds(timerSeconds + m * 60); }} className="px-3 py-1.5 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 text-xs font-bold transition-all backdrop-blur-md">+{m}m</button>
+                                ))}
+                            </div>
                         </div>
                     )}
                 </div>
@@ -264,22 +271,22 @@ const MementoView = React.memo(({ birthDate, setBirthDate, t }) => {
     const pct = birthDate ? Math.min(100, Math.floor((livedWeeksCount / totalWeeksCount) * 100)) : 0;
 
     return (
-        <div className="flex flex-col items-center select-none w-full max-w-2xl animate-fade-in relative mt-12">
-            <div className="flex flex-col mb-8 text-center bg-black/40 backdrop-blur-md px-12 py-6 rounded-[2rem] border border-white/10 w-full pb-8">
-                <h2 className="text-3xl font-black tracking-widest uppercase mb-6 mt-2">{t('memento')}</h2>
-                <label className="text-sm opacity-80 flex flex-col items-center gap-3 w-full">
+        <div className="flex flex-col items-center select-none w-full max-w-md animate-fade-in relative mt-12">
+            <div className="flex flex-col mb-8 text-center bg-black/40 backdrop-blur-md px-6 py-6 rounded-3xl border border-white/10 w-full pb-8">
+                <h2 className="text-2xl font-black tracking-widest uppercase mb-6 mt-2">{t('memento')}</h2>
+                <label className="text-sm opacity-80 flex flex-col items-center gap-2 w-full">
                     <span className="uppercase tracking-widest text-white/50">{t('birthDate')}</span>
-                    <input type="date" value={birthDate} onChange={e => setBirthDate(e.target.value)} className="bg-white/10 border border-white/20 rounded-xl px-4 py-2 outline-none text-white text-lg w-full max-w-xs transition-with-all hover:bg-white/20 focus:bg-white/20 focus:border-white/40 font-mono tracking-widest" style={{ colorScheme: 'dark' }} />
+                    <input type="date" value={birthDate} onChange={e => setBirthDate(e.target.value)} className="bg-white/10 border border-white/20 rounded-xl px-3 py-2 outline-none text-white text-base w-full max-w-[200px] transition-with-all hover:bg-white/20 focus:bg-white/20 focus:border-white/40 font-mono tracking-widest" style={{ colorScheme: 'dark' }} />
                 </label>
-                <div className="w-full mt-8">
-                    <div className="flex justify-between text-xs opacity-60 mb-4 px-2 font-mono uppercase tracking-[0.2em]">
+                <div className="w-full mt-6">
+                    <div className="flex justify-between text-[10px] opacity-60 mb-3 px-1 font-mono uppercase tracking-[0.2em]">
                         <span>{t('livedWeeks')} : {livedWeeksCount}</span>
                         <span>{pct}% - {t('totalWeeks')}</span>
                     </div>
-                    <div className="relative w-full rounded-2xl overflow-hidden bg-black/50 border border-white/5 p-4 sm:p-6" style={{ display: 'grid', gridTemplateColumns: `repeat(${weeksPerYear}, 1fr)`, gap: '2px', alignContent: 'start' }}>
+                    <div className="relative w-full rounded-xl overflow-hidden bg-black/50 border border-white/5 p-3" style={{ display: 'grid', gridTemplateColumns: `repeat(${weeksPerYear}, 1fr)`, gap: '1px', alignContent: 'start' }}>
                         {Array.from({ length: totalWeeksCount }).map((_, i) => {
                             const isLived = i < livedWeeksCount;
-                            return <div key={i} className={`w-full aspect-square rounded-[1px] ${isLived ? 'bg-indigo-400' : 'bg-white/10'}`} style={{ opacity: isLived ? 0.9 : 0.2 }} title={`Week ${i + 1}`} />;
+                            return <div key={i} className={`w-full aspect-square ${isLived ? 'bg-indigo-400' : 'bg-white/10'}`} style={{ opacity: isLived ? 0.9 : 0.2 }} title={`Week ${i + 1}`} />;
                         })}
                     </div>
                 </div>
