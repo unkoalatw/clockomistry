@@ -151,6 +151,8 @@ const I18N = {
     fontElegant: '經典',
     fontTechnical: '工程',
     fontCyber: '未來',
+    fontMirai: '未來圓',
+    fontLine: 'LINE 官方',
     fontCustom: '已匯入',
     alarmSound: '計時鈴聲',
     notifications: '系統通知',
@@ -333,6 +335,8 @@ const I18N = {
     fontElegant: 'Elegant',
     fontTechnical: 'Tech',
     fontCyber: 'Future',
+    fontMirai: 'Mirai Round',
+    fontLine: 'LINE Official',
     fontCustom: 'Imported',
     alarmSound: 'Alarm Sound',
     notifications: 'Notifications',
@@ -515,6 +519,8 @@ const I18N = {
     fontElegant: 'エレガント',
     fontTechnical: 'テック',
     fontCyber: 'フューチャー',
+    fontMirai: '未来円',
+    fontLine: 'LINE 公式',
     fontCustom: 'カスタム',
     alarmSound: 'アラーム音',
     notifications: '通知',
@@ -664,6 +670,18 @@ const DEFAULT_FONTS = {
     name: 'fontCyber',
     style: {
       fontFamily: '"Orbitron", sans-serif'
+    }
+  },
+  mirai: {
+    name: 'fontMirai',
+    style: {
+      fontFamily: 'Mirai, sans-serif'
+    }
+  },
+  line: {
+    name: 'fontLine',
+    style: {
+      fontFamily: 'LineFont, sans-serif'
     }
   }
 };

@@ -47,6 +47,8 @@ const DEFAULT_FONTS = {
     elegant: { name: 'fontElegant', style: { fontFamily: '"Playfair Display", serif' } },
     technical: { name: 'fontTechnical', style: { fontFamily: '"JetBrains Mono", monospace' } },
     cyber: { name: 'fontCyber', style: { fontFamily: '"Orbitron", sans-serif' } },
+    mirai: { name: 'fontMirai', style: { fontFamily: 'Mirai, sans-serif' } },
+    line: { name: 'fontLine', style: { fontFamily: 'LineFont, sans-serif' } },
 };
 
 const ALL_ZONES = [
