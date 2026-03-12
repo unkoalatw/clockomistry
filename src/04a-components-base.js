@@ -7,29 +7,35 @@ const ProgressRing = React.memo(({ progress, accent, position }) => {
     const strokeDashoffset = Math.max(0, circumference - ((clampedProgress / 100) * circumference));
 
     const baseClass = position === 'background'
-        ? "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none drop-shadow-2xl opacity-50 z-0 flex justify-center items-center w-[90vw] h-[90vw] max-w-[500px] max-h-[500px]"
-        : "pointer-events-none drop-shadow-2xl opacity-80 flex flex-shrink-0 justify-center items-center w-[12vw] h-[12vw] min-w-[50px] min-h-[50px] max-w-[100px] max-h-[100px] mx-4";
+        ? "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-50 z-0 flex justify-center items-center w-[90vw] h-[90vw] max-w-[500px] max-h-[500px] will-change-transform"
+        : "pointer-events-none opacity-80 flex flex-shrink-0 justify-center items-center w-[12vw] h-[12vw] min-w-[50px] min-h-[50px] max-w-[100px] max-h-[100px] mx-4 will-change-transform";
 
     return (
         <div className={baseClass}>
             <svg viewBox="0 0 100 100" className="w-full h-full pointer-events-none" preserveAspectRatio="xMidYMid meet">
-                <defs>
-                    <filter id="ringGlow" x="-50%" y="-50%" width="200%" height="200%">
-                        <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur1" />
-                        <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur2" />
-                        <feMerge>
-                            <feMergeNode in="blur2" />
-                            <feMergeNode in="blur1" />
-                            <feMergeNode in="SourceGraphic" />
-                        </feMerge>
-                    </filter>
-                </defs>
                 <circle stroke="currentColor" fill="transparent" strokeWidth={stroke} className="opacity-[0.1]" r={radius} cx="50" cy="50" />
-                <circle filter="url(#ringGlow)" stroke="currentColor" fill="transparent" strokeWidth={stroke} strokeDasharray={circumference + ' ' + circumference} style={{ strokeDashoffset, transition: 'stroke-dashoffset 1s linear' }} className={`opacity-100 ${accent}`} strokeLinecap="round" r={radius} cx="50" cy="50" transform="rotate(-90 50 50)" />
+                <circle 
+                    stroke="currentColor" 
+                    fill="transparent" 
+                    strokeWidth={stroke} 
+                    strokeDasharray={circumference + ' ' + circumference} 
+                    style={{ 
+                        strokeDashoffset, 
+                        transition: 'stroke-dashoffset 1s linear',
+                        filter: 'drop-shadow(0 0 8px currentColor)' 
+                    }} 
+                    className={`opacity-100 ${accent}`} 
+                    strokeLinecap="round" 
+                    r={radius} 
+                    cx="50" 
+                    cy="50" 
+                    transform="rotate(-90 50 50)" 
+                />
             </svg>
         </div>
     );
 });
+
 
 const WeatherWidget = React.memo(({ weather, accent }) => (
     <div className="mb-8 flex flex-wrap items-center justify-center gap-4 px-6 py-3 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm animate-fade-in opacity-60 hover:opacity-100 transition-opacity">
@@ -46,8 +52,27 @@ const WeatherWidget = React.memo(({ weather, accent }) => (
     </div>
 ));
 
-const ClockDisplay = React.memo(({ h, m, s, ms, showMillis, accent, dateLabel, isZenMode, clockLayout, showSeconds = true, ampm = '' }) => {
+const ClockDisplay = React.memo(({ h, m, s, ms: initialMs, showMillis, accent, dateLabel, isZenMode, clockLayout, showSeconds = true, ampm = '' }) => {
     const layout = clockLayout || 'classic';
+    const [localMs, setLocalMs] = useState(initialMs);
+    const requestRef = useRef();
+
+    useEffect(() => {
+        if (showMillis) {
+            let lastUpdate = 0;
+            const update = (timestamp) => {
+                if (timestamp - lastUpdate >= 33) {
+                    lastUpdate = timestamp;
+                    setLocalMs(Math.floor(new Date().getMilliseconds() / 10).toString().padStart(2, '0'));
+                }
+                requestRef.current = requestAnimationFrame(update);
+            };
+            requestRef.current = requestAnimationFrame(update);
+            return () => cancelAnimationFrame(requestRef.current);
+        }
+    }, [showMillis]);
+
+    const displayMs = showMillis ? localMs : initialMs;
 
     // --- Layout: Classic (原始水平排列) ---
     if (layout === 'classic') return (
@@ -59,7 +84,7 @@ const ClockDisplay = React.memo(({ h, m, s, ms, showMillis, accent, dateLabel, i
                 {showSeconds && (
                     <div className={`flex flex-col ml-2 md:ml-4 justify-end pb-[2vw] md:pb-12`}>
                         <span className={`opacity-50 font-medium text-[10vw] md:text-[60px]`}>{s}</span>
-                        {showMillis && <span className={`${accent} opacity-80 text-[5vw] md:text-[30px]`}>{ms}</span>}
+                        {showMillis && <span className={`${accent} opacity-80 text-[5vw] md:text-[30px]`}>{displayMs}</span>}
                     </div>
                 )}
             </div>
@@ -78,7 +103,7 @@ const ClockDisplay = React.memo(({ h, m, s, ms, showMillis, accent, dateLabel, i
             {showSeconds && (
                 <div className="flex items-center gap-3 mt-2 md:mt-4">
                     <span className="opacity-40 font-medium text-[8vw] md:text-[48px] tabular-nums">{s}</span>
-                    {showMillis && <span className={`${accent} opacity-60 text-[5vw] md:text-[30px] tabular-nums`}>.{ms}</span>}
+                    {showMillis && <span className={`${accent} opacity-60 text-[5vw] md:text-[30px] tabular-nums`}>.{displayMs}</span>}
                 </div>
             )}
             {ampm && <div className={`text-[4vw] md:text-[28px] font-light tracking-[0.3em] opacity-50 mt-2 ${accent}`}>{ampm}</div>}
@@ -118,7 +143,7 @@ const ClockDisplay = React.memo(({ h, m, s, ms, showMillis, accent, dateLabel, i
                 {showSeconds && (
                     <div className="flex flex-col items-center">
                         <span className={`text-[10vw] md:text-[72px] leading-none tracking-tighter opacity-40`}>{s}</span>
-                        {showMillis && <span className={`${accent} opacity-60 text-[4vw] md:text-[28px] mt-1`}>{ms}</span>}
+                        {showMillis && <span className={`${accent} opacity-60 text-[4vw] md:text-[28px] mt-1`}>{displayMs}</span>}
                     </div>
                 )}
             </div>
@@ -154,7 +179,7 @@ const ClockDisplay = React.memo(({ h, m, s, ms, showMillis, accent, dateLabel, i
                     )}
                     {showSeconds && showMillis && (
                         <div className={`bg-white/5 border border-white/10 rounded-xl px-4 py-2 backdrop-blur-sm min-w-[14vw] md:min-w-[64px] flex justify-center items-center`}>
-                            <span className={`text-[4vw] md:text-[24px] font-bold tabular-nums ${accent} opacity-80 leading-none`}>{ms}</span>
+                            <span className={`text-[4vw] md:text-[24px] font-bold tabular-nums ${accent} opacity-80 leading-none`}>{displayMs}</span>
                         </div>
                     )}
                     {ampm && (
@@ -171,6 +196,7 @@ const ClockDisplay = React.memo(({ h, m, s, ms, showMillis, accent, dateLabel, i
     // fallback
     return null;
 });
+
 
 const NavigationBar = React.memo(({ mode, setMode, isZenMode, accent, showControls, toggleFullscreen, setShowSettings, setIsZenMode, isCleanMode, t }) => (
     <div className={`hide-on-export fixed bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 flex items-center justify-center gap-3 p-3 rounded-full backdrop-blur-3xl bg-black/60 border border-white/10 shadow-2xl transition-all duration-500 z-40 w-max max-w-[96vw] ${showControls && !isCleanMode ? 'translate-y-0 opacity-100' : 'translate-y-32 opacity-0 pointer-events-none'}`}>

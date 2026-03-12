@@ -832,34 +832,14 @@ const ProgressRing = /*#__PURE__*/React.memo(_ref => {
   const stroke = position === 'background' ? 1.5 : 4;
   const circumference = radius * 2 * Math.PI;
   const strokeDashoffset = Math.max(0, circumference - clampedProgress / 100 * circumference);
-  const baseClass = position === 'background' ? "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none drop-shadow-2xl opacity-50 z-0 flex justify-center items-center w-[90vw] h-[90vw] max-w-[500px] max-h-[500px]" : "pointer-events-none drop-shadow-2xl opacity-80 flex flex-shrink-0 justify-center items-center w-[12vw] h-[12vw] min-w-[50px] min-h-[50px] max-w-[100px] max-h-[100px] mx-4";
+  const baseClass = position === 'background' ? "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-50 z-0 flex justify-center items-center w-[90vw] h-[90vw] max-w-[500px] max-h-[500px] will-change-transform" : "pointer-events-none opacity-80 flex flex-shrink-0 justify-center items-center w-[12vw] h-[12vw] min-w-[50px] min-h-[50px] max-w-[100px] max-h-[100px] mx-4 will-change-transform";
   return /*#__PURE__*/React.createElement("div", {
     className: baseClass
   }, /*#__PURE__*/React.createElement("svg", {
     viewBox: "0 0 100 100",
     className: "w-full h-full pointer-events-none",
     preserveAspectRatio: "xMidYMid meet"
-  }, /*#__PURE__*/React.createElement("defs", null, /*#__PURE__*/React.createElement("filter", {
-    id: "ringGlow",
-    x: "-50%",
-    y: "-50%",
-    width: "200%",
-    height: "200%"
-  }, /*#__PURE__*/React.createElement("feGaussianBlur", {
-    in: "SourceGraphic",
-    stdDeviation: "2",
-    result: "blur1"
-  }), /*#__PURE__*/React.createElement("feGaussianBlur", {
-    in: "SourceGraphic",
-    stdDeviation: "5",
-    result: "blur2"
-  }), /*#__PURE__*/React.createElement("feMerge", null, /*#__PURE__*/React.createElement("feMergeNode", {
-    in: "blur2"
-  }), /*#__PURE__*/React.createElement("feMergeNode", {
-    in: "blur1"
-  }), /*#__PURE__*/React.createElement("feMergeNode", {
-    in: "SourceGraphic"
-  })))), /*#__PURE__*/React.createElement("circle", {
+  }, /*#__PURE__*/React.createElement("circle", {
     stroke: "currentColor",
     fill: "transparent",
     strokeWidth: stroke,
@@ -868,14 +848,14 @@ const ProgressRing = /*#__PURE__*/React.memo(_ref => {
     cx: "50",
     cy: "50"
   }), /*#__PURE__*/React.createElement("circle", {
-    filter: "url(#ringGlow)",
     stroke: "currentColor",
     fill: "transparent",
     strokeWidth: stroke,
     strokeDasharray: circumference + ' ' + circumference,
     style: {
       strokeDashoffset,
-      transition: 'stroke-dashoffset 1s linear'
+      transition: 'stroke-dashoffset 1s linear',
+      filter: 'drop-shadow(0 0 8px currentColor)'
     },
     className: "opacity-100 ".concat(accent),
     strokeLinecap: "round",
@@ -918,7 +898,7 @@ const ClockDisplay = /*#__PURE__*/React.memo(_ref3 => {
     h,
     m,
     s,
-    ms,
+    ms: initialMs,
     showMillis,
     accent,
     dateLabel,
@@ -928,6 +908,23 @@ const ClockDisplay = /*#__PURE__*/React.memo(_ref3 => {
     ampm = ''
   } = _ref3;
   const layout = clockLayout || 'classic';
+  const [localMs, setLocalMs] = useState(initialMs);
+  const requestRef = useRef();
+  useEffect(() => {
+    if (showMillis) {
+      let lastUpdate = 0;
+      const update = timestamp => {
+        if (timestamp - lastUpdate >= 33) {
+          lastUpdate = timestamp;
+          setLocalMs(Math.floor(new Date().getMilliseconds() / 10).toString().padStart(2, '0'));
+        }
+        requestRef.current = requestAnimationFrame(update);
+      };
+      requestRef.current = requestAnimationFrame(update);
+      return () => cancelAnimationFrame(requestRef.current);
+    }
+  }, [showMillis]);
+  const displayMs = showMillis ? localMs : initialMs;
 
   // --- Layout: Classic (原始水平排列) ---
   if (layout === 'classic') return /*#__PURE__*/React.createElement("div", {
@@ -946,7 +943,7 @@ const ClockDisplay = /*#__PURE__*/React.memo(_ref3 => {
     className: "opacity-50 font-medium text-[10vw] md:text-[60px]"
   }, s), showMillis && /*#__PURE__*/React.createElement("span", {
     className: "".concat(accent, " opacity-80 text-[5vw] md:text-[30px]")
-  }, ms))), ampm && /*#__PURE__*/React.createElement("div", {
+  }, displayMs))), ampm && /*#__PURE__*/React.createElement("div", {
     className: "text-[5vw] md:text-[32px] font-light tracking-[0.3em] opacity-50 mt-1 ".concat(accent)
   }, ampm), dateLabel && /*#__PURE__*/React.createElement("div", {
     className: "mt-2 md:mt-4 font-light tracking-[0.3em] opacity-80 uppercase text-center transition-all text-lg md:text-3xl"
@@ -967,7 +964,7 @@ const ClockDisplay = /*#__PURE__*/React.memo(_ref3 => {
     className: "opacity-40 font-medium text-[8vw] md:text-[48px] tabular-nums"
   }, s), showMillis && /*#__PURE__*/React.createElement("span", {
     className: "".concat(accent, " opacity-60 text-[5vw] md:text-[30px] tabular-nums")
-  }, ".", ms)), ampm && /*#__PURE__*/React.createElement("div", {
+  }, ".", displayMs)), ampm && /*#__PURE__*/React.createElement("div", {
     className: "text-[4vw] md:text-[28px] font-light tracking-[0.3em] opacity-50 mt-2 ".concat(accent)
   }, ampm), dateLabel && /*#__PURE__*/React.createElement("div", {
     className: "mt-4 md:mt-6 font-light tracking-[0.3em] opacity-80 uppercase text-center text-lg md:text-3xl"
@@ -1015,7 +1012,7 @@ const ClockDisplay = /*#__PURE__*/React.memo(_ref3 => {
     className: "text-[10vw] md:text-[72px] leading-none tracking-tighter opacity-40"
   }, s), showMillis && /*#__PURE__*/React.createElement("span", {
     className: "".concat(accent, " opacity-60 text-[4vw] md:text-[28px] mt-1")
-  }, ms))), dateLabel && /*#__PURE__*/React.createElement("div", {
+  }, displayMs))), dateLabel && /*#__PURE__*/React.createElement("div", {
     className: "mt-6 md:mt-8 font-light tracking-[0.3em] opacity-80 uppercase text-center text-lg md:text-3xl"
   }, dateLabel));
 
@@ -1050,7 +1047,7 @@ const ClockDisplay = /*#__PURE__*/React.memo(_ref3 => {
     className: "bg-white/5 border border-white/10 rounded-xl px-4 py-2 backdrop-blur-sm min-w-[14vw] md:min-w-[64px] flex justify-center items-center"
   }, /*#__PURE__*/React.createElement("span", {
     className: "text-[4vw] md:text-[24px] font-bold tabular-nums ".concat(accent, " opacity-80 leading-none")
-  }, ms)), ampm && /*#__PURE__*/React.createElement("div", {
+  }, displayMs)), ampm && /*#__PURE__*/React.createElement("div", {
     className: "bg-white/5 border border-white/10 rounded-xl px-4 py-2 backdrop-blur-sm min-w-[14vw] md:min-w-[64px] flex justify-center items-center"
   }, /*#__PURE__*/React.createElement("span", {
     className: "text-[4vw] md:text-[24px] font-bold ".concat(accent, " opacity-80 leading-none")
@@ -2419,7 +2416,7 @@ const PomodoroView = /*#__PURE__*/React.memo(_ref21 => {
 });
 const StopwatchView = /*#__PURE__*/React.memo(_ref22 => {
   let {
-    stopwatch,
+    stopwatch: masterStopwatch,
     setIsStopwatchRunning,
     isStopwatchRunning,
     currentTheme,
@@ -2431,15 +2428,39 @@ const StopwatchView = /*#__PURE__*/React.memo(_ref22 => {
     showControls,
     isCleanMode
   } = _ref22;
+  const [localMs, setLocalMs] = useState(0);
+  const requestRef = useRef();
+  const lastTimeRef = useRef(Date.now());
+
+  // 碼錶本地補間動畫：提供流暢感，但不影響全域狀態
+  useEffect(() => {
+    if (isStopwatchRunning) {
+      lastTimeRef.current = Date.now();
+      const update = () => {
+        const now = Date.now();
+        setLocalMs(prev => prev + (now - lastTimeRef.current));
+        lastTimeRef.current = now;
+        requestRef.current = requestAnimationFrame(update);
+      };
+      requestRef.current = requestAnimationFrame(update);
+      return () => cancelAnimationFrame(requestRef.current);
+    }
+  }, [isStopwatchRunning]);
+
+  // 當 App 的節流狀態更新時，同步本地顯示
+  useEffect(() => {
+    setLocalMs(stopwatchTime);
+  }, [stopwatchTime]);
+  const display = formatDuration(localMs);
   return /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col items-center select-none w-full min-w-[300px] mt-2 sm:mt-12"
   }, /*#__PURE__*/React.createElement("div", {
     className: "text-[15vw] md:text-[120px] font-bold tracking-tighter tabular-nums flex items-baseline"
-  }, /*#__PURE__*/React.createElement("span", null, stopwatch.m), /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement("span", null, display.m), /*#__PURE__*/React.createElement("span", {
     className: "opacity-50 mx-1"
-  }, ":"), /*#__PURE__*/React.createElement("span", null, stopwatch.s), /*#__PURE__*/React.createElement("span", {
+  }, ":"), /*#__PURE__*/React.createElement("span", null, display.s), /*#__PURE__*/React.createElement("span", {
     className: "text-[8vw] md:text-[60px] ml-1 md:ml-2 ".concat(currentTheme.accent)
-  }, ".", stopwatch.cs)), /*#__PURE__*/React.createElement("div", {
+  }, ".", display.cs)), /*#__PURE__*/React.createElement("div", {
     className: "mt-8 flex gap-6 z-30 relative ".concat(!showControls && !isCleanMode ? 'opacity-0 pointer-events-none' : 'opacity-100 transition-opacity duration-500')
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => setIsStopwatchRunning(!isStopwatchRunning),
@@ -2537,6 +2558,11 @@ const MementoView = /*#__PURE__*/React.memo(_ref23 => {
     });
   })))));
 });
+const dashboardDateFormatter = new Intl.DateTimeFormat('en-US', {
+  weekday: 'long',
+  month: 'long',
+  day: 'numeric'
+});
 const DashboardView = /*#__PURE__*/React.memo(_ref24 => {
   let {
     time,
@@ -2548,6 +2574,7 @@ const DashboardView = /*#__PURE__*/React.memo(_ref24 => {
     dateLabel,
     showSeconds,
     clockLayout,
+    showMillis,
     weather,
     t,
     currentTheme,
@@ -2562,6 +2589,7 @@ const DashboardView = /*#__PURE__*/React.memo(_ref24 => {
     activeTab,
     isZenMode
   } = _ref24;
+  const formattedDate = useMemo(() => dashboardDateFormatter.format(time), [Math.floor(time.getTime() / 60000)]);
   return /*#__PURE__*/React.createElement("div", {
     className: "w-full h-full max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 px-6 py-6 animate-fade-in select-none"
   }, /*#__PURE__*/React.createElement("div", {
@@ -2578,7 +2606,8 @@ const DashboardView = /*#__PURE__*/React.memo(_ref24 => {
     ampm: ampm,
     dateLabel: dateLabel,
     showSeconds: showSeconds,
-    layout: clockLayout
+    clockLayout: clockLayout,
+    showMillis: showMillis
   }), dateLabel && /*#__PURE__*/React.createElement("div", {
     className: "mt-4 text-sm opacity-40 tracking-[0.3em] uppercase"
   }, dateLabel)), /*#__PURE__*/React.createElement("div", {
@@ -2597,7 +2626,7 @@ const DashboardView = /*#__PURE__*/React.memo(_ref24 => {
     className: "text-sm opacity-40 uppercase tracking-widest"
   }, timerSeconds > 0 ? 'Current Session' : 'No Active Task'))), /*#__PURE__*/React.createElement("div", {
     className: "text-4xl font-black tabular-nums tracking-tighter"
-  }, timerSeconds > 0 ? formatDuration(timerSeconds) : stopwatch))), /*#__PURE__*/React.createElement("div", {
+  }, timerSeconds > 0 ? "".concat(formatDuration(timerSeconds * 1000).m, ":").concat(formatDuration(timerSeconds * 1000).s) : "".concat(stopwatch.m, ":").concat(stopwatch.s)))), /*#__PURE__*/React.createElement("div", {
     className: "flex-1 flex flex-col gap-8"
   }, /*#__PURE__*/React.createElement("div", {
     className: "p-8 rounded-[2.5rem] ".concat(currentTheme.card, " border-white/5 flex flex-col gap-2")
@@ -2614,11 +2643,7 @@ const DashboardView = /*#__PURE__*/React.memo(_ref24 => {
     className: "text-3xl font-black"
   }, weather.temp, "\xB0C")), /*#__PURE__*/React.createElement("div", {
     className: "text-sm opacity-40 uppercase tracking-[0.2em] mt-2"
-  }, new Intl.DateTimeFormat('en-US', {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric'
-  }).format(time))), nextEvent && /*#__PURE__*/React.createElement("div", {
+  }, formattedDate)), nextEvent && /*#__PURE__*/React.createElement("div", {
     className: "p-8 rounded-[2.5rem] bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/10 relative overflow-hidden"
   }, /*#__PURE__*/React.createElement(Sparkles, {
     size: 120,
@@ -2633,7 +2658,7 @@ const DashboardView = /*#__PURE__*/React.memo(_ref24 => {
     className: "flex items-baseline gap-2"
   }, /*#__PURE__*/React.createElement("span", {
     className: "text-4xl font-black ".concat(currentTheme.accent)
-  }, nextEvent.diff), /*#__PURE__*/React.createElement("span", {
+  }, nextEvent.days), /*#__PURE__*/React.createElement("span", {
     className: "text-sm opacity-60 uppercase"
   }, t('daysLeft'))))), /*#__PURE__*/React.createElement("div", {
     className: "flex-1 p-8 rounded-[2.5rem] ".concat(currentTheme.card, " border-white/5 flex flex-col")
@@ -3287,11 +3312,17 @@ function useStopwatch() {
   useEffect(() => {
     if (isStopwatchRunning) {
       previousTimeRef.current = Date.now();
+      let lastUpdate = 0;
       const animate = () => {
         const now = Date.now();
         const deltaTime = now - previousTimeRef.current;
         previousTimeRef.current = now;
-        setStopwatchTime(prev => prev + deltaTime);
+
+        // 節流更新：每 100 毫秒才更新一次 App 狀態，避免 60FPS 的全域重繪
+        if (now - lastUpdate >= 100) {
+          setStopwatchTime(prev => prev + (now - lastUpdate));
+          lastUpdate = now;
+        }
         requestRef.current = requestAnimationFrame(animate);
       };
       requestRef.current = requestAnimationFrame(animate);
@@ -3391,7 +3422,6 @@ function App() {
 
   // Screen Saver 狀態
   const [isScreenSaverActive, setIsScreenSaverActive] = useState(false);
-  const [lastActivity, setLastActivity] = useState(Date.now());
   const [ssPos, setSsPos] = useState({
     x: 40,
     y: 40
@@ -3501,16 +3531,19 @@ function App() {
   // --- 持久化設定 ---
   // The explicit useEffect syncing logic is now automatically managed by the custom hooks above!
 
-  // 螢幕保護自動偵測 (debounced to reduce state updates)
+  // 螢幕保護自動偵測 (Optimized: Use Ref for activity tracking to avoid re-renders)
+  const lastActivityRef = useRef(Date.now());
   useEffect(() => {
     let debounceTimer = null;
     const updateActivity = () => {
-      if (debounceTimer) return;
-      debounceTimer = setTimeout(() => {
-        debounceTimer = null;
-      }, 1000);
-      setLastActivity(Date.now());
-      if (isScreenSaverActive) setIsScreenSaverActive(false);
+      lastActivityRef.current = Date.now();
+      if (isScreenSaverActive) {
+        if (debounceTimer) return;
+        debounceTimer = setTimeout(() => {
+          setIsScreenSaverActive(false);
+          debounceTimer = null;
+        }, 100);
+      }
     };
     const events = ['mousemove', 'keydown', 'touchstart', 'scroll'];
     events.forEach(e => window.addEventListener(e, updateActivity, {
@@ -3523,12 +3556,12 @@ function App() {
   }, [isScreenSaverActive]);
   useEffect(() => {
     const interval = setInterval(() => {
-      if (!isScreenSaverActive && Date.now() - lastActivity > 5 * 60 * 1000) {
+      if (!isScreenSaverActive && Date.now() - lastActivityRef.current > 5 * 60 * 1000) {
         setIsScreenSaverActive(true);
       }
     }, 30000); // 降低檢測頻率
     return () => clearInterval(interval);
-  }, [lastActivity, isScreenSaverActive]);
+  }, [isScreenSaverActive]);
 
   // 螢幕保護位移邏輯 - 優化版 (使用 CSS Transition 代替每幀更新)
   useEffect(() => {
@@ -3628,26 +3661,12 @@ function App() {
     [key]: value
   }));
 
-  // 核心計時 - millis 模式節流至約 30fps 以減少不必要的渲染
+  // 核心計時 - 固定為每秒更新一次以優化效能
+  // 毫秒顯示已交由 ClockDisplay 內部自行處理，以減少全域 App 的渲染頻率
   useEffect(() => {
-    if (showMillis) {
-      let lastUpdate = 0;
-      const updateTime = timestamp => {
-        if (timestamp - lastUpdate >= 33) {
-          // ~30fps instead of 60fps
-          lastUpdate = timestamp;
-          setTime(new Date());
-        }
-        requestRef.current = requestAnimationFrame(updateTime);
-      };
-      requestRef.current = requestAnimationFrame(updateTime);
-    } else {
-      setTime(new Date());
-      const timer = setInterval(() => setTime(new Date()), 1000);
-      return () => clearInterval(timer);
-    }
-    return () => cancelAnimationFrame(requestRef.current);
-  }, [showMillis]);
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
   useEffect(() => {
     const handleFullscreenChange = () => setIsFullscreen(!!document.fullscreenElement);
     document.addEventListener('fullscreenchange', handleFullscreenChange);
@@ -3914,9 +3933,9 @@ function App() {
   }), /*#__PURE__*/React.createElement("div", {
     className: "absolute inset-0 overflow-hidden pointer-events-none transition-opacity duration-1000 ".concat(isZenMode ? 'opacity-20' : 'opacity-100')
   }, /*#__PURE__*/React.createElement("div", {
-    className: "ambient-blob-1 absolute top-[10%] left-[10%] w-[40vw] h-[40vw] rounded-full blur-[60px] opacity-15 bg-blue-500/40 will-change-transform"
+    className: "ambient-blob-1 absolute top-[10%] left-[10%] w-[40vw] h-[40vw] rounded-full blur-[40px] opacity-15 bg-blue-500/40 will-change-transform"
   }), /*#__PURE__*/React.createElement("div", {
-    className: "ambient-blob-2 absolute bottom-[10%] right-[10%] w-[40vw] h-[40vw] rounded-full blur-[60px] opacity-15 bg-purple-500/40 will-change-transform"
+    className: "ambient-blob-2 absolute bottom-[10%] right-[10%] w-[40vw] h-[40vw] rounded-full blur-[40px] opacity-15 bg-purple-500/40 will-change-transform"
   })), /*#__PURE__*/React.createElement("div", {
     className: "relative z-10 w-full my-auto shrink max-h-[calc(100dvh-80px)] overflow-hidden max-w-[95vw] ".concat(dashboardMode && mode === 'clock' ? 'md:max-w-6xl' : 'md:max-w-4xl', " rounded-[30px] sm:rounded-[48px] transition-zen flex flex-col items-center justify-start min-h-[40vh] ").concat(!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0', " ").concat(isZenMode ? 'scale-[1.05]' : '', " ").concat(isCleanMode ? 'scale-[0.85]' : '')
   }, /*#__PURE__*/React.createElement("div", {
@@ -3955,7 +3974,8 @@ function App() {
     stopwatch: stopwatch,
     focusGoal: focusGoal,
     activeTab: mode,
-    isZenMode: isZenMode
+    isZenMode: isZenMode,
+    showMillis: showMillis
   }) : /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col items-center select-none"
   }, /*#__PURE__*/React.createElement(WeatherWidget, {

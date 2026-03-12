@@ -85,7 +85,6 @@ function App() {
 
     // Screen Saver 狀態
     const [isScreenSaverActive, setIsScreenSaverActive] = useState(false);
-    const [lastActivity, setLastActivity] = useState(Date.now());
     const [ssPos, setSsPos] = useState({ x: 40, y: 40 });
     const ssVelocity = useRef({ x: 0.15, y: 0.12 });
 
@@ -154,14 +153,19 @@ function App() {
     // --- 持久化設定 ---
     // The explicit useEffect syncing logic is now automatically managed by the custom hooks above!
 
-    // 螢幕保護自動偵測 (debounced to reduce state updates)
+    // 螢幕保護自動偵測 (Optimized: Use Ref for activity tracking to avoid re-renders)
+    const lastActivityRef = useRef(Date.now());
     useEffect(() => {
         let debounceTimer = null;
         const updateActivity = () => {
-            if (debounceTimer) return;
-            debounceTimer = setTimeout(() => { debounceTimer = null; }, 1000);
-            setLastActivity(Date.now());
-            if (isScreenSaverActive) setIsScreenSaverActive(false);
+            lastActivityRef.current = Date.now();
+            if (isScreenSaverActive) {
+                if (debounceTimer) return;
+                debounceTimer = setTimeout(() => {
+                    setIsScreenSaverActive(false);
+                    debounceTimer = null;
+                }, 100);
+            }
         };
         const events = ['mousemove', 'keydown', 'touchstart', 'scroll'];
         events.forEach(e => window.addEventListener(e, updateActivity, { passive: true }));
@@ -170,12 +174,12 @@ function App() {
 
     useEffect(() => {
         const interval = setInterval(() => {
-            if (!isScreenSaverActive && Date.now() - lastActivity > 5 * 60 * 1000) {
+            if (!isScreenSaverActive && Date.now() - lastActivityRef.current > 5 * 60 * 1000) {
                 setIsScreenSaverActive(true);
             }
         }, 30000); // 降低檢測頻率
         return () => clearInterval(interval);
-    }, [lastActivity, isScreenSaverActive]);
+    }, [isScreenSaverActive]);
 
     // 螢幕保護位移邏輯 - 優化版 (使用 CSS Transition 代替每幀更新)
     useEffect(() => {
@@ -269,25 +273,12 @@ function App() {
     const updateCustomColor = (key, value) => setCustomColors(prev => ({ ...prev, [key]: value }));
 
 
-    // 核心計時 - millis 模式節流至約 30fps 以減少不必要的渲染
+    // 核心計時 - 固定為每秒更新一次以優化效能
+    // 毫秒顯示已交由 ClockDisplay 內部自行處理，以減少全域 App 的渲染頻率
     useEffect(() => {
-        if (showMillis) {
-            let lastUpdate = 0;
-            const updateTime = (timestamp) => {
-                if (timestamp - lastUpdate >= 33) { // ~30fps instead of 60fps
-                    lastUpdate = timestamp;
-                    setTime(new Date());
-                }
-                requestRef.current = requestAnimationFrame(updateTime);
-            };
-            requestRef.current = requestAnimationFrame(updateTime);
-        } else {
-            setTime(new Date());
-            const timer = setInterval(() => setTime(new Date()), 1000);
-            return () => clearInterval(timer);
-        }
-        return () => cancelAnimationFrame(requestRef.current);
-    }, [showMillis]);
+        const timer = setInterval(() => setTime(new Date()), 1000);
+        return () => clearInterval(timer);
+    }, []);
 
 
 
@@ -470,8 +461,8 @@ function App() {
 
             {/* Decor - Ambient blobs (CSS moved to input.css for performance) */}
             <div className={`absolute inset-0 overflow-hidden pointer-events-none transition-opacity duration-1000 ${isZenMode ? 'opacity-20' : 'opacity-100'}`}>
-                <div className="ambient-blob-1 absolute top-[10%] left-[10%] w-[40vw] h-[40vw] rounded-full blur-[60px] opacity-15 bg-blue-500/40 will-change-transform"></div>
-                <div className="ambient-blob-2 absolute bottom-[10%] right-[10%] w-[40vw] h-[40vw] rounded-full blur-[60px] opacity-15 bg-purple-500/40 will-change-transform"></div>
+                <div className="ambient-blob-1 absolute top-[10%] left-[10%] w-[40vw] h-[40vw] rounded-full blur-[40px] opacity-15 bg-blue-500/40 will-change-transform"></div>
+                <div className="ambient-blob-2 absolute bottom-[10%] right-[10%] w-[40vw] h-[40vw] rounded-full blur-[40px] opacity-15 bg-purple-500/40 will-change-transform"></div>
             </div>
 
             {/* Main Card */}
@@ -506,6 +497,7 @@ function App() {
                                 timerSeconds={timerSeconds} timerInitial={timerInitial}
                                 isTimerRunning={isTimerRunning} stopwatch={stopwatch}
                                 focusGoal={focusGoal} activeTab={mode} isZenMode={isZenMode}
+                                showMillis={showMillis}
                             />
                         ) : (
                             <div className="flex flex-col items-center select-none">

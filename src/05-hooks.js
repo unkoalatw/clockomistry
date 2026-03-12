@@ -372,11 +372,17 @@ function useStopwatch() {
     useEffect(() => {
         if (isStopwatchRunning) {
             previousTimeRef.current = Date.now();
+            let lastUpdate = 0;
             const animate = () => {
                 const now = Date.now();
                 const deltaTime = now - previousTimeRef.current;
                 previousTimeRef.current = now;
-                setStopwatchTime(prev => prev + deltaTime);
+                
+                // 節流更新：每 100 毫秒才更新一次 App 狀態，避免 60FPS 的全域重繪
+                if (now - lastUpdate >= 100) {
+                    setStopwatchTime(prev => prev + (now - lastUpdate));
+                    lastUpdate = now;
+                }
                 requestRef.current = requestAnimationFrame(animate);
             };
             requestRef.current = requestAnimationFrame(animate);

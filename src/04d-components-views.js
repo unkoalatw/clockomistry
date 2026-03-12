@@ -247,12 +247,39 @@ const PomodoroView = React.memo(({
     </div>
 ));
 
-const StopwatchView = React.memo(({ stopwatch, setIsStopwatchRunning, isStopwatchRunning, currentTheme, setLaps, laps, stopwatchTime, setStopwatchTime, t, showControls, isCleanMode }) => (
-    <div className="flex flex-col items-center select-none w-full min-w-[300px] mt-2 sm:mt-12">
-        <div className="text-[15vw] md:text-[120px] font-bold tracking-tighter tabular-nums flex items-baseline">
-            <span>{stopwatch.m}</span><span className="opacity-50 mx-1">:</span><span>{stopwatch.s}</span>
-            <span className={`text-[8vw] md:text-[60px] ml-1 md:ml-2 ${currentTheme.accent}`}>.{stopwatch.cs}</span>
-        </div>
+const StopwatchView = React.memo(({ stopwatch: masterStopwatch, setIsStopwatchRunning, isStopwatchRunning, currentTheme, setLaps, laps, stopwatchTime, setStopwatchTime, t, showControls, isCleanMode }) => {
+    const [localMs, setLocalMs] = useState(0);
+    const requestRef = useRef();
+    const lastTimeRef = useRef(Date.now());
+
+    // 碼錶本地補間動畫：提供流暢感，但不影響全域狀態
+    useEffect(() => {
+        if (isStopwatchRunning) {
+            lastTimeRef.current = Date.now();
+            const update = () => {
+                const now = Date.now();
+                setLocalMs(prev => prev + (now - lastTimeRef.current));
+                lastTimeRef.current = now;
+                requestRef.current = requestAnimationFrame(update);
+            };
+            requestRef.current = requestAnimationFrame(update);
+            return () => cancelAnimationFrame(requestRef.current);
+        }
+    }, [isStopwatchRunning]);
+
+    // 當 App 的節流狀態更新時，同步本地顯示
+    useEffect(() => {
+        setLocalMs(stopwatchTime);
+    }, [stopwatchTime]);
+
+    const display = formatDuration(localMs);
+
+    return (
+        <div className="flex flex-col items-center select-none w-full min-w-[300px] mt-2 sm:mt-12">
+            <div className="text-[15vw] md:text-[120px] font-bold tracking-tighter tabular-nums flex items-baseline">
+                <span>{display.m}</span><span className="opacity-50 mx-1">:</span><span>{display.s}</span>
+                <span className={`text-[8vw] md:text-[60px] ml-1 md:ml-2 ${currentTheme.accent}`}>.{display.cs}</span>
+            </div>
         <div className={`mt-8 flex gap-6 z-30 relative ${!showControls && !isCleanMode ? 'opacity-0 pointer-events-none' : 'opacity-100 transition-opacity duration-500'}`}>
             <button onClick={() => setIsStopwatchRunning(!isStopwatchRunning)} className="p-4 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition-all">{isStopwatchRunning ? <Pause size={32} /> : <Play size={32} className={currentTheme.accent} />}</button>
             <button onClick={() => { if (isStopwatchRunning) setLaps([stopwatchTime, ...laps]); else { setStopwatchTime(0); setLaps([]); } }} className="p-4 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition-all">{isStopwatchRunning ? <Plus size={32} /> : <RotateCcw size={32} />}</button>
@@ -264,7 +291,8 @@ const StopwatchView = React.memo(({ stopwatch, setIsStopwatchRunning, isStopwatc
             })}
         </div>
     </div>
-));
+    );
+});
 
 const MementoView = React.memo(({ birthDate, setBirthDate, t }) => {
     const weeksPerYear = 52;
@@ -302,12 +330,16 @@ const MementoView = React.memo(({ birthDate, setBirthDate, t }) => {
     );
 });
 
+const dashboardDateFormatter = new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
 const DashboardView = React.memo(({
-    time, h, m, s, ms, ampm, dateLabel, showSeconds, clockLayout,
+    time, h, m, s, ms, ampm, dateLabel, showSeconds, clockLayout, showMillis,
     weather, t, currentTheme, nextEvent, selectedZones, getWorldTime,
     timerSeconds, timerInitial, isTimerRunning, stopwatch,
     focusGoal, activeTab, isZenMode
 }) => {
+    const formattedDate = useMemo(() => dashboardDateFormatter.format(time), [Math.floor(time.getTime() / 60000)]);
+    
     return (
         <div className="w-full h-full max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 px-6 py-6 animate-fade-in select-none">
             {/* Left Column: Big Clock + Focus/Session */}
@@ -315,7 +347,7 @@ const DashboardView = React.memo(({
                 <div className={`flex-1 p-8 rounded-[3rem] ${currentTheme.card} border-t border-l border-white/10 flex flex-col items-center justify-center relative overflow-hidden group`}>
                     {/* Background Glow */}
                     <div className="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-                    <ClockDisplay h={h} m={m} s={s} ms={ms} ampm={ampm} dateLabel={dateLabel} showSeconds={showSeconds} layout={clockLayout} />
+                    <ClockDisplay h={h} m={m} s={s} ms={ms} ampm={ampm} dateLabel={dateLabel} showSeconds={showSeconds} clockLayout={clockLayout} showMillis={showMillis} />
                     {dateLabel && <div className="mt-4 text-sm opacity-40 tracking-[0.3em] uppercase">{dateLabel}</div>}
                 </div>
 
@@ -331,7 +363,7 @@ const DashboardView = React.memo(({
                         </div>
                     </div>
                     <div className="text-4xl font-black tabular-nums tracking-tighter">
-                        {timerSeconds > 0 ? formatDuration(timerSeconds) : stopwatch}
+                        {timerSeconds > 0 ? `${formatDuration(timerSeconds * 1000).m}:${formatDuration(timerSeconds * 1000).s}` : `${stopwatch.m}:${stopwatch.s}`}
                     </div>
                 </div>
             </div>
@@ -347,7 +379,7 @@ const DashboardView = React.memo(({
                         </div>
                         <span className="text-3xl font-black">{weather.temp}°C</span>
                     </div>
-                    <div className="text-sm opacity-40 uppercase tracking-[0.2em] mt-2">{new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'long', day: 'numeric' }).format(time)}</div>
+                    <div className="text-sm opacity-40 uppercase tracking-[0.2em] mt-2">{formattedDate}</div>
                 </div>
 
                 {/* Next Event Widget */}
@@ -358,7 +390,7 @@ const DashboardView = React.memo(({
                             <div className="text-xs uppercase tracking-[0.3em] opacity-60 mb-2">{t('anniversary')}</div>
                             <div className="text-2xl font-bold truncate mb-1">{nextEvent.label}</div>
                             <div className="flex items-baseline gap-2">
-                                <span className={`text-4xl font-black ${currentTheme.accent}`}>{nextEvent.diff}</span>
+                                <span className={`text-4xl font-black ${currentTheme.accent}`}>{nextEvent.days}</span>
                                 <span className="text-sm opacity-60 uppercase">{t('daysLeft')}</span>
                             </div>
                         </div>
@@ -386,6 +418,7 @@ const DashboardView = React.memo(({
         </div>
     );
 });
+
 
 const CalendarView = React.memo(({ calendarDate, setCalendarDate, t, currentTheme, lang, I18N, setIsAddingEvent, setNewEventName, setNewEventDate, setMode }) => {
     const year = calendarDate.getFullYear();
