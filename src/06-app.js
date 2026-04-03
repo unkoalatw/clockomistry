@@ -460,14 +460,14 @@ function App() {
                 ssPos={ssPos} h={h} m={m} t={t}
             />
 
-            {/* Decor - Ambient blobs (CSS moved to input.css for performance) */}
+            {/* Decor - Ambient blobs (GPU optimized) */}
             <div className={`absolute inset-0 overflow-hidden pointer-events-none transition-opacity duration-1000 ${isZenMode ? 'opacity-20' : 'opacity-100'}`}>
-                <div className="ambient-blob-1 absolute top-[10%] left-[10%] w-[40vw] h-[40vw] rounded-full blur-[40px] opacity-15 bg-blue-500/40 will-change-transform"></div>
-                <div className="ambient-blob-2 absolute bottom-[10%] right-[10%] w-[40vw] h-[40vw] rounded-full blur-[40px] opacity-15 bg-purple-500/40 will-change-transform"></div>
+                <div className="ambient-blob absolute top-[5%] left-[5%] w-[50vw] h-[50vw] rounded-full opacity-20 bg-blue-500/30"></div>
+                <div className="ambient-blob absolute bottom-[5%] right-[5%] w-[50vw] h-[50vw] rounded-full opacity-20 bg-purple-500/30" style={{ animationDelay: '-10s' }}></div>
             </div>
 
             {/* Main Card */}
-            <div className={`relative z-10 w-full my-auto shrink max-h-[calc(100dvh-80px)] overflow-hidden max-w-[95vw] ${dashboardMode && mode === 'clock' ? 'md:max-w-6xl' : 'md:max-w-4xl'} rounded-[30px] sm:rounded-[48px] transition-zen flex flex-col items-center justify-start min-h-[40vh] ${!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0'} ${isZenMode ? 'scale-[1.05]' : ''} ${isCleanMode ? 'scale-[0.85]' : ''}`}>
+            <div className={`relative z-10 w-full my-auto shrink max-h-[calc(100dvh-80px)] overflow-hidden max-w-[95vw] ${dashboardMode && mode === 'clock' ? 'md:max-w-6xl' : 'md:max-w-4xl'} rounded-[40px] sm:rounded-[56px] transition-zen flex flex-col items-center justify-start min-h-[40vh] ${!isCleanMode && !isZenMode ? currentTheme.card + ' ' + currentTheme.glow : 'shadow-none bg-transparent !border-transparent backdrop-blur-0'} ${isZenMode ? 'scale-[1.05]' : ''} ${isCleanMode ? 'scale-[0.88]' : ''}`}>
 
                 {/* Fixed Top Navigation Arrays REMOVED FOR CLEANER UI */}
 

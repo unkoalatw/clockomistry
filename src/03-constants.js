@@ -5,40 +5,44 @@ const DEFAULT_THEMES = {
         bg: 'bg-slate-950',
         text: 'text-slate-100',
         accent: 'text-cyan-400',
-        card: 'bg-slate-900/20 backdrop-blur-3xl border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)]',
-        gradient: 'from-slate-950 via-slate-900 to-black',
-        button: 'hover:bg-cyan-400/20',
-        settingsBg: 'bg-slate-950/90'
+        glow: 'shadow-[0_0_20px_rgba(34,211,238,0.3)]',
+        card: 'glass-morph border-white/5',
+        gradient: 'from-[#020617] via-[#0f172a] to-black',
+        button: 'hover:bg-cyan-400/10',
+        settingsBg: 'glass-morph-heavy'
     },
     light: {
         name: 'themeLight',
-        bg: 'bg-gray-50',
-        text: 'text-gray-900',
-        accent: 'text-blue-600',
-        card: 'bg-white/30 backdrop-blur-3xl border-white/60 shadow-[0_8px_32px_0_rgba(31,38,135,0.15)]',
-        gradient: 'from-gray-100 via-gray-50 to-white',
-        button: 'hover:bg-blue-600/10',
+        bg: 'bg-stone-50',
+        text: 'text-stone-900',
+        accent: 'text-indigo-600',
+        glow: 'shadow-[0_0_20px_rgba(79,70,229,0.1)]',
+        card: 'bg-white/40 backdrop-blur-2xl border-white/40 shadow-xl',
+        gradient: 'from-[#fafaf9] via-[#f5f5f4] to-white',
+        button: 'hover:bg-indigo-600/5',
         settingsBg: 'bg-white/90'
     },
     cyber: {
         name: 'themeCyber',
         bg: 'bg-indigo-950',
-        text: 'text-fuchsia-100',
+        text: 'text-fuchsia-50',
         accent: 'text-fuchsia-400',
-        card: 'bg-indigo-950/30 backdrop-blur-3xl border-fuchsia-500/20 shadow-[0_8px_32px_0_rgba(88,28,135,0.3)]',
-        gradient: 'from-[#0f0c29] via-[#302b63] to-[#24243e]',
-        button: 'hover:bg-fuchsia-500/20',
-        settingsBg: 'bg-[#0f0c29]/90'
+        glow: 'shadow-[0_0_25px_rgba(232,121,249,0.4)]',
+        card: 'glass-morph border-fuchsia-500/10',
+        gradient: 'from-[#0f172a] via-[#1e1b4b] to-[#4c1d95]',
+        button: 'hover:bg-fuchsia-500/10',
+        settingsBg: 'glass-morph-heavy'
     },
     forest: {
         name: 'themeForest',
-        bg: 'bg-teal-950',
-        text: 'text-teal-50',
+        bg: 'bg-emerald-950',
+        text: 'text-emerald-50',
         accent: 'text-emerald-400',
-        card: 'bg-teal-950/20 backdrop-blur-3xl border-emerald-500/20 shadow-[0_8px_32px_0_rgba(1,50,32,0.3)]',
-        gradient: 'from-[#000000] via-[#134e5e] to-[#71b280]',
-        button: 'hover:bg-emerald-500/20',
-        settingsBg: 'bg-teal-950/90'
+        glow: 'shadow-[0_0_20px_rgba(52,211,153,0.3)]',
+        card: 'glass-morph border-emerald-500/10',
+        gradient: 'from-[#064e3b] via-[#065f46] to-black',
+        button: 'hover:bg-emerald-500/10',
+        settingsBg: 'glass-morph-heavy'
     }
 };
 

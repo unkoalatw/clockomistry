@@ -15,9 +15,9 @@ const WorldClockView = React.memo(({ enableMeetingPlanner, meetingOffset, setMee
             {selectedZones.map(zone => {
                 const tWorld = getWorldTime(zone.id);
                 return (
-                    <div key={zone.id} className="flex flex-col items-center p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                        <div className="text-3xl font-bold tracking-tighter">{tWorld.h}:{tWorld.m}</div>
-                        <div className="text-sm opacity-60 mt-2 text-center uppercase tracking-wider">{t(zone.label)}</div>
+                    <div key={zone.id} className="flex flex-col items-center p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-sm hover-lift group">
+                        <div className={`text-3xl font-bold tracking-tighter transition-all group-hover:${currentTheme.accent}`}>{tWorld.h}:{tWorld.m}</div>
+                        <div className="text-[10px] opacity-40 mt-2 text-center uppercase tracking-[0.2em]">{t(zone.label)}</div>
                     </div>
                 );
             })}
