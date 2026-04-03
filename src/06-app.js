@@ -509,64 +509,106 @@ function App() {
                     )}
 
                     {mode === 'world' && (
-                        <WorldClockView
-                            enableMeetingPlanner={enableMeetingPlanner} meetingOffset={meetingOffset} setMeetingOffset={setMeetingOffset}
-                            currentTheme={currentTheme} t={t} selectedZones={selectedZones} getWorldTime={getWorldTime} setShowSettings={setShowSettings}
-                        />
+                        <div className="flex flex-col items-center w-full animate-fade-in">
+                            <div className="flex items-center gap-2 mb-6 opacity-40">
+                                <Globe size={14} />
+                                <span className="text-[11px] font-bold tracking-[0.2em] uppercase">{t('worldClock') || 'World Clock'}</span>
+                            </div>
+                            <WorldClockView
+                                enableMeetingPlanner={enableMeetingPlanner} meetingOffset={meetingOffset} setMeetingOffset={setMeetingOffset}
+                                currentTheme={currentTheme} t={t} selectedZones={selectedZones} getWorldTime={getWorldTime} setShowSettings={setShowSettings}
+                            />
+                        </div>
                     )}
 
                     {mode === 'timer' && (
-                        <TimerView
-                            isEditingTimer={isEditingTimer} timerInput={timerInput} handleTimerInput={handleTimerInput}
-                            getTimerInputSeconds={getTimerInputSeconds} setTimerInitial={setTimerInitial} setTimerSeconds={setTimerSeconds}
-                            setIsEditingTimer={setIsEditingTimer} setIsTimerRunning={setIsTimerRunning} autoZenMode={autoZenMode}
-                            isZenMode={isZenMode} setIsZenMode={setIsZenMode} timerSeconds={timerSeconds} timerInitial={timerInitial}
-                            showProgressRing={showProgressRing} theme={theme} currentTheme={currentTheme} ringPosition={ringPosition}
-                            isTimerRunning={isTimerRunning} t={t} showControls={showControls} isCleanMode={isCleanMode}
-                            multiTimers={multiTimers} toggleMultiTimer={toggleMultiTimer} resetMultiTimer={resetMultiTimer}
-                            deleteMultiTimer={deleteMultiTimer} addMultiTimer={addMultiTimer} setTimerInput={setTimerInput}
-                        />
+                        <div className="flex flex-col items-center w-full animate-fade-in">
+                            <div className="flex items-center gap-2 mb-4 opacity-40">
+                                <Timer size={14} />
+                                <span className="text-[11px] font-bold tracking-[0.2em] uppercase">{t('tabTimer') || 'Timer'}</span>
+                            </div>
+                            <TimerView
+                                isEditingTimer={isEditingTimer} timerInput={timerInput} handleTimerInput={handleTimerInput}
+                                getTimerInputSeconds={getTimerInputSeconds} setTimerInitial={setTimerInitial} setTimerSeconds={setTimerSeconds}
+                                setIsEditingTimer={setIsEditingTimer} setIsTimerRunning={setIsTimerRunning} autoZenMode={autoZenMode}
+                                isZenMode={isZenMode} setIsZenMode={setIsZenMode} timerSeconds={timerSeconds} timerInitial={timerInitial}
+                                showProgressRing={showProgressRing} theme={theme} currentTheme={currentTheme} ringPosition={ringPosition}
+                                isTimerRunning={isTimerRunning} t={t} showControls={showControls} isCleanMode={isCleanMode}
+                                multiTimers={multiTimers} toggleMultiTimer={toggleMultiTimer} resetMultiTimer={resetMultiTimer}
+                                deleteMultiTimer={deleteMultiTimer} addMultiTimer={addMultiTimer} setTimerInput={setTimerInput}
+                            />
+                        </div>
                     )}
 
                     {mode === 'pomodoro' && (
-                        <PomodoroView
-                            ringPosition={ringPosition} showProgressRing={showProgressRing} pomoSeconds={pomoSeconds} pomoMode={pomoMode}
-                            theme={theme} currentTheme={currentTheme} isPomoRunning={isPomoRunning} autoZenMode={autoZenMode}
-                            isZenMode={isZenMode} setIsZenMode={setIsZenMode} setIsPomoRunning={setIsPomoRunning} resetPomo={resetPomo}
-                            t={t} showControls={showControls} isCleanMode={isCleanMode} enableMiniTask={enableMiniTask}
-                            focusGoal={focusGoal} setFocusGoal={setFocusGoal} enableFocusAnalytics={enableFocusAnalytics}
-                            focusStats={focusStats} customColors={customColors}
-                        />
+                        <div className="flex flex-col items-center w-full animate-fade-in">
+                            <div className="flex items-center gap-2 mb-4 opacity-40">
+                                <Target size={14} />
+                                <span className="text-[11px] font-bold tracking-[0.2em] uppercase">{t('tabPomodoro') || 'Pomodoro'}</span>
+                            </div>
+                            <PomodoroView
+                                ringPosition={ringPosition} showProgressRing={showProgressRing} pomoSeconds={pomoSeconds} pomoMode={pomoMode}
+                                theme={theme} currentTheme={currentTheme} isPomoRunning={isPomoRunning} autoZenMode={autoZenMode}
+                                isZenMode={isZenMode} setIsZenMode={setIsZenMode} setIsPomoRunning={setIsPomoRunning} resetPomo={resetPomo}
+                                t={t} showControls={showControls} isCleanMode={isCleanMode} enableMiniTask={enableMiniTask}
+                                focusGoal={focusGoal} setFocusGoal={setFocusGoal} enableFocusAnalytics={enableFocusAnalytics}
+                                focusStats={focusStats} customColors={customColors}
+                            />
+                        </div>
                     )}
 
                     {mode === 'stopwatch' && (
-                        <StopwatchView
-                            stopwatch={stopwatch} setIsStopwatchRunning={setIsStopwatchRunning} isStopwatchRunning={isStopwatchRunning}
-                            currentTheme={currentTheme} setLaps={setLaps} laps={laps} stopwatchTime={stopwatchTime}
-                            setStopwatchTime={setStopwatchTime} t={t} showControls={showControls} isCleanMode={isCleanMode}
-                        />
+                        <div className="flex flex-col items-center w-full animate-fade-in">
+                            <div className="flex items-center gap-2 mb-4 opacity-40">
+                                <Play size={14} />
+                                <span className="text-[11px] font-bold tracking-[0.2em] uppercase">{t('tabStopwatch') || 'Stopwatch'}</span>
+                            </div>
+                            <StopwatchView
+                                stopwatch={stopwatch} setIsStopwatchRunning={setIsStopwatchRunning} isStopwatchRunning={isStopwatchRunning}
+                                currentTheme={currentTheme} setLaps={setLaps} laps={laps} stopwatchTime={stopwatchTime}
+                                setStopwatchTime={setStopwatchTime} t={t} showControls={showControls} isCleanMode={isCleanMode}
+                            />
+                        </div>
                     )}
 
                     {mode === 'calendar' && (
-                        <CalendarView
-                            calendarDate={calendarDate} setCalendarDate={setCalendarDate} t={t} currentTheme={currentTheme}
-                            lang={lang} I18N={I18N}
-                            setIsAddingEvent={setIsAddingEvent} setNewEventName={setNewEventName} setNewEventDate={setNewEventDate} setMode={setMode}
-                        />
+                        <div className="flex flex-col items-center w-full animate-fade-in">
+                            <div className="flex items-center gap-2 mb-4 opacity-40">
+                                <CalendarDays size={14} />
+                                <span className="text-[11px] font-bold tracking-[0.2em] uppercase">{t('tabMonthly') || 'Calendar'}</span>
+                            </div>
+                            <CalendarView
+                                calendarDate={calendarDate} setCalendarDate={setCalendarDate} t={t} currentTheme={currentTheme}
+                                lang={lang} I18N={I18N}
+                                setIsAddingEvent={setIsAddingEvent} setNewEventName={setNewEventName} setNewEventDate={setNewEventDate} setMode={setMode}
+                            />
+                        </div>
                     )}
 
                     {mode === 'anniversary' && (
-                        <AnniversaryView
-                            anniversaries={anniversaries} setAnniversaries={setAnniversaries} isAddingEvent={isAddingEvent}
-                            setIsAddingEvent={setIsAddingEvent} newEventName={newEventName} setNewEventName={setNewEventName}
-                            newEventDate={newEventDate} setNewEventDate={setNewEventDate} currentTheme={currentTheme} t={t}
-                        />
+                        <div className="flex flex-col items-center w-full animate-fade-in">
+                            <div className="flex items-center gap-2 mb-4 opacity-40">
+                                <Sparkles size={14} />
+                                <span className="text-[11px] font-bold tracking-[0.2em] uppercase">{t('tabEvents') || 'Events'}</span>
+                            </div>
+                            <AnniversaryView
+                                anniversaries={anniversaries} setAnniversaries={setAnniversaries} isAddingEvent={isAddingEvent}
+                                setIsAddingEvent={setIsAddingEvent} newEventName={newEventName} setNewEventName={setNewEventName}
+                                newEventDate={newEventDate} setNewEventDate={setNewEventDate} currentTheme={currentTheme} t={t}
+                            />
+                        </div>
                     )}
 
                     {mode === 'memento' && (
-                        <MementoView
-                            birthDate={birthDate} setBirthDate={setBirthDate} t={t}
-                        />
+                        <div className="flex flex-col items-center w-full animate-fade-in">
+                            <div className="flex items-center gap-2 mb-4 opacity-40">
+                                <LayoutPanelTop size={14} />
+                                <span className="text-[11px] font-bold tracking-[0.2em] uppercase">{t('tabLife') || 'Life'}</span>
+                            </div>
+                            <MementoView
+                                birthDate={birthDate} setBirthDate={setBirthDate} t={t}
+                            />
+                        </div>
                     )}
                 </div>
             </div>

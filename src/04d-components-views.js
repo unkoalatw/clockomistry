@@ -26,12 +26,23 @@ const WorldClockView = React.memo(({ enableMeetingPlanner, meetingOffset, setMee
 ));
 
 const AnniversaryView = React.memo(({ anniversaries, setAnniversaries, t, currentTheme, isAddingEvent, setIsAddingEvent, newEventName, setNewEventName, newEventDate, setNewEventDate }) => (
-    <div className="flex flex-col items-center select-none w-full max-w-4xl mt-12 w-full">
+    <div className="flex flex-col items-center select-none w-full max-w-4xl w-full">
         <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 p-2">
-            {anniversaries.length === 0 && (
-                <div className="text-center opacity-40 py-12">
-                    <Sparkles size={48} className="mx-auto mb-4 opacity-20" />
-                    <p className="text-lg">{t('addEvent')}</p>
+            {anniversaries.length === 0 && !isAddingEvent && (
+                <div className="col-span-full flex flex-col items-center py-16 gap-6">
+                    <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
+                        <Sparkles size={28} className="opacity-30" />
+                    </div>
+                    <div className="text-center">
+                        <p className="text-base opacity-50">{t('addEvent')}</p>
+                        <p className="text-xs opacity-25 mt-1 tracking-wider">點擊下方按鈕新增第一個事件</p>
+                    </div>
+                    <button
+                        onClick={() => setIsAddingEvent(true)}
+                        className={`flex items-center gap-2 px-6 py-3 rounded-full bg-white/8 border border-white/15 hover:bg-white/15 transition-all text-sm font-semibold ${currentTheme.accent}`}
+                    >
+                        <Plus size={18} /> {t('addEvent')}
+                    </button>
                 </div>
             )}
             {anniversaries.map(ev => {
@@ -41,22 +52,25 @@ const AnniversaryView = React.memo(({ anniversaries, setAnniversaries, t, curren
                 const isFuture = days >= 0;
 
                 return (
-                    <div key={ev.id} className="flex items-center justify-between p-6 rounded-[2rem] bg-white/5 border border-white/10 group hover:bg-white/10 transition-all">
-                        <div>
-                            <div className="text-xl font-bold">{ev.label}</div>
-                            <div className="text-xs opacity-40 mt-1 uppercase tracking-widest">{ev.date}</div>
+                    <div key={ev.id} className="event-card flex items-center justify-between p-5 group">
+                        <div className="flex-1 min-w-0">
+                            <div className="text-base font-bold truncate">{ev.label}</div>
+                            <div className="text-[11px] opacity-35 mt-0.5 uppercase tracking-widest">{ev.date}</div>
                         </div>
-                        <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-4 ml-4">
                             <div className="text-right">
-                                <div className={`text-3xl font-black ${isFuture ? currentTheme.accent : 'opacity-40'}`}>
+                                <div className={`text-2xl font-black tabular-nums ${isFuture ? currentTheme.accent : 'opacity-30'}`}>
                                     {Math.abs(days)}
                                 </div>
-                                <div className="text-[10px] opacity-40 uppercase tracking-tighter">
+                                <div className="text-[10px] opacity-35 uppercase tracking-tight">
                                     {isFuture ? t('daysLeft') : t('daysAgo')}
                                 </div>
                             </div>
-                            <button onClick={() => setAnniversaries(prev => prev.filter(a => a.id !== ev.id))} className="p-2 rounded-full opacity-0 group-hover:opacity-100 hover:bg-red-500/20 transition-all">
-                                <Trash2 size={16} />
+                            <button
+                                onClick={() => setAnniversaries(prev => prev.filter(a => a.id !== ev.id))}
+                                className="w-8 h-8 rounded-full opacity-0 group-hover:opacity-60 hover:!opacity-100 hover:bg-red-500/20 transition-all flex items-center justify-center"
+                            >
+                                <Trash2 size={14} />
                             </button>
                         </div>
                     </div>
@@ -64,21 +78,41 @@ const AnniversaryView = React.memo(({ anniversaries, setAnniversaries, t, curren
             })}
         </div>
         {isAddingEvent ? (
-            <div className="mt-8 p-6 rounded-3xl bg-white/10 border border-white/20 w-full animate-in fade-in zoom-in-95 duration-300">
-                <input type="text" placeholder={t('eventName')} value={newEventName} onChange={e => setNewEventName(e.target.value)} className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 mb-3 outline-none focus:border-white/30" />
-                <input type="date" value={newEventDate} onChange={e => setNewEventDate(e.target.value)} className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 mb-4 outline-none focus:border-white/30" />
+            <div className="mt-6 p-6 rounded-3xl glass border border-white/15 w-full animate-fade-in-scale">
+                <p className="text-xs font-bold tracking-widest uppercase opacity-40 mb-4">{t('addEvent')}</p>
+                <input
+                    type="text"
+                    placeholder={t('eventName')}
+                    value={newEventName}
+                    onChange={e => setNewEventName(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 mb-3 outline-none focus:border-white/30 focus:bg-white/8 transition-all text-sm"
+                    autoFocus
+                />
+                <input
+                    type="date"
+                    value={newEventDate}
+                    onChange={e => setNewEventDate(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 mb-4 outline-none focus:border-white/30 transition-all text-sm"
+                />
                 <div className="flex gap-3">
-                    <button onClick={() => setIsAddingEvent(false)} className="flex-1 py-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors uppercase tracking-widest text-xs font-bold">{t('cancel') || 'Cancel'}</button>
-                    <button onClick={() => { if (newEventName && newEventDate) { setAnniversaries([...anniversaries, { id: Date.now(), label: newEventName, date: newEventDate }]); setIsAddingEvent(false); setNewEventName(''); setNewEventDate(''); } }} className="flex-1 py-3 rounded-xl bg-blue-500 hover:bg-blue-600 transition-colors uppercase tracking-widest text-xs font-bold">{t('add') || 'Add'}</button>
+                    <button onClick={() => setIsAddingEvent(false)} className="flex-1 py-3 rounded-2xl bg-white/5 hover:bg-white/10 transition-colors text-xs font-bold tracking-widest uppercase">{t('cancel') || 'Cancel'}</button>
+                    <button
+                        onClick={() => { if (newEventName && newEventDate) { setAnniversaries([...anniversaries, { id: Date.now(), label: newEventName, date: newEventDate }]); setIsAddingEvent(false); setNewEventName(''); setNewEventDate(''); } }}
+                        className={`flex-1 py-3 rounded-2xl bg-blue-500 hover:bg-blue-400 transition-colors text-xs font-bold tracking-widest uppercase`}
+                    >{t('add') || 'Add'}</button>
                 </div>
             </div>
-        ) : (
-            <button onClick={() => setIsAddingEvent(true)} className="mt-8 px-8 py-3 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 flex items-center gap-2 transition-all">
-                <Plus size={20} /> {t('addEvent')}
+        ) : anniversaries.length > 0 && (
+            <button
+                onClick={() => setIsAddingEvent(true)}
+                className="mt-6 px-6 py-2.5 rounded-full bg-white/6 border border-white/12 hover:bg-white/12 flex items-center gap-2 transition-all text-sm"
+            >
+                <Plus size={16} /> {t('addEvent')}
             </button>
         )}
     </div>
 ));
+
 
 const TimerView = React.memo(({
     isEditingTimer, timerInput, handleTimerInput, getTimerInputSeconds,

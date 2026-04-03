@@ -200,23 +200,88 @@ const ClockDisplay = React.memo(({ h, m, s, ms: initialMs, showMillis, accent, d
 });
 
 
-const NavigationBar = React.memo(({ mode, setMode, isZenMode, accent, showControls, toggleFullscreen, setShowSettings, setIsZenMode, isCleanMode, t }) => (
-    <div className={`hide-on-export fixed bottom-5 sm:bottom-8 left-1/2 -translate-x-1/2 flex items-center justify-center gap-2 p-2.5 rounded-full nav-dock transition-all duration-500 z-40 w-max max-w-[96vw] ${showControls && !isCleanMode ? 'translate-y-0 opacity-100' : 'translate-y-32 opacity-0 pointer-events-none'}`}>
-        <div className="flex bg-white/5 rounded-full p-1 gap-0.5">
-            <button onClick={() => setMode('clock')} className={`nav-btn px-4 sm:px-5 py-2.5 rounded-full flex items-center gap-2 ${mode === 'clock' ? 'bg-white/18 shadow-sm' : 'opacity-50 hover:opacity-90 hover:bg-white/8'}`}>
-                <Clock size={18} className={mode === 'clock' ? accent : ''} />
-                <span className="text-xs font-semibold tracking-widest uppercase hidden sm:block">{t('settings') ? 'Clock' : 'Clock'}</span>
-            </button>
-            <button onClick={() => setMode('apps')} className={`nav-btn px-4 sm:px-5 py-2.5 rounded-full flex items-center gap-2 ${mode !== 'clock' ? 'bg-white/18 shadow-sm' : 'opacity-50 hover:opacity-90 hover:bg-white/8'}`}>
-                <LayoutGrid size={18} className={mode !== 'clock' ? accent : ''} />
-                <span className="text-xs font-semibold tracking-widest uppercase hidden sm:block">Apps</span>
-            </button>
+const NavigationBar = React.memo(({ mode, setMode, isZenMode, accent, showControls, toggleFullscreen, setShowSettings, setIsZenMode, isCleanMode, t }) => {
+    const APP_NAMES = {
+        'clock':       'Clock',
+        'apps':        'Apps',
+        'timer':       t('tabTimer')       || 'Timer',
+        'pomodoro':    t('tabPomodoro')    || 'Pomodoro',
+        'stopwatch':   t('tabStopwatch')   || 'Stopwatch',
+        'calendar':    t('tabMonthly')     || 'Calendar',
+        'anniversary': t('tabEvents')      || 'Events',
+        'memento':     t('tabLife')        || 'Life',
+        'world':       t('worldClock')     || 'World Clock',
+    };
+
+    const isInSubView = mode !== 'clock' && mode !== 'apps';
+
+    return (
+        <div className={`hide-on-export fixed bottom-5 sm:bottom-8 left-1/2 -translate-x-1/2 flex items-center justify-center gap-2 p-2 rounded-full nav-dock transition-all duration-500 z-40 w-max max-w-[96vw] ${showControls && !isCleanMode ? 'translate-y-0 opacity-100' : 'translate-y-32 opacity-0 pointer-events-none'}`}>
+
+            {/* Context-aware left section */}
+            {isInSubView ? (
+                // Sub-view: show back button + current app name
+                <div className="flex items-center gap-1">
+                    <button
+                        onClick={() => setMode('apps')}
+                        className={`nav-btn flex items-center gap-1.5 pl-3 pr-4 py-2.5 rounded-full hover:bg-white/10 transition-all`}
+                        title={t('back') || 'Back to Apps'}
+                    >
+                        <ChevronLeft size={16} className="opacity-70" />
+                        <span className="text-xs font-semibold tracking-wider opacity-60">Apps</span>
+                    </button>
+                    <div className="w-px h-5 bg-white/10"></div>
+                    <span className={`px-3 py-2 text-xs font-bold tracking-[0.15em] uppercase ${accent}`}>
+                        {APP_NAMES[mode] || mode}
+                    </span>
+                </div>
+            ) : (
+                // Root view: Clock / Apps toggle pill
+                <div className="flex bg-white/5 rounded-full p-1 gap-0.5">
+                    <button
+                        onClick={() => setMode('clock')}
+                        className={`nav-btn px-4 sm:px-5 py-2.5 rounded-full flex items-center gap-2 ${mode === 'clock' ? 'bg-white/15 shadow-sm' : 'opacity-50 hover:opacity-90 hover:bg-white/8'}`}
+                    >
+                        <Clock size={16} className={mode === 'clock' ? accent : ''} />
+                        <span className="text-xs font-semibold tracking-widest uppercase hidden sm:block">Clock</span>
+                    </button>
+                    <button
+                        onClick={() => setMode('apps')}
+                        className={`nav-btn px-4 sm:px-5 py-2.5 rounded-full flex items-center gap-2 ${mode === 'apps' ? 'bg-white/15 shadow-sm' : 'opacity-50 hover:opacity-90 hover:bg-white/8'}`}
+                    >
+                        <LayoutGrid size={16} className={mode === 'apps' ? accent : ''} />
+                        <span className="text-xs font-semibold tracking-widest uppercase hidden sm:block">Apps</span>
+                    </button>
+                </div>
+            )}
+
+            <div className="w-px h-6 bg-white/10"></div>
+
+            {/* Right utility buttons */}
+            <div className="flex gap-0.5 pr-1">
+                <button
+                    onClick={() => setIsZenMode(!isZenMode)}
+                    className={`w-10 h-10 flex justify-center items-center rounded-full transition-all nav-btn ${isZenMode ? accent + ' bg-white/10' : 'opacity-50 hover:opacity-90 hover:bg-white/8'}`}
+                    title="Zen Mode"
+                >
+                    <Monitor size={16} />
+                </button>
+                <button
+                    onClick={toggleFullscreen}
+                    className="w-10 h-10 justify-center items-center rounded-full opacity-50 hover:opacity-90 hover:bg-white/8 transition-all nav-btn hidden sm:flex"
+                    title="Fullscreen"
+                >
+                    <Maximize2 size={16} />
+                </button>
+                <button
+                    onClick={() => setShowSettings(true)}
+                    className="w-10 h-10 flex justify-center items-center rounded-full opacity-50 hover:opacity-90 hover:bg-white/8 transition-all nav-btn"
+                    title="Settings"
+                >
+                    <Settings size={16} />
+                </button>
+            </div>
         </div>
-        <div className="w-px h-6 bg-white/10"></div>
-        <div className="flex gap-0.5">
-            <button onClick={() => setIsZenMode(!isZenMode)} className={`w-11 h-11 flex justify-center items-center rounded-full transition-all nav-btn ${isZenMode ? accent + ' bg-white/10' : 'opacity-50 hover:opacity-90 hover:bg-white/8'}`} title="Zen Mode"><Monitor size={18} /></button>
-            <button onClick={toggleFullscreen} className="w-11 h-11 justify-center items-center rounded-full opacity-50 hover:opacity-90 hover:bg-white/8 transition-all nav-btn hidden sm:flex" title="Fullscreen"><Maximize2 size={18} /></button>
-            <button onClick={() => setShowSettings(true)} className="w-11 h-11 flex justify-center items-center rounded-full opacity-50 hover:opacity-90 hover:bg-white/8 transition-all nav-btn" title="Settings"><Settings size={18} /></button>
-        </div>
-    </div>
-));
+    );
+});
+
