@@ -5,54 +5,50 @@ const DEFAULT_THEMES = {
         bg: 'bg-slate-950',
         text: 'text-slate-100',
         accent: 'text-cyan-400',
-        glow: 'shadow-[0_0_20px_rgba(34,211,238,0.3)]',
-        card: 'glass-morph border-white/5',
-        gradient: 'from-[#020617] via-[#0f172a] to-black',
+        card: 'glass',
+        gradient: 'from-[#010B18] via-[#0a1628] to-[#010B18]',
         button: 'hover:bg-cyan-400/10',
-        settingsBg: 'glass-morph-heavy'
+        settingsBg: 'glass-heavy'
     },
     light: {
         name: 'themeLight',
-        bg: 'bg-stone-50',
+        bg: 'bg-stone-100',
         text: 'text-stone-900',
-        accent: 'text-indigo-600',
-        glow: 'shadow-[0_0_20px_rgba(79,70,229,0.1)]',
-        card: 'bg-white/40 backdrop-blur-2xl border-white/40 shadow-xl',
-        gradient: 'from-[#fafaf9] via-[#f5f5f4] to-white',
-        button: 'hover:bg-indigo-600/5',
-        settingsBg: 'bg-white/90'
+        accent: 'text-violet-600',
+        card: 'glass-light',
+        gradient: 'from-[#f5f5f0] via-[#ededea] to-[#fafaf8]',
+        button: 'hover:bg-violet-600/5',
+        settingsBg: 'bg-white/90 backdrop-blur-2xl'
     },
     cyber: {
         name: 'themeCyber',
-        bg: 'bg-indigo-950',
+        bg: 'bg-violet-950',
         text: 'text-fuchsia-50',
         accent: 'text-fuchsia-400',
-        glow: 'shadow-[0_0_25px_rgba(232,121,249,0.4)]',
-        card: 'glass-morph border-fuchsia-500/10',
-        gradient: 'from-[#0f172a] via-[#1e1b4b] to-[#4c1d95]',
+        card: 'glass',
+        gradient: 'from-[#0d0721] via-[#1a0f3a] to-[#0d0721]',
         button: 'hover:bg-fuchsia-500/10',
-        settingsBg: 'glass-morph-heavy'
+        settingsBg: 'glass-heavy'
     },
     forest: {
         name: 'themeForest',
         bg: 'bg-emerald-950',
         text: 'text-emerald-50',
         accent: 'text-emerald-400',
-        glow: 'shadow-[0_0_20px_rgba(52,211,153,0.3)]',
-        card: 'glass-morph border-emerald-500/10',
-        gradient: 'from-[#064e3b] via-[#065f46] to-black',
+        card: 'glass',
+        gradient: 'from-[#021510] via-[#0a2e1c] to-[#021510]',
         button: 'hover:bg-emerald-500/10',
-        settingsBg: 'glass-morph-heavy'
+        settingsBg: 'glass-heavy'
     }
 };
 
 const DEFAULT_FONTS = {
-    modern: { name: 'fontModern', style: { fontFamily: 'ui-sans-serif, system-ui, sans-serif' } },
-    elegant: { name: 'fontElegant', style: { fontFamily: '"Playfair Display", serif' } },
-    technical: { name: 'fontTechnical', style: { fontFamily: '"JetBrains Mono", monospace' } },
-    cyber: { name: 'fontCyber', style: { fontFamily: '"Orbitron", sans-serif' } },
-    mirai: { name: 'fontMirai', style: { fontFamily: 'Mirai, sans-serif' } },
-    line: { name: 'fontLine', style: { fontFamily: 'LineFont, sans-serif' } },
+    modern:    { name: 'fontModern',    style: { fontFamily: 'ui-sans-serif, system-ui, -apple-system, sans-serif' } },
+    elegant:   { name: 'fontElegant',   style: { fontFamily: '"Playfair Display", Georgia, serif' } },
+    technical: { name: 'fontTechnical', style: { fontFamily: '"JetBrains Mono", "Fira Code", monospace' } },
+    cyber:     { name: 'fontCyber',     style: { fontFamily: '"Orbitron", sans-serif' } },
+    mirai:     { name: 'fontMirai',     style: { fontFamily: 'Mirai, sans-serif' } },
+    line:      { name: 'fontLine',      style: { fontFamily: 'LineFont, sans-serif' } },
 };
 
 const ALL_ZONES = [

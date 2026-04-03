@@ -460,14 +460,14 @@ function App() {
                 ssPos={ssPos} h={h} m={m} t={t}
             />
 
-            {/* Decor - Ambient blobs (GPU optimized) */}
-            <div className={`absolute inset-0 overflow-hidden pointer-events-none transition-opacity duration-1000 ${isZenMode ? 'opacity-20' : 'opacity-100'}`}>
-                <div className="ambient-blob absolute top-[5%] left-[5%] w-[50vw] h-[50vw] rounded-full opacity-20 bg-blue-500/30"></div>
-                <div className="ambient-blob absolute bottom-[5%] right-[5%] w-[50vw] h-[50vw] rounded-full opacity-20 bg-purple-500/30" style={{ animationDelay: '-10s' }}></div>
+            {/* Decor — Ambient blobs (GPU optimized) */}
+            <div className={`absolute inset-0 overflow-hidden pointer-events-none transition-opacity duration-1000 ${isZenMode ? 'opacity-10' : 'opacity-100'}`}>
+                <div className="ambient-blob ambient-blob-1 absolute -top-[5%] -left-[5%] w-[55vw] h-[55vw] rounded-full opacity-20 bg-blue-500/20"></div>
+                <div className="ambient-blob ambient-blob-2 absolute -bottom-[5%] -right-[5%] w-[55vw] h-[55vw] rounded-full opacity-20 bg-violet-500/20"></div>
             </div>
 
             {/* Main Card */}
-            <div className={`relative z-10 w-full my-auto shrink max-h-[calc(100dvh-80px)] overflow-hidden max-w-[95vw] ${dashboardMode && mode === 'clock' ? 'md:max-w-6xl' : 'md:max-w-4xl'} rounded-[40px] sm:rounded-[56px] transition-zen flex flex-col items-center justify-start min-h-[40vh] ${!isCleanMode && !isZenMode ? currentTheme.card + ' ' + currentTheme.glow : 'shadow-none bg-transparent !border-transparent backdrop-blur-0'} ${isZenMode ? 'scale-[1.05]' : ''} ${isCleanMode ? 'scale-[0.88]' : ''}`}>
+            <div className={`relative z-10 w-full my-auto shrink max-h-[calc(100dvh-80px)] overflow-hidden max-w-[95vw] ${dashboardMode && mode === 'clock' ? 'md:max-w-6xl' : 'md:max-w-4xl'} rounded-[36px] sm:rounded-[52px] transition-zen flex flex-col items-center justify-start min-h-[40vh] ${!isCleanMode && !isZenMode ? currentTheme.card : 'shadow-none bg-transparent !border-transparent'} ${isZenMode ? 'scale-[1.05]' : ''} ${isCleanMode ? 'scale-[0.88]' : ''}`}>
 
                 {/* Fixed Top Navigation Arrays REMOVED FOR CLEANER UI */}
 

@@ -38,17 +38,19 @@ const ProgressRing = React.memo(({ progress, accent, position }) => {
 
 
 const WeatherWidget = React.memo(({ weather, accent }) => (
-    <div className="mb-8 flex flex-wrap items-center justify-center gap-4 px-6 py-3 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm animate-fade-in opacity-60 hover:opacity-100 transition-opacity">
-        <div className="flex items-center gap-2">
-            <CloudSun size={18} className={accent} />
-            <span className="text-sm font-medium">{weather.city} · {weather.temp}°C · {weather.condition}</span>
-        </div>
-        {(weather.sunrise || weather.sunset) && (
-            <div className={`flex items-center gap-3 text-xs opacity-80 border-l border-white/20 pl-4`}>
-                <span className="flex items-center gap-1.5"><Sunrise size={14} className="text-orange-400" />{weather.sunrise}</span>
-                <span className="flex items-center gap-1.5"><Sunset size={14} className="text-purple-400" />{weather.sunset}</span>
+    <div className="mb-6 animate-fade-in">
+        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 px-5 py-2.5 rounded-full glass opacity-60 hover:opacity-100 transition-opacity cursor-default">
+            <div className="flex items-center gap-2">
+                <CloudSun size={16} className={accent} />
+                <span className="text-xs sm:text-sm font-medium tracking-wide">{weather.city} · {weather.temp}°C · {weather.condition}</span>
             </div>
-        )}
+            {(weather.sunrise || weather.sunset) && (
+                <div className="flex items-center gap-3 text-xs opacity-70 border-l border-white/15 pl-3">
+                    <span className="flex items-center gap-1"><Sunrise size={12} className="text-orange-400" />{weather.sunrise}</span>
+                    <span className="flex items-center gap-1"><Sunset size={12} className="text-purple-400" />{weather.sunset}</span>
+                </div>
+            )}
+        </div>
     </div>
 ));
 
@@ -199,22 +201,22 @@ const ClockDisplay = React.memo(({ h, m, s, ms: initialMs, showMillis, accent, d
 
 
 const NavigationBar = React.memo(({ mode, setMode, isZenMode, accent, showControls, toggleFullscreen, setShowSettings, setIsZenMode, isCleanMode, t }) => (
-    <div className={`hide-on-export fixed bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 flex items-center justify-center gap-3 p-3 rounded-full backdrop-blur-3xl bg-black/60 border border-white/10 shadow-2xl transition-all duration-500 z-40 w-max max-w-[96vw] ${showControls && !isCleanMode ? 'translate-y-0 opacity-100' : 'translate-y-32 opacity-0 pointer-events-none'}`}>
-        <div className="flex bg-white/5 rounded-full p-1 gap-1">
-            <button onClick={() => setMode('clock')} className={`px-5 sm:px-6 py-3 rounded-full transition-all flex items-center gap-2 ${mode === 'clock' ? 'bg-white/20 shadow-sm' : 'opacity-60 hover:bg-white/10 hover:opacity-100'}`}>
-                <Clock size={20} className={mode === 'clock' ? accent : ''} />
-                <span className="text-sm font-semibold tracking-wider hidden sm:block">Clock</span>
+    <div className={`hide-on-export fixed bottom-5 sm:bottom-8 left-1/2 -translate-x-1/2 flex items-center justify-center gap-2 p-2.5 rounded-full nav-dock transition-all duration-500 z-40 w-max max-w-[96vw] ${showControls && !isCleanMode ? 'translate-y-0 opacity-100' : 'translate-y-32 opacity-0 pointer-events-none'}`}>
+        <div className="flex bg-white/5 rounded-full p-1 gap-0.5">
+            <button onClick={() => setMode('clock')} className={`nav-btn px-4 sm:px-5 py-2.5 rounded-full flex items-center gap-2 ${mode === 'clock' ? 'bg-white/18 shadow-sm' : 'opacity-50 hover:opacity-90 hover:bg-white/8'}`}>
+                <Clock size={18} className={mode === 'clock' ? accent : ''} />
+                <span className="text-xs font-semibold tracking-widest uppercase hidden sm:block">{t('settings') ? 'Clock' : 'Clock'}</span>
             </button>
-            <button onClick={() => setMode('apps')} className={`px-5 sm:px-6 py-3 rounded-full transition-all flex items-center gap-2 ${mode !== 'clock' ? 'bg-white/20 shadow-sm' : 'opacity-60 hover:bg-white/10 hover:opacity-100'}`}>
-                <LayoutGrid size={20} className={mode !== 'clock' ? accent : ''} />
-                <span className="text-sm font-semibold tracking-wider hidden sm:block">Apps</span>
+            <button onClick={() => setMode('apps')} className={`nav-btn px-4 sm:px-5 py-2.5 rounded-full flex items-center gap-2 ${mode !== 'clock' ? 'bg-white/18 shadow-sm' : 'opacity-50 hover:opacity-90 hover:bg-white/8'}`}>
+                <LayoutGrid size={18} className={mode !== 'clock' ? accent : ''} />
+                <span className="text-xs font-semibold tracking-widest uppercase hidden sm:block">Apps</span>
             </button>
         </div>
-        <div className="w-px h-8 bg-white/10 mx-1"></div>
-        <div className="flex gap-1 pr-2">
-            <button onClick={() => setIsZenMode(!isZenMode)} className={`w-12 h-12 md:w-11 md:h-11 flex justify-center items-center rounded-full transition-all active:scale-[0.9] active:bg-white/20 ${isZenMode ? accent : 'opacity-60 hover:opacity-100 hover:bg-white/10'}`} title="Zen Mode"><Monitor size={20} /></button>
-            <button onClick={toggleFullscreen} className="w-12 h-12 md:w-11 md:h-11 justify-center items-center rounded-full opacity-60 hover:opacity-100 hover:bg-white/10 transition-all active:scale-[0.9] active:bg-white/20 hidden sm:flex" title="Fullscreen"><Maximize2 size={20} /></button>
-            <button onClick={() => setShowSettings(true)} className="w-12 h-12 md:w-11 md:h-11 flex justify-center items-center rounded-full opacity-60 hover:opacity-100 hover:bg-white/10 transition-all active:scale-[0.9] active:bg-white/20" title="Settings"><Settings size={20} /></button>
+        <div className="w-px h-6 bg-white/10"></div>
+        <div className="flex gap-0.5">
+            <button onClick={() => setIsZenMode(!isZenMode)} className={`w-11 h-11 flex justify-center items-center rounded-full transition-all nav-btn ${isZenMode ? accent + ' bg-white/10' : 'opacity-50 hover:opacity-90 hover:bg-white/8'}`} title="Zen Mode"><Monitor size={18} /></button>
+            <button onClick={toggleFullscreen} className="w-11 h-11 justify-center items-center rounded-full opacity-50 hover:opacity-90 hover:bg-white/8 transition-all nav-btn hidden sm:flex" title="Fullscreen"><Maximize2 size={18} /></button>
+            <button onClick={() => setShowSettings(true)} className="w-11 h-11 flex justify-center items-center rounded-full opacity-50 hover:opacity-90 hover:bg-white/8 transition-all nav-btn" title="Settings"><Settings size={18} /></button>
         </div>
     </div>
 ));

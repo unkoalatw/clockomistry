@@ -474,32 +474,34 @@ const CalendarView = React.memo(({ calendarDate, setCalendarDate, t, currentThem
 
 const LauncherView = React.memo(({ setMode, t }) => {
     const apps = [
-        { id: 'pomodoro', icon: Target, label: t('tabPomodoro'), color: 'text-rose-400', bg: 'bg-rose-500/10' },
-        { id: 'timer', icon: Timer, label: t('tabTimer'), color: 'text-amber-400', bg: 'bg-amber-500/10' },
-        { id: 'stopwatch', icon: Play, label: t('tabStopwatch'), color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
-        { id: 'calendar', icon: CalendarDays, label: t('tabMonthly'), color: 'text-blue-400', bg: 'bg-blue-500/10' },
-        { id: 'anniversary', icon: Sparkles, label: t('tabEvents'), color: 'text-purple-400', bg: 'bg-purple-500/10' },
-        { id: 'memento', icon: LayoutPanelTop, label: t('tabLife'), color: 'text-indigo-400', bg: 'bg-indigo-500/10' },
-        { id: 'world', icon: Globe, label: t('worldClock'), color: 'text-cyan-400', bg: 'bg-cyan-500/10' },
+        { id: 'pomodoro',    icon: Target,        label: t('tabPomodoro'), color: 'text-rose-400',    bg: 'bg-rose-500/10' },
+        { id: 'timer',       icon: Timer,         label: t('tabTimer'),    color: 'text-amber-400',   bg: 'bg-amber-500/10' },
+        { id: 'stopwatch',   icon: Play,          label: t('tabStopwatch'),color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
+        { id: 'calendar',    icon: CalendarDays,  label: t('tabMonthly'),  color: 'text-sky-400',     bg: 'bg-sky-500/10' },
+        { id: 'anniversary', icon: Sparkles,      label: t('tabEvents'),   color: 'text-purple-400',  bg: 'bg-purple-500/10' },
+        { id: 'memento',     icon: LayoutPanelTop,label: t('tabLife'),     color: 'text-indigo-400',  bg: 'bg-indigo-500/10' },
+        { id: 'world',       icon: Globe,         label: t('worldClock'),  color: 'text-cyan-400',    bg: 'bg-cyan-500/10' },
     ];
 
     return (
-        <div className="w-full max-w-4xl mx-auto p-4 sm:p-8 flex flex-col items-center animate-fade-in mt-6 sm:mt-12 select-none">
-            <h2 className="text-sm font-bold mb-8 tracking-[0.3em] uppercase opacity-40">Workspace Tools</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6 w-full">
-                {apps.map(app => (
+        <div className="w-full max-w-4xl mx-auto flex flex-col items-center animate-fade-in mt-4 sm:mt-10 select-none px-2">
+            <p className="text-[10px] font-bold mb-6 sm:mb-10 tracking-[0.35em] uppercase opacity-30">Workspace</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-5 w-full">
+                {apps.map((app, i) => (
                     <button
                         key={app.id}
                         onClick={() => setMode(app.id)}
-                        className="flex flex-col items-center justify-center p-6 sm:p-8 rounded-[2rem] bg-white/5 border border-white/10 hover:bg-white/10 hover:scale-105 transition-all group"
+                        className="app-icon-btn"
+                        style={{ animationDelay: `${i * 0.06}s` }}
                     >
-                        <div className={`p-4 sm:p-5 rounded-[1.5rem] sm:rounded-[2rem] ${app.bg} mb-4 group-hover:scale-110 transition-transform`}>
-                            <app.icon size={32} className={`${app.color}`} />
+                        <div className={`app-icon-inner ${app.bg}`}>
+                            <app.icon size={28} className={app.color} />
                         </div>
-                        <span className="text-xs sm:text-sm font-medium tracking-wider text-center opacity-80 group-hover:opacity-100">{app.label}</span>
+                        <span className="text-[11px] sm:text-xs font-semibold tracking-widest uppercase text-center opacity-70">{app.label}</span>
                     </button>
                 ))}
             </div>
         </div>
     );
 });
+

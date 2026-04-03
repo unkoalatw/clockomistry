@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* ═══════════════════════════════════════════════════════════════
+   CLOCKOMISTRY — Premium CSS Design System v3.0
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Font Faces ───────────────────────────────────────────────── */
 @font-face {
     font-family: 'Mirai';
     src: url('./public/fonts/mirai.woff2') format('woff2'),
@@ -18,19 +23,42 @@
     font-display: swap;
 }
 
-/* Performance Optimized Variable System (CSS Variables) */
+/* ── Design Tokens ─────────────────────────────────────────────── */
 :root {
-    --glass-bg: rgba(255, 255, 255, 0.03);
-    --glass-border: rgba(255, 255, 255, 0.08);
-    --glass-blur: 32px;
+    /* Glass system */
+    --glass-tint: rgba(255, 255, 255, 0.04);
+    --glass-border: rgba(255, 255, 255, 0.09);
+    --glass-blur: 40px;
+    --glass-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 1px 0 rgba(255,255,255,0.06) inset;
+
+    /* Spacing rhythm */
+    --space-card: clamp(16px, 4vw, 32px);
+    --radius-card: clamp(24px, 5vw, 48px);
+    --radius-btn: 9999px;
+
+    /* Easing curves */
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-smooth: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+    /* Typography scale */
+    --font-display: 'Orbitron', ui-sans-serif, sans-serif;
 }
 
-/* Base Smoothness */
+/* ── Base Reset & Smoothing ────────────────────────────────────── */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
 * {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
 }
 
+/* ── @theme (Tailwind v4 extension) ───────────────────────────── */
 @theme {
     --font-orbitron: 'Orbitron', sans-serif;
     --font-playfair: 'Playfair Display', serif;
@@ -38,89 +66,367 @@
     --font-mirai: 'Mirai', sans-serif;
 }
 
-/* Premium Glassmorphism */
-.glass-morph {
-    background: var(--glass-bg);
+/* ══════════════════════════════════════════════════════════════
+   GLASSMORPHISM SYSTEM
+   ══════════════════════════════════════════════════════════════ */
+
+/* Standard glass panel */
+.glass {
+    background: var(--glass-tint);
     backdrop-filter: blur(var(--glass-blur));
     -webkit-backdrop-filter: blur(var(--glass-blur));
     border: 1px solid var(--glass-border);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    box-shadow: var(--glass-shadow);
 }
 
-.glass-morph-heavy {
-    background: rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(48px);
-    -webkit-backdrop-filter: blur(48px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+/* Heavy glass (for overlays, navbars) */
+.glass-heavy {
+    background: rgba(8, 8, 20, 0.7);
+    backdrop-filter: blur(60px) saturate(180%);
+    -webkit-backdrop-filter: blur(60px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255,255,255,0.05) inset;
 }
 
-/* Typography Enhancements */
-.text-glow {
-    text-shadow: 0 0 20px currentColor;
+/* Light glass variant */
+.glass-light {
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(30px) saturate(200%);
+    -webkit-backdrop-filter: blur(30px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 1px 0 rgba(255,255,255,0.8) inset;
 }
 
-.text-glow-subtle {
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+/* Subtle card */
+.card-subtle {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 20px;
+    transition: background 0.3s var(--ease-smooth), transform 0.3s var(--ease-spring), box-shadow 0.3s var(--ease-smooth);
 }
 
-/* Custom Scrollbar (Invisible but active) */
-.custom-scrollbar::-webkit-scrollbar {
-    width: 3px;
+.card-subtle:hover {
+    background: rgba(255, 255, 255, 0.07);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
 }
 
-.custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
+/* ══════════════════════════════════════════════════════════════
+   TYPOGRAPHY EFFECTS
+   ══════════════════════════════════════════════════════════════ */
+
+/* Glowing text - for clock digits */
+.text-glow-accent {
+    text-shadow: 0 0 40px currentColor, 0 0 80px rgba(255,255,255,0.05);
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
+/* Subtle ambient glow */
+.text-glow-soft {
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
 }
 
-/* Dynamic Interactive States */
-.hover-lift {
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+/* Premium gradient text */
+.text-gradient {
+    background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.5) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
-.hover-lift:hover {
-    transform: translateY(-4px) scale(1.02);
+/* ══════════════════════════════════════════════════════════════
+   ANIMATIONS & KEYFRAMES
+   ══════════════════════════════════════════════════════════════ */
+
+@keyframes float-1 {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
+    25%       { transform: translate3d(3vw, 5vh, 0) scale(1.08) rotate(3deg); }
+    50%       { transform: translate3d(1vw, 10vh, 0) scale(0.96) rotate(-2deg); }
+    75%       { transform: translate3d(-2vw, 6vh, 0) scale(1.04) rotate(1deg); }
 }
 
-button:active {
-    transform: scale(0.92) !important;
-    transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+@keyframes float-2 {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
+    25%       { transform: translate3d(-4vw, -5vh, 0) scale(1.1) rotate(-4deg); }
+    50%       { transform: translate3d(-1vw, -8vh, 0) scale(0.92) rotate(2deg); }
+    75%       { transform: translate3d(3vw, -4vh, 0) scale(1.06) rotate(-1deg); }
 }
 
-/* Ambient Visuals (GPU Optimized) */
-@keyframes ambientFloat {
-    0% { transform: translate3d(0, 0, 0) rotate(0deg) scale(1); }
-    33% { transform: translate3d(2vw, 4vh, 0) rotate(2deg) scale(1.05); }
-    66% { transform: translate3d(-1vw, 2vh, 0) rotate(-1deg) scale(0.95); }
-    100% { transform: translate3d(0, 0, 0) rotate(0deg) scale(1); }
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(16px); filter: blur(4px); }
+    to   { opacity: 1; transform: translateY(0);    filter: blur(0); }
 }
 
+@keyframes fade-in-scale {
+    from { opacity: 0; transform: scale(0.95); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulse-ring {
+    0%, 100% { box-shadow: 0 0 0 0 currentColor; opacity: 1; }
+    50%       { box-shadow: 0 0 0 8px transparent; opacity: 0.6; }
+}
+
+@keyframes shimmer {
+    0%   { background-position: -200% center; }
+    100% { background-position: 200% center; }
+}
+
+@keyframes slide-up {
+    from { opacity: 0; transform: translateY(24px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Ambient blobs ─────────────────────────────────────────────── */
 .ambient-blob {
-    animation: ambientFloat 20s ease-in-out infinite alternate;
     will-change: transform;
     pointer-events: none;
-    filter: blur(80px);
+    filter: blur(90px);
 }
 
-/* Smooth Transitions */
+.ambient-blob-1 {
+    animation: float-1 28s ease-in-out infinite;
+}
+
+.ambient-blob-2 {
+    animation: float-2 35s ease-in-out infinite;
+    animation-delay: -12s;
+}
+
+/* ── Utility animations ────────────────────────────────────────── */
+.animate-fade-in {
+    animation: fade-up 0.5s var(--ease-out) forwards;
+}
+
+.animate-fade-in-scale {
+    animation: fade-in-scale 0.4s var(--ease-spring) forwards;
+}
+
+.animate-slide-up {
+    animation: slide-up 0.4s var(--ease-out) forwards;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   INTERACTIVE STATES
+   ══════════════════════════════════════════════════════════════ */
+
+/* Hover-lift interactive cards */
+.hover-card {
+    transition: transform 0.3s var(--ease-spring), box-shadow 0.3s var(--ease-smooth), background 0.2s ease;
+}
+
+.hover-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+}
+
+.hover-card:active {
+    transform: translateY(-1px) scale(0.99);
+}
+
+/* Global button press */
+button:active {
+    transform: scale(0.91) !important;
+    transition: transform 0.08s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+
+/* Nav pill button */
+.nav-btn {
+    transition: background 0.2s ease, opacity 0.2s ease, transform 0.2s var(--ease-spring);
+}
+
+.nav-btn:hover {
+    transform: translateY(-1px);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   UI COMPONENTS
+   ══════════════════════════════════════════════════════════════ */
+
+/* Scrollbar — ultra thin, elegant */
+.custom-scrollbar::-webkit-scrollbar { width: 3px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Hide scrollbar (invisible but functional) */
+.hide-scroll {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.hide-scroll::-webkit-scrollbar { display: none; }
+
+/* Glass-panel (legacy compat) */
+.glass-panel {
+    background: var(--glass-tint);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+}
+
+/* ── Transition helpers ────────────────────────────────────────── */
 .transition-zen {
-    transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+    transition: all 0.9s var(--ease-smooth);
 }
 
 .hide-on-export {
-    transition: transform 0.7s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.5s ease;
+    transition: transform 0.7s var(--ease-out), opacity 0.5s ease;
 }
 
-/* Fade-in animation */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
+/* ══════════════════════════════════════════════════════════════
+   WORLD CLOCK — premium card layout
+   ══════════════════════════════════════════════════════════════ */
+.world-clock-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 20px;
+    transition: background 0.3s ease, transform 0.3s var(--ease-spring);
+    cursor: default;
 }
 
-.animate-fade-in {
-    animation: fadeIn 0.4s cubic-bezier(0.23, 1, 0.32, 1) forwards;
-}
+.world-clock-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-3px);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   LAUNCHER VIEW — app icon grid
+   ══════════════════════════════════════════════════════════════ */
+.app-icon-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(20px, 5vw, 32px);
+    border-radius: clamp(20px, 4vw, 32px);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition:
+        background 0.25s ease,
+        transform 0.3s var(--ease-spring),
+        box-shadow 0.3s ease,
+        border-color 0.25s ease;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.app-icon-btn:hover {
+    background: rgba(255, 255, 255, 0.09);
+    border-color: rgba(255, 255, 255, 0.16);
+    transform: translateY(-6px) scale(1.04);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+}
+
+.app-icon-btn:active {
+    transform: translateY(-2px) scale(0.97) !important;
+}
+
+.app-icon-inner {
+    border-radius: clamp(14px, 3vw, 22px);
+    padding: clamp(12px, 3vw, 20px);
+    margin-bottom: 12px;
+    transition: transform 0.3s var(--ease-spring);
+}
+
+.app-icon-btn:hover .app-icon-inner {
+    transform: scale(1.12);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   NAVIGATION BAR — premium pill dock
+   ══════════════════════════════════════════════════════════════ */
+.nav-dock {
+    background: rgba(10, 10, 25, 0.82);
+    backdrop-filter: blur(64px) saturate(200%);
+    -webkit-backdrop-filter: blur(64px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom-color: rgba(255, 255, 255, 0.04);
+    box-shadow:
+        0 -1px 0 rgba(255,255,255,0.06) inset,
+        0 24px 64px rgba(0,0,0,0.5);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ANNIVERSARY CARDS — premium event cards
+   ══════════════════════════════════════════════════════════════ */
+.event-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    transition: background 0.2s ease, transform 0.3s var(--ease-spring), box-shadow 0.3s ease;
+}
+
+.event-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 36px rgba(0,0,0,0.25);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   CONTROL BUTTONS — play/pause/reset
+   ══════════════════════════════════════════════════════════════ */
+.ctrl-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    transition:
+        background 0.2s ease,
+        transform 0.2s var(--ease-spring),
+        box-shadow 0.2s ease;
+}
+
+.ctrl-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 6px 24px rgba(0,0,0,0.3);
+}
+
+.ctrl-btn.primary {
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(255,255,255,0.2);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+.ctrl-btn.primary:hover {
+    box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SHIMMER LOADING EFFECT
+   ══════════════════════════════════════════════════════════════ */
+.shimmer {
+    background: linear-gradient(
+        90deg,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,0.06) 50%,
+        rgba(255,255,255,0) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2.5s ease-in-out infinite;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   RESPONSIVE HELPERS
+   ══════════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+    :root {
+        --space-card: 16px;
+        --radius-card: 28px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ambient-blob, .animate-fade-in, .animate-slide-up {
+        animation: none !important;
+    }
+    * {
+        transition-duration: 0.01ms !important;
+    }
+}
