@@ -22,9 +22,6 @@ const WorldClockView = React.memo(({ enableMeetingPlanner, meetingOffset, setMee
                 );
             })}
         </div>
-        <button onClick={() => setShowSettings(true)} className="mt-8 flex items-center gap-2 text-sm opacity-50 hover:opacity-100 transition-opacity">
-            <Settings size={14} /> {t('addEditZones')}
-        </button>
     </div>
 ));
 

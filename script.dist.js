@@ -2006,12 +2006,7 @@ const WorldClockView = /*#__PURE__*/React.memo(_ref18 => {
     }, tWorld.h, ":", tWorld.m), /*#__PURE__*/React.createElement("div", {
       className: "text-sm opacity-60 mt-2 text-center uppercase tracking-wider"
     }, t(zone.label)));
-  })), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setShowSettings(true),
-    className: "mt-8 flex items-center gap-2 text-sm opacity-50 hover:opacity-100 transition-opacity"
-  }, /*#__PURE__*/React.createElement(Settings, {
-    size: 14
-  }), " ", t('addEditZones')));
+  })));
 });
 const AnniversaryView = /*#__PURE__*/React.memo(_ref19 => {
   let {
@@ -3940,16 +3935,7 @@ function App() {
     className: "relative z-10 w-full my-auto shrink max-h-[calc(100dvh-80px)] overflow-hidden max-w-[95vw] ".concat(dashboardMode && mode === 'clock' ? 'md:max-w-6xl' : 'md:max-w-4xl', " rounded-[30px] sm:rounded-[48px] transition-zen flex flex-col items-center justify-start min-h-[40vh] ").concat(!isCleanMode && !isZenMode ? currentTheme.card + ' border-t border-l' : 'shadow-none bg-transparent !border-transparent backdrop-blur-0', " ").concat(isZenMode ? 'scale-[1.05]' : '', " ").concat(isCleanMode ? 'scale-[0.85]' : '')
   }, /*#__PURE__*/React.createElement("div", {
     className: "w-full flex-1 overflow-y-auto custom-scrollbar flex flex-col items-center justify-start ".concat(isCleanMode || isZenMode || mode === 'clock' || mode === 'world' || mode === 'apps' ? 'p-6 sm:p-12' : 'px-6 sm:px-12 pb-12 pt-4 sm:pt-6', " relative")
-  }, mode !== 'clock' && mode !== 'apps' && /*#__PURE__*/React.createElement("div", {
-    className: "w-full max-w-4xl mx-auto flex justify-start mb-2 sm:mb-4"
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => setMode('apps'),
-    className: "flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all opacity-80 hover:opacity-100"
-  }, /*#__PURE__*/React.createElement(ArrowLeft, {
-    size: 16
-  }), " ", /*#__PURE__*/React.createElement("span", {
-    className: "text-sm font-medium"
-  }, "Back"))), mode === 'apps' && /*#__PURE__*/React.createElement(LauncherView, {
+  }, mode === 'apps' && /*#__PURE__*/React.createElement(LauncherView, {
     setMode: setMode,
     t: t
   }), mode === 'clock' && (dashboardMode ? /*#__PURE__*/React.createElement(DashboardView, {
