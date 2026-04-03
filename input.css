@@ -2,16 +2,20 @@
 
 @font-face {
     font-family: 'Mirai';
-    src: url('/public/fonts/mirai.ttf') format('truetype');
+    src: url('./public/fonts/mirai.woff2') format('woff2'),
+         url('./public/fonts/mirai.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
+    font-display: swap;
 }
 
 @font-face {
     font-family: 'LineFont';
-    src: url('/public/fonts/line.ttf') format('truetype');
+    src: url('./public/fonts/line.woff2') format('woff2'),
+         url('./public/fonts/line.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
+    font-display: swap;
 }
 
 @theme {

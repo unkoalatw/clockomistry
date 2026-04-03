@@ -11,7 +11,7 @@ const WorldClockView = React.memo(({ enableMeetingPlanner, meetingOffset, setMee
                 <input type="range" min="-12" max="12" step="1" value={meetingOffset} onDoubleClick={() => setMeetingOffset(0)} onChange={e => setMeetingOffset(Number(e.target.value))} className="w-full cursor-pointer opacity-80 hover:opacity-100 transition-opacity" style={{ accentColor: '#3b82f6' }} title="Double click to reset" />
             </div>
         )}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 w-full max-h-[50vh] overflow-y-auto custom-scrollbar p-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6 w-full p-4">
             {selectedZones.map(zone => {
                 const tWorld = getWorldTime(zone.id);
                 return (
@@ -26,8 +26,8 @@ const WorldClockView = React.memo(({ enableMeetingPlanner, meetingOffset, setMee
 ));
 
 const AnniversaryView = React.memo(({ anniversaries, setAnniversaries, t, currentTheme, isAddingEvent, setIsAddingEvent, newEventName, setNewEventName, newEventDate, setNewEventDate }) => (
-    <div className="flex flex-col items-center select-none w-full max-w-lg mt-12">
-        <div className="w-full max-h-[50vh] overflow-y-auto custom-scrollbar space-y-4 p-2">
+    <div className="flex flex-col items-center select-none w-full max-w-4xl mt-12 w-full">
+        <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 p-2">
             {anniversaries.length === 0 && (
                 <div className="text-center opacity-40 py-12">
                     <Sparkles size={48} className="mx-auto mb-4 opacity-20" />
@@ -156,7 +156,7 @@ const TimerView = React.memo(({
             <button onClick={() => { setIsTimerRunning(false); setTimerSeconds(timerInitial > 0 ? timerInitial : 0); }} className="p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all"><RotateCcw size={32} /></button>
         </div>
 
-        <div className={`w-full max-h-[30vh] sm:max-h-[40vh] overflow-y-auto custom-scrollbar space-y-2 p-2 border-t border-white/10 transition-all ${isZenMode ? 'mt-0 pt-0 opacity-0 overflow-hidden h-0 border-none' : 'mt-4 pt-4 opacity-100 h-auto'}`}>
+        <div className={`w-full grid grid-cols-1 sm:grid-cols-2 gap-2 p-2 border-t border-white/10 transition-all ${isZenMode ? 'mt-0 pt-0 opacity-0 overflow-hidden h-0 border-none' : 'mt-4 pt-4 opacity-100 h-auto'}`}>
             {multiTimers.map(timer => {
                 const mins = Math.floor(timer.remaining / 60).toString().padStart(2, '0');
                 const secs = (timer.remaining % 60).toString().padStart(2, '0');
@@ -177,7 +177,7 @@ const TimerView = React.memo(({
                     </div>
                 );
             })}
-            <div className="flex flex-wrap justify-center gap-2 pt-2 pb-2">
+            <div className="flex flex-wrap justify-center gap-2 pt-2 pb-2 col-span-full">
                 {[1, 3, 5, 10, 15, 30].map(m => (
                     <button key={m} onClick={() => addMultiTimer(m)} className="px-3 py-1.5 rounded-full bg-white/10 border border-white/10 hover:bg-white/20 text-xs sm:text-sm transition-all">+{m}m</button>
                 ))}

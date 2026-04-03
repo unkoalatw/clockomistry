@@ -5,7 +5,7 @@
   "main": "script.js",
   "scripts": {
     "build:css": "tailwindcss -i ./input.css -o ./output.css --minify",
-    "build:js": "node -e \"const fs=require('fs'),path=require('path');const dir='src';const files=fs.readdirSync(dir).filter(f=>f.endsWith('.js')).sort();const out=files.map(f=>fs.readFileSync(path.join(dir,f),'utf8')).join('\\n');fs.writeFileSync('src/_bundle.tmp.js',out);\" && babel src/_bundle.tmp.js --out-file script.dist.js && node -e \"try{require('fs').unlinkSync('src/_bundle.tmp.js')}catch(e){}\"",
+    "build:js": "node -e \"const fs=require('fs'),path=require('path');const dir='src';const files=fs.readdirSync(dir).filter(f=>f.endsWith('.js')).sort();const out=files.map(f=>fs.readFileSync(path.join(dir,f),'utf8')).join('\\n');fs.writeFileSync('src/_bundle.tmp.js',out);\" && babel src/_bundle.tmp.js --out-file script.dist.js --minified --no-comments && node -e \"try{require('fs').unlinkSync('src/_bundle.tmp.js')}catch(e){}\"",
     "build": "npm run build:css && npm run build:js",
     "watch:css": "tailwindcss -i ./input.css -o ./output.css --watch",
     "watch:js": "babel src --out-file script.dist.js --watch",
@@ -25,6 +25,7 @@
     "tailwindcss": "^4.1.18"
   },
   "dependencies": {
-    "@tailwindcss/cli": "^4.1.18"
+    "@tailwindcss/cli": "^4.1.18",
+    "ttf2woff2": "^8.0.1"
   }
 }

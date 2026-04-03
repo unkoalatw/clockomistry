@@ -99,7 +99,8 @@ function App() {
     const playAlarm = useCallback(() => {
         if (alarmSound === 'none') return;
         if (!audioRef.current) audioRef.current = new Audio();
-        audioRef.current.src = `public/audio/${alarmSound}.ogg`;
+        const format = audioRef.current.canPlayType('audio/ogg') !== '' ? 'ogg' : 'mp3';
+        audioRef.current.src = `public/audio/${alarmSound}.${format}`;
         audioRef.current.play().catch(e => console.log('Audio play failed', e));
     }, [alarmSound]);
 
