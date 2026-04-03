@@ -1,4 +1,4 @@
-const CACHE_NAME = 'clockomistry-v7';
+const CACHE_NAME = 'clockomistry-v8';
 const ASSETS = [
     './',
     './index.html',
@@ -8,9 +8,16 @@ const ASSETS = [
     './favicon.ico',
     './icons/icon-192.png',
     './icons/icon-512.png',
+    './public/fonts/line.woff2',
+    './public/fonts/mirai.woff2',
+    './public/fonts/line.ttf',
+    './public/fonts/mirai.ttf',
     './public/audio/beep.ogg',
     './public/audio/digital.ogg',
-    './public/audio/bell.ogg'
+    './public/audio/bell.ogg',
+    './public/audio/beep.mp3',
+    './public/audio/digital.mp3',
+    './public/audio/bell.mp3'
 ];
 
 // Install — cache core assets

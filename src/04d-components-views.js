@@ -87,7 +87,7 @@ const TimerView = React.memo(({
     showControls, isCleanMode, multiTimers, toggleMultiTimer, resetMultiTimer, deleteMultiTimer, addMultiTimer,
     setTimerInput
 }) => (
-    <div className="flex flex-col items-center select-none w-full max-w-lg mt-4 sm:mt-8">
+    <div className="flex flex-col items-center select-none w-full max-w-3xl px-4 mt-4 sm:mt-8">
         <div className="flex flex-col items-center mb-6 sm:mb-12 w-full">
             {isEditingTimer ? (
                 <div className="flex flex-col items-center w-full animate-fade-in">
@@ -150,10 +150,10 @@ const TimerView = React.memo(({
                 if (!isTimerRunning && timerSeconds <= 0) { if (timerInitial > 0) setTimerSeconds(timerInitial); else { setIsEditingTimer(true); setTimerInput('000000'); return; } }
                 if (!isTimerRunning && autoZenMode && !isZenMode) setIsZenMode(true);
                 setIsTimerRunning(!isTimerRunning);
-            }} className={`p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all`}>
+            }} className={`w-16 h-16 md:w-20 md:h-20 flex justify-center items-center rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all active:scale-90 active:bg-white/30`}>
                 {isTimerRunning ? <Pause size={32} /> : <Play size={32} className={currentTheme.accent} />}
             </button>
-            <button onClick={() => { setIsTimerRunning(false); setTimerSeconds(timerInitial > 0 ? timerInitial : 0); }} className="p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all"><RotateCcw size={32} /></button>
+            <button onClick={() => { setIsTimerRunning(false); setTimerSeconds(timerInitial > 0 ? timerInitial : 0); }} className="w-16 h-16 md:w-20 md:h-20 flex justify-center items-center rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all active:scale-90 active:bg-white/30"><RotateCcw size={32} /></button>
         </div>
 
         <div className={`w-full grid grid-cols-1 sm:grid-cols-2 gap-2 p-2 border-t border-white/10 transition-all ${isZenMode ? 'mt-0 pt-0 opacity-0 overflow-hidden h-0 border-none' : 'mt-4 pt-4 opacity-100 h-auto'}`}>
@@ -191,7 +191,7 @@ const PomodoroView = React.memo(({
     autoZenMode, isZenMode, setIsZenMode, setIsPomoRunning, resetPomo, t, showControls, isCleanMode,
     enableMiniTask, focusGoal, setFocusGoal, enableFocusAnalytics, focusStats, customColors
 }) => (
-    <div className="flex flex-col items-center select-none mt-2 sm:mt-4">
+    <div className="flex flex-col items-center select-none w-full max-w-3xl px-4 mt-2 sm:mt-4">
         <div className="w-full flex justify-center mb-4 shrink-0 z-40">
             <div className="flex gap-2 sm:gap-4 transition-opacity duration-300">
                 <button onClick={() => resetPomo('work')} className={`px-4 py-1.5 rounded-full text-xs sm:text-sm border transition-all ${pomoMode === 'work' ? `bg-white/10 border-white/50 ${currentTheme.accent}` : 'border-transparent opacity-50 hover:bg-white/5'}`}>{t('work')}</button>
@@ -211,10 +211,10 @@ const PomodoroView = React.memo(({
                 if (!isPomoRunning && pomoSeconds <= 0) resetPomo(pomoMode);
                 if (!isPomoRunning && autoZenMode && !isZenMode) setIsZenMode(true);
                 setIsPomoRunning(!isPomoRunning);
-            }} className={`p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all`}>
+            }} className={`w-16 h-16 md:w-20 md:h-20 flex justify-center items-center rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all active:scale-90 active:bg-white/30`}>
                 {isPomoRunning ? <Pause size={32} /> : <Play size={32} className={currentTheme.accent} />}
             </button>
-            <button onClick={() => resetPomo(pomoMode)} className="p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all"><RotateCcw size={32} /></button>
+            <button onClick={() => resetPomo(pomoMode)} className="w-16 h-16 md:w-20 md:h-20 flex justify-center items-center rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all active:scale-90 active:bg-white/30"><RotateCcw size={32} /></button>
         </div>
         {enableMiniTask && (
             <div className={`mt-8 flex items-center justify-center w-[80vw] max-w-sm transition-opacity duration-500 relative ${isZenMode ? 'opacity-0' : 'opacity-100'}`}>
@@ -272,14 +272,14 @@ const StopwatchView = React.memo(({ stopwatch: masterStopwatch, setIsStopwatchRu
     const display = formatDuration(localMs);
 
     return (
-        <div className="flex flex-col items-center select-none w-full min-w-[300px] mt-2 sm:mt-12">
+        <div className="flex flex-col items-center select-none w-full max-w-3xl px-4 min-w-[300px] mt-2 sm:mt-12">
             <div className="text-[15vw] md:text-[120px] font-bold tracking-tighter tabular-nums flex items-baseline">
                 <span>{display.m}</span><span className="opacity-50 mx-1">:</span><span>{display.s}</span>
                 <span className={`text-[8vw] md:text-[60px] ml-1 md:ml-2 ${currentTheme.accent}`}>.{display.cs}</span>
             </div>
         <div className={`mt-8 flex gap-6 z-30 relative ${!showControls && !isCleanMode ? 'opacity-0 pointer-events-none' : 'opacity-100 transition-opacity duration-500'}`}>
-            <button onClick={() => setIsStopwatchRunning(!isStopwatchRunning)} className="p-4 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition-all">{isStopwatchRunning ? <Pause size={32} /> : <Play size={32} className={currentTheme.accent} />}</button>
-            <button onClick={() => { if (isStopwatchRunning) setLaps([stopwatchTime, ...laps]); else { setStopwatchTime(0); setLaps([]); } }} className="p-4 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition-all">{isStopwatchRunning ? <Plus size={32} /> : <RotateCcw size={32} />}</button>
+            <button onClick={() => setIsStopwatchRunning(!isStopwatchRunning)} className="w-16 h-16 md:w-20 md:h-20 flex justify-center items-center rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition-all active:scale-90 active:bg-white/30">{isStopwatchRunning ? <Pause size={32} /> : <Play size={32} className={currentTheme.accent} />}</button>
+            <button onClick={() => { if (isStopwatchRunning) setLaps([stopwatchTime, ...laps]); else { setStopwatchTime(0); setLaps([]); } }} className="w-16 h-16 md:w-20 md:h-20 flex justify-center items-center rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition-all active:scale-90 active:bg-white/30">{isStopwatchRunning ? <Plus size={32} /> : <RotateCcw size={32} />}</button>
         </div>
         <div className="mt-6 w-full max-h-32 overflow-y-auto custom-scrollbar">
             {laps.map((lap, i) => {

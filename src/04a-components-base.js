@@ -212,9 +212,9 @@ const NavigationBar = React.memo(({ mode, setMode, isZenMode, accent, showContro
         </div>
         <div className="w-px h-8 bg-white/10 mx-1"></div>
         <div className="flex gap-1 pr-2">
-            <button onClick={() => setIsZenMode(!isZenMode)} className={`p-3 rounded-full transition-all ${isZenMode ? accent : 'opacity-60 hover:opacity-100 hover:bg-white/10'}`} title="Zen Mode"><Monitor size={20} /></button>
-            <button onClick={toggleFullscreen} className="p-3 rounded-full opacity-60 hover:opacity-100 hover:bg-white/10 transition-all hidden sm:block" title="Fullscreen"><Maximize2 size={20} /></button>
-            <button onClick={() => setShowSettings(true)} className="p-3 rounded-full opacity-60 hover:opacity-100 hover:bg-white/10 transition-all" title="Settings"><Settings size={20} /></button>
+            <button onClick={() => setIsZenMode(!isZenMode)} className={`w-12 h-12 md:w-11 md:h-11 flex justify-center items-center rounded-full transition-all active:scale-[0.9] active:bg-white/20 ${isZenMode ? accent : 'opacity-60 hover:opacity-100 hover:bg-white/10'}`} title="Zen Mode"><Monitor size={20} /></button>
+            <button onClick={toggleFullscreen} className="w-12 h-12 md:w-11 md:h-11 justify-center items-center rounded-full opacity-60 hover:opacity-100 hover:bg-white/10 transition-all active:scale-[0.9] active:bg-white/20 hidden sm:flex" title="Fullscreen"><Maximize2 size={20} /></button>
+            <button onClick={() => setShowSettings(true)} className="w-12 h-12 md:w-11 md:h-11 flex justify-center items-center rounded-full opacity-60 hover:opacity-100 hover:bg-white/10 transition-all active:scale-[0.9] active:bg-white/20" title="Settings"><Settings size={20} /></button>
         </div>
     </div>
 ));
