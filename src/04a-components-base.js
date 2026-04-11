@@ -63,7 +63,8 @@ const ClockDisplay = React.memo(({ h, m, s, ms: initialMs, showMillis, accent, d
         if (showMillis) {
             let lastUpdate = 0;
             const update = (timestamp) => {
-                if (timestamp - lastUpdate >= 33) {
+                // 優化效能與省電：將毫秒更新頻率降至約 15FPS (66ms)，大幅減少前景重繪的耗能
+                if (timestamp - lastUpdate >= 66) {
                     lastUpdate = timestamp;
                     setLocalMs(Math.floor(new Date().getMilliseconds() / 10).toString().padStart(2, '0'));
                 }

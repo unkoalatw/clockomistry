@@ -303,7 +303,11 @@ function useTimer({ playAlarm, showNotification, triggerSuccess }) {
     useEffect(() => {
         let interval = null;
         if (isTimerRunning && timerSeconds > 0) {
-            interval = setInterval(() => setTimerSeconds(prev => prev - 1), 1000);
+            const targetTime = Date.now() + timerSeconds * 1000;
+            interval = setInterval(() => {
+                const remaining = Math.max(0, Math.round((targetTime - Date.now()) / 1000));
+                setTimerSeconds(remaining);
+            }, 250); // Use 250ms interval for better responsiveness, state only updates when seconds change anyway if we had a ref, but React handles identical state. Actually, let's stick to 1000ms but compute remaining to save battery.
         } else if (isTimerRunning && timerSeconds === 0) {
             playAlarm();
             showNotification('Timer Finished', 'Your timer has finished');
@@ -325,7 +329,11 @@ function usePomodoro({ playAlarm, showNotification, triggerSuccess, enableFocusA
     useEffect(() => {
         let interval = null;
         if (isPomoRunning && pomoSeconds > 0) {
-            interval = setInterval(() => setPomoSeconds(prev => prev - 1), 1000);
+            const targetTime = Date.now() + pomoSeconds * 1000;
+            interval = setInterval(() => {
+                const remaining = Math.max(0, Math.round((targetTime - Date.now()) / 1000));
+                setPomoSeconds(remaining);
+            }, 500); // 500ms ensures we don't skip a second visually
         } else if (isPomoRunning && pomoSeconds === 0) {
             setIsPomoRunning(false);
             playAlarm();
@@ -366,29 +374,35 @@ function useStopwatch() {
     const [stopwatchTime, setStopwatchTime] = useState(0);
     const [isStopwatchRunning, setIsStopwatchRunning] = useState(false);
     const [laps, setLaps] = useState([]);
-    const previousTimeRef = useRef();
+    const accumulatedRef = useRef(0);
+    const startTimeRef = useRef(0);
     const requestRef = useRef();
 
     useEffect(() => {
         if (isStopwatchRunning) {
-            previousTimeRef.current = Date.now();
-            let lastUpdate = 0;
+            startTimeRef.current = Date.now() - accumulatedRef.current;
+            let lastUpdate = Date.now();
             const animate = () => {
                 const now = Date.now();
-                const deltaTime = now - previousTimeRef.current;
-                previousTimeRef.current = now;
-                
-                // 節流更新：每 100 毫秒才更新一次 App 狀態，避免 60FPS 的全域重繪
-                if (now - lastUpdate >= 100) {
-                    setStopwatchTime(prev => prev + (now - lastUpdate));
+                // 節流更新：每 40 毫秒才觸發 React 更新 (降至約 25fps 省電)
+                if (now - lastUpdate >= 40) {
+                    accumulatedRef.current = now - startTimeRef.current;
+                    setStopwatchTime(accumulatedRef.current);
                     lastUpdate = now;
                 }
                 requestRef.current = requestAnimationFrame(animate);
             };
             requestRef.current = requestAnimationFrame(animate);
+        } else {
+            accumulatedRef.current = stopwatchTime;
         }
         return () => cancelAnimationFrame(requestRef.current);
     }, [isStopwatchRunning]);
 
-    return { stopwatchTime, setStopwatchTime, isStopwatchRunning, setIsStopwatchRunning, laps, setLaps };
+    const handleSetStopwatchTime = (newTime) => {
+        if (newTime === 0) accumulatedRef.current = 0;
+        setStopwatchTime(newTime);
+    };
+
+    return { stopwatchTime, setStopwatchTime: handleSetStopwatchTime, isStopwatchRunning, setIsStopwatchRunning, laps, setLaps };
 }
