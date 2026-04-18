@@ -406,3 +406,84 @@ function useStopwatch() {
 
     return { stopwatchTime, setStopwatchTime: handleSetStopwatchTime, isStopwatchRunning, setIsStopwatchRunning, laps, setLaps };
 }
+
+// --- Sequence Timer Hook ---
+function useTimerSequence({ playAlarm, showNotification, t }) {
+    const [sequence, setSequence] = useLocalJSON('clock_sequence_data', [
+        { id: '1', label: 'Work Focus', duration: 25 * 60 },
+        { id: '2', label: 'Stretch & Water', duration: 5 * 60 }
+    ]);
+    const [currentIndex, setCurrentIndex] = useState(-1);
+    const [sqSeconds, setSqSeconds] = useState(0);
+    const [isSqRunning, setIsSqRunning] = useState(false);
+
+    useEffect(() => {
+        let interval = null;
+        if (isSqRunning && currentIndex >= 0 && currentIndex < sequence.length) {
+            if (sqSeconds > 0) {
+                const targetTime = Date.now() + sqSeconds * 1000;
+                interval = setInterval(() => {
+                    const remaining = Math.max(0, Math.round((targetTime - Date.now()) / 1000));
+                    setSqSeconds(remaining);
+                }, 500);
+            } else {
+                setIsSqRunning(false); // temp pause
+                playAlarm();
+                showNotification('Step Finished', `Finished: ${sequence[currentIndex].label}`);
+                const nextIndex = currentIndex + 1;
+                if (nextIndex < sequence.length) {
+                    setCurrentIndex(nextIndex);
+                    setSqSeconds(sequence[nextIndex].duration);
+                    // auto continue
+                    setTimeout(() => setIsSqRunning(true), 1000); 
+                } else {
+                    setCurrentIndex(-1);
+                }
+            }
+        }
+        return () => clearInterval(interval);
+    }, [isSqRunning, sqSeconds, currentIndex, sequence, playAlarm, showNotification]);
+
+    const addSeqEvent = (label, mins) => setSequence(prev => [...prev, { id: Date.now().toString(), label, duration: mins * 60 }]);
+    const removeSeqEvent = (id) => setSequence(prev => prev.filter(item => item.id !== id));
+    
+    const startSequence = () => {
+        if (sequence.length > 0) {
+            setCurrentIndex(0);
+            setSqSeconds(sequence[0].duration);
+            setIsSqRunning(true);
+        }
+    };
+    const toggleSequence = () => {
+        if (currentIndex === -1) startSequence();
+        else setIsSqRunning(!isSqRunning);
+    };
+    const resetSequence = () => { setIsSqRunning(false); setCurrentIndex(-1); setSqSeconds(0); };
+    const skipToNext = () => {
+        if (currentIndex < sequence.length - 1) {
+            const nextIndex = currentIndex + 1;
+            setCurrentIndex(nextIndex);
+            setSqSeconds(sequence[nextIndex].duration);
+        } else {
+            resetSequence();
+        }
+    };
+
+    return { sequence, setSequence, currentIndex, sqSeconds, isSqRunning, addSeqEvent, removeSeqEvent, toggleSequence, resetSequence, startSequence, skipToNext };
+}
+
+// --- Keyboard Shortcut Hook ---
+function useSpaceKey(callback) {
+    useEffect(() => {
+        const handler = (e) => {
+            const tag = e.target.tagName.toLowerCase();
+            if (tag === 'input' || tag === 'textarea') return;
+            if (e.code === 'Space') {
+                e.preventDefault();
+                callback();
+            }
+        };
+        window.addEventListener('keydown', handler);
+        return () => window.removeEventListener('keydown', handler);
+    }, [callback]);
+}

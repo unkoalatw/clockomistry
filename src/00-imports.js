@@ -30,7 +30,7 @@ import {
     CalendarDays, Languages, Trash2, ChevronLeft, ChevronRight,
     Calendar, CloudSun, Share2, Download, LayoutTemplate, Sparkles, Delete,
     Camera, CheckSquare, BarChart2, Sliders, Target, Edit3,
-    Sunrise, Sunset, LayoutGrid, LayoutPanelTop, RefreshCw
+    Sunrise, Sunset, LayoutGrid, LayoutPanelTop, RefreshCw, Layers, ExternalLink
 } from 'lucide-react';
 
 const APP_VERSION = '1.3.0';

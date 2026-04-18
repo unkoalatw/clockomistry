@@ -29,5 +29,16 @@
 *   已在前端代碼與快取名單中加入了雙軌並行的音訊策略。系統會先探測 `audio.canPlayType`，如果探測到 Safari 瀏覽器，就會自動替換播放 `.mp3` 檔案。（註：需確認您已手動將 MP3 備用音效放到 `/public/audio/` 資料夾下）。
 
 ---
-*更新日期：2026-04-03*
-*版本狀態：Mobile & Desktop UX Optimized*
+*更新日期：2026-04-18*
+*版本狀態：Feature-Rich & Cloud Sync Release*
+
+## ✨ 最新追加功能清單 (New Features)
+1.  **💾 本地設定備份 (Local Config Backup)**：現在改為匯出 JSON 設定檔，方便你手動保存、備份或在不同裝置間匯入自訂主題、紀念日與所有設定。
+2.  **📍 智慧時區建議 (Smart Timezone Advice)**：在世界時鐘內以綠、黃、紅燈標示，一秒判斷該城市是否適合跨國會議。
+3.  **✨ 粒子背景特效 (Particle Backgrounds)**：跟隨漸層主題自動調色的動態漂浮粒子系統。
+4.  **⌨️ 全域快捷鍵控制 (Keyboard Shortcuts)**：按下空白鍵即可無縫控制番茄鐘、計時器、與碼表的播放與暫停。
+5.  **📅 ics 格式導出 (Calendar Export)**：在紀念日功能中可一鍵下載 `.ics` 檔並加入 Google Calendar 行事曆。
+6.  **⏳ 堆疊序列計時器 (Timer Sequences)**：全新的應用板塊，可自由設計多層次的連貫任務倒數，並具備自動接續播放功能。
+7.  **🔋 自動智慧節能模式 (Eco Mode)**：當視窗隱藏或螢幕保護啟動時，自動暫停動畫與重繪以節省筆記型電腦電池。
+8.  **🌓 自動深夜模式 (Schedule Dark Mode)**：偵測系統時間並於 18:00 - 06:00 之間自動調暗至 Modern 深色主題。
+9.  **📦 微縮模式 (Mini Overlay)**：一鍵彈出精簡版小視窗，支援釘選置頂當作桌面小工具使用。

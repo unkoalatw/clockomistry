@@ -1,5 +1,5 @@
 
-const AppearanceSettings = React.memo(({ t, currentTheme, DEFAULT_THEMES, theme, setTheme, customColors, updateCustomColor, customBgImage, setCustomBgImage, bgImageInputRef, handleBgImageUpload, DEFAULT_FONTS, font, setFont, fileInputRef, handleFontUpload, hasCustomFont, clockLayout, setClockLayout }) => (
+const AppearanceSettings = React.memo(({ t, currentTheme, DEFAULT_THEMES, theme, setTheme, customColors, updateCustomColor, customBgImage, setCustomBgImage, bgImageInputRef, handleBgImageUpload, DEFAULT_FONTS, font, setFont, fileInputRef, handleFontUpload, hasCustomFont, clockLayout, setClockLayout, enableParticles, setEnableParticles }) => (
     <section className="space-y-6 animate-fade-in">
         <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><Palette size={24} /> {t('appearance')}</h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -119,6 +119,17 @@ const AppearanceSettings = React.memo(({ t, currentTheme, DEFAULT_THEMES, theme,
                 {hasCustomFont && <button onClick={() => setFont('custom')} className={`p-4 rounded-2xl border col-span-full ${font === 'custom' ? `bg-white/10 border-white/30 shadow-lg` : 'border-white/10 hover:bg-white/5'}`}>{t('imported')}</button>}
             </div>
         </div>
+        <div className="pt-6 border-t border-white/10 mt-6">
+            <label className="flex items-center justify-between p-6 rounded-2xl bg-white/5 cursor-pointer hover:bg-white/10 transition-colors">
+                <div>
+                    <span className="block text-base">{t('particles') || 'Particle Background'}</span>
+                    <span className="block text-xs opacity-50 mt-1">Add a floating particle effect to the background</span>
+                </div>
+                <div onClick={() => setEnableParticles(!enableParticles)} className={`w-14 h-8 rounded-full relative transition-colors ${enableParticles ? 'bg-blue-500' : 'bg-slate-600'}`}>
+                    <div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all ${enableParticles ? 'left-7' : 'left-1'}`} />
+                </div>
+            </label>
+        </div>
     </section>
 ));
 
@@ -173,7 +184,8 @@ const GeneralSettings = React.memo(({
     enableMeetingPlanner, setEnableMeetingPlanner, ringPosition, setRingPosition,
     alarmSound, setAlarmSound, playAlarm,
     use12Hour, setUse12Hour, hourlyChime, setHourlyChime, showSeconds, setShowSeconds,
-    showDate, setShowDate, showNextEvent, setShowNextEvent, dashboardMode, setDashboardMode
+    showDate, setShowDate, showNextEvent, setShowNextEvent, dashboardMode, setDashboardMode,
+    autoDarkMode, setAutoDarkMode, enableEcoMode, setEnableEcoMode
 }) => (
     <section className="space-y-12 animate-fade-in">
         <div className="space-y-6">
@@ -191,9 +203,11 @@ const GeneralSettings = React.memo(({
                 ['showSeconds', showSeconds, setShowSeconds],
                 ['showDate', showDate, setShowDate],
                 ['showNextEvent', showNextEvent, setShowNextEvent],
-                ['dashboardMode', dashboardMode, setDashboardMode]].map(([k, val, setVal]) => (
+                ['dashboardMode', dashboardMode, setDashboardMode],
+                ['autoDarkMode', autoDarkMode, setAutoDarkMode],
+                ['enableEcoMode', enableEcoMode, setEnableEcoMode]].map(([k, val, setVal]) => (
                     <label key={k} className="flex items-center justify-between p-6 rounded-2xl bg-white/5 cursor-pointer hover:bg-white/10 transition-colors">
-                        <span>{t(k)}</span>
+                        <span>{t(k) || (k === 'autoDarkMode' ? 'Auto Dark Mode (Night)' : k === 'enableEcoMode' ? 'Eco Mode (Battery)' : k)}</span>
                         <div onClick={() => k === 'notifications' ? handleToggleNotifications() : setVal(!val)} className={`w-14 h-8 rounded-full relative transition-colors ${val ? 'bg-blue-500' : 'bg-slate-600'}`}>
                             <div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all ${val ? 'left-7' : 'left-1'}`} />
                         </div>
@@ -260,8 +274,32 @@ const AboutSettings = React.memo(({ t, exportTheme, handleExportImage, isExporti
     </section>
 ));
 
-const SystemSettings = React.memo(({ t, isDownloadingApp, handleDownloadApp, APP_VERSION, updateStatus, handleForceUpdate, handleCheckUpdate, latestVersion, handleClearData }) => (
+const SystemSettings = React.memo(({ t, isDownloadingApp, handleDownloadApp, APP_VERSION, updateStatus, handleForceUpdate, handleCheckUpdate, latestVersion, handleClearData }) => {
+    const fileRef = useRef(null);
+
+    return (
     <section className="space-y-12 animate-fade-in">
+        <div className="space-y-6">
+            <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><CloudSun size={24} className="text-amber-400" /> {t('localBackup') || 'Local Backup (JSON)'}</h3>
+            <div className="p-6 rounded-2xl bg-amber-500/5 border border-amber-500/20 flex flex-col gap-4">
+                <p className="text-sm opacity-80 leading-relaxed">Save your themes, settings, and events as a JSON file to your device, or restore them from a previous backup.</p>
+                <div className="flex gap-4 mt-2">
+                    <button onClick={() => window.exportSettingsToFile()} className="flex-1 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-amber-500/10 hover:border-amber-500/30 transition-all font-medium flex items-center justify-center gap-2 text-sm"><Upload size={16}/> Export Config</button>
+                    <button onClick={() => fileRef.current.click()} className="flex-1 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-amber-500/10 hover:border-amber-500/30 transition-all font-medium flex items-center justify-center gap-2 text-sm"><Download size={16}/> Import Config</button>
+                    <input type="file" ref={fileRef} className="hidden" accept=".json" onChange={async (e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                            try {
+                                await window.importSettingsFromFile(file);
+                                window.location.reload();
+                            } catch(err) {
+                                alert(err.message);
+                            }
+                        }
+                    }} />
+                </div>
+            </div>
+        </div>
         <div className="space-y-6">
             <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><Download size={24} className="text-blue-400" /> {t('downloadApp')}</h3>
             <div className="p-6 rounded-2xl bg-blue-500/10 border border-blue-500/20">
@@ -302,7 +340,8 @@ const SystemSettings = React.memo(({ t, isDownloadingApp, handleDownloadApp, APP
             </div>
         </div>
     </section>
-));
+    );
+});
 
 const SettingsOverlay = React.memo(({
     showSettings, setShowSettings, activeSettingsTab, setActiveSettingsTab,
@@ -315,14 +354,15 @@ const SettingsOverlay = React.memo(({
     showMillis, setShowMillis, notificationsEnabled, handleToggleNotifications,
     autoZenMode, setAutoZenMode, showProgressRing, setShowProgressRing,
     enableMiniTask, setEnableMiniTask, enableFocusAnalytics, setEnableFocusAnalytics,
-    enableMeetingPlanner, setEnableMeetingPlanner,
+    enableMeetingPlanner, setEnableMeetingPlanner, enableParticles, setEnableParticles,
     ringPosition, setRingPosition, alarmSound, setAlarmSound, playAlarm,
     exportTheme, handleExportImage, isExporting, importTheme,
     isDownloadingApp, handleDownloadApp, APP_VERSION, updateStatus,
     handleForceUpdate, handleCheckUpdate, latestVersion, handleClearData,
     clockLayout, setClockLayout,
     use12Hour, setUse12Hour, hourlyChime, setHourlyChime, showSeconds, setShowSeconds,
-    showDate, setShowDate, showNextEvent, setShowNextEvent, dashboardMode, setDashboardMode
+    showDate, setShowDate, showNextEvent, setShowNextEvent, dashboardMode, setDashboardMode,
+    autoDarkMode, setAutoDarkMode, enableEcoMode, setEnableEcoMode
 }) => {
     if (!showSettings) return null;
     return (
@@ -356,7 +396,7 @@ const SettingsOverlay = React.memo(({
 
 
                     {activeSettingsTab === 'appearance' && (
-                        <AppearanceSettings t={t} currentTheme={currentTheme} DEFAULT_THEMES={DEFAULT_THEMES} theme={theme} setTheme={setTheme} customColors={customColors} updateCustomColor={updateCustomColor} customBgImage={customBgImage} setCustomBgImage={setCustomBgImage} bgImageInputRef={bgImageInputRef} handleBgImageUpload={handleBgImageUpload} DEFAULT_FONTS={DEFAULT_FONTS} font={font} setFont={setFont} fileInputRef={fileInputRef} handleFontUpload={handleFontUpload} hasCustomFont={hasCustomFont} clockLayout={clockLayout} setClockLayout={setClockLayout} />
+                        <AppearanceSettings t={t} currentTheme={currentTheme} DEFAULT_THEMES={DEFAULT_THEMES} theme={theme} setTheme={setTheme} customColors={customColors} updateCustomColor={updateCustomColor} customBgImage={customBgImage} setCustomBgImage={setCustomBgImage} bgImageInputRef={bgImageInputRef} handleBgImageUpload={handleBgImageUpload} DEFAULT_FONTS={DEFAULT_FONTS} font={font} setFont={setFont} fileInputRef={fileInputRef} handleFontUpload={handleFontUpload} hasCustomFont={hasCustomFont} clockLayout={clockLayout} setClockLayout={setClockLayout} enableParticles={enableParticles} setEnableParticles={setEnableParticles} />
                     )}
 
                     {activeSettingsTab === 'features' && (
@@ -380,6 +420,8 @@ const SettingsOverlay = React.memo(({
                             showDate={showDate} setShowDate={setShowDate}
                             showNextEvent={showNextEvent} setShowNextEvent={setShowNextEvent}
                             dashboardMode={dashboardMode} setDashboardMode={setDashboardMode}
+                            autoDarkMode={autoDarkMode} setAutoDarkMode={setAutoDarkMode}
+                            enableEcoMode={enableEcoMode} setEnableEcoMode={setEnableEcoMode}
                         />
                     )}
 

@@ -14,8 +14,27 @@ const WorldClockView = React.memo(({ enableMeetingPlanner, meetingOffset, setMee
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6 w-full p-4">
             {selectedZones.map(zone => {
                 const tWorld = getWorldTime(zone.id);
+                // Extract hours dynamically to determine suitability
+                const tzHour = parseInt(tWorld.rawH, 10) || parseInt(tWorld.h, 10);
+                
+                let dotColor = '';
+                let tooltip = '';
+                if (enableMeetingPlanner) {
+                    if (tzHour >= 9 && tzHour < 17) {
+                        dotColor = 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]';
+                        tooltip = t('meetingGood') || 'Business Hours';
+                    } else if ((tzHour >= 7 && tzHour < 9) || (tzHour >= 17 && tzHour < 21)) {
+                        dotColor = 'bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.5)]';
+                        tooltip = t('meetingAcceptable') || 'Outside Business Hours';
+                    } else {
+                        dotColor = 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]';
+                        tooltip = t('meetingUnsuitable') || 'Sleeping Hours';
+                    }
+                }
+
                 return (
-                    <div key={zone.id} className="flex flex-col items-center p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-sm hover-lift group">
+                    <div key={zone.id} className="flex flex-col items-center p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-sm hover-lift group relative" title={tooltip}>
+                        {enableMeetingPlanner && <div className={`absolute top-4 right-4 w-2.5 h-2.5 rounded-full ${dotColor}`}></div>}
                         <div className={`text-3xl font-bold tracking-tighter transition-all group-hover:${currentTheme.accent}`}>{tWorld.h}:{tWorld.m}</div>
                         <div className="text-[10px] opacity-40 mt-2 text-center uppercase tracking-[0.2em]">{t(zone.label)}</div>
                     </div>
@@ -66,6 +85,13 @@ const AnniversaryView = React.memo(({ anniversaries, setAnniversaries, t, curren
                                     {isFuture ? t('daysLeft') : t('daysAgo')}
                                 </div>
                             </div>
+                            <button
+                                onClick={() => window.exportToICS(ev.label, ev.date)}
+                                className="w-8 h-8 rounded-full opacity-0 group-hover:opacity-60 hover:!opacity-100 hover:bg-blue-500/20 transition-all flex items-center justify-center mr-1"
+                                title={t('export') || 'Export'}
+                            >
+                                <Download size={14} />
+                            </button>
                             <button
                                 onClick={() => setAnniversaries(prev => prev.filter(a => a.id !== ev.id))}
                                 className="w-8 h-8 rounded-full opacity-0 group-hover:opacity-60 hover:!opacity-100 hover:bg-red-500/20 transition-all flex items-center justify-center"
@@ -514,6 +540,7 @@ const LauncherView = React.memo(({ setMode, t }) => {
         { id: 'calendar',    icon: CalendarDays,  label: t('tabMonthly'),  color: 'text-sky-400',     bg: 'bg-sky-500/10' },
         { id: 'anniversary', icon: Sparkles,      label: t('tabEvents'),   color: 'text-purple-400',  bg: 'bg-purple-500/10' },
         { id: 'memento',     icon: LayoutPanelTop,label: t('tabLife'),     color: 'text-indigo-400',  bg: 'bg-indigo-500/10' },
+        { id: 'sequence',    icon: Layers,        label: t('tabSequence') || 'Sequence',color: 'text-orange-400', bg: 'bg-orange-500/10' },
         { id: 'world',       icon: Globe,         label: t('worldClock'),  color: 'text-cyan-400',    bg: 'bg-cyan-500/10' },
     ];
 
@@ -539,3 +566,73 @@ const LauncherView = React.memo(({ setMode, t }) => {
     );
 });
 
+const SequenceView = React.memo(({
+    sequence, setSequence, currentIndex, sqSeconds, isSqRunning,
+    addSeqEvent, removeSeqEvent, toggleSequence, resetSequence, skipToNext,
+    currentTheme, ringPosition, showProgressRing, theme, isZenMode, isCleanMode, t, showControls
+}) => {
+    const [isAdding, setIsAdding] = useState(false);
+    const [newLabel, setNewLabel] = useState('');
+    const [newMins, setNewMins] = useState(5);
+
+    const activeStage = sequence[currentIndex];
+    const initialDuration = activeStage?.duration || 1;
+    const progress = activeStage ? (sqSeconds / initialDuration) * 100 : 0;
+
+    return (
+        <div className="flex flex-col items-center select-none w-full max-w-3xl px-4 mt-2 sm:mt-4">
+            <div className={`relative flex justify-center items-center w-full mt-2 p-2 sm:p-4 flex-col ${ringPosition === 'left' ? 'md:flex-row' : ringPosition === 'right' ? 'md:flex-row-reverse' : 'md:flex-col'}`}>
+                {showProgressRing && <ProgressRing progress={progress} accent={theme === 'custom' ? 'custom-accent text-white' : currentTheme.accent} position={ringPosition} />}
+                <div className={`font-bold tracking-tighter tabular-nums drop-shadow-2xl flex items-baseline gap-1 md:gap-2 z-10 transition-all text-[15vw] md:text-[80px]`}>
+                    <span>{Math.floor(sqSeconds / 60).toString().padStart(2, '0')}<span className={`font-light opacity-50 ml-1 text-[4vw] md:text-[24px]`}>min</span></span>
+                    <span>{(sqSeconds % 60).toString().padStart(2, '0')}<span className={`font-light opacity-50 ml-1 text-[4vw] md:text-[24px]`}>s</span></span>
+                </div>
+            </div>
+            
+            <div className={`text-xl font-bold uppercase tracking-widest mt-2 ${currentTheme.accent}`}>
+                {activeStage ? activeStage.label : (sequence.length > 0 ? t('readyToStart') || 'Ready to start' : t('emptySequence') || 'Empty Setup')}
+            </div>
+
+            <div className={`mt-4 sm:mt-8 flex gap-6 z-30 relative ${!showControls && !isCleanMode ? 'opacity-0 pointer-events-none' : 'opacity-100 transition-opacity duration-500'}`}>
+                <button onClick={toggleSequence} className={`w-16 h-16 md:w-20 md:h-20 flex justify-center items-center rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all active:scale-90 active:bg-white/30`}>
+                    {isSqRunning ? <Pause size={32} /> : <Play size={32} className={sequence.length > 0 ? currentTheme.accent : 'opacity-30'} />}
+                </button>
+                <button onClick={skipToNext} className="w-16 h-16 md:w-20 md:h-20 flex justify-center items-center rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all active:scale-90 active:bg-white/30"><ChevronRight size={32} /></button>
+                <button onClick={resetSequence} className="w-16 h-16 md:w-20 md:h-20 flex justify-center items-center rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all active:scale-90 active:bg-white/30"><RotateCcw size={32} /></button>
+            </div>
+
+            <div className={`w-full mt-8 flex flex-col gap-2 transition-opacity duration-500 ${isZenMode ? 'opacity-0 h-0 overflow-hidden' : 'opacity-100'}`}>
+                {sequence.map((item, idx) => (
+                    <div key={item.id} className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${idx === currentIndex ? 'bg-white/10 border-white/50 border-' + currentTheme.accent.split('text-')[1] : 'bg-white/5 border-white/10 opacity-70'} ${idx < currentIndex ? 'opacity-30' : ''}`}>
+                        <div className="flex items-center gap-4">
+                            <div className={`w-8 h-8 rounded-full ${idx === currentIndex ? currentTheme.accent : 'bg-white/10'} flex items-center justify-center font-bold text-xs`}>{idx + 1}</div>
+                            <div>
+                                <div className="font-bold">{item.label}</div>
+                                <div className="text-xs opacity-50 uppercase tracking-widest">{item.duration / 60} mins</div>
+                            </div>
+                        </div>
+                        <button onClick={() => removeSeqEvent(item.id)} className="p-2 rounded-full hover:bg-red-500/20 opacity-0 md:opacity-100 hover:opacity-100 transition-all"><Trash2 size={16}/></button>
+                    </div>
+                ))}
+                
+                {isAdding ? (
+                    <div className="p-4 rounded-2xl border border-white/20 bg-white/10 flex flex-col gap-3 mt-2">
+                        <input type="text" placeholder="Task Name" value={newLabel} onChange={e => setNewLabel(e.target.value)} className="w-full bg-black/20 border border-white/10 px-4 py-2 rounded-xl outline-none" />
+                        <div className="flex items-center gap-4">
+                            <input type="number" min="1" max="999" value={newMins} onChange={e => setNewMins(Number(e.target.value))} className="w-24 bg-black/20 border border-white/10 px-4 py-2 rounded-xl outline-none" />
+                            <span className="text-sm opacity-50">Minutes</span>
+                        </div>
+                        <div className="flex gap-2">
+                            <button onClick={() => setIsAdding(false)} className="px-4 py-2 rounded-xl hover:bg-white/10 text-sm flex-1">Cancel</button>
+                            <button onClick={() => { addSeqEvent(newLabel || 'Task', Number(newMins)); setIsAdding(false); setNewLabel(''); setNewMins(5); }} className="px-4 py-2 rounded-xl bg-blue-500 hover:bg-blue-400 text-sm font-bold flex-1">Add</button>
+                        </div>
+                    </div>
+                ) : (
+                    <button onClick={() => setIsAdding(true)} className="mt-2 py-4 rounded-2xl border border-dashed border-white/20 hover:bg-white/5 hover:border-white/40 flex justify-center items-center gap-2 transition-all opacity-60 hover:opacity-100 text-sm uppercase tracking-widest">
+                        <Plus size={16} /> Add Sequence Task
+                    </button>
+                )}
+            </div>
+        </div>
+    );
+});

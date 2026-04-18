@@ -20,7 +20,10 @@ function App() {
 
     // New Automation Settings
     const [autoZenMode, setAutoZenMode] = useLocalBoolean('clock_autoZenMode', true);
-
+    const [enableParticles, setEnableParticles] = useLocalBoolean('clock_particles', false);
+    const [autoDarkMode, setAutoDarkMode] = useLocalBoolean('clock_autoDarkMode', false);
+    const [enableEcoMode, setEnableEcoMode] = useLocalBoolean('clock_ecoMode', false);
+    
     const [selectedZones, setSelectedZones] = useLocalJSON('clock_zones', () => [
         ALL_ZONES.find(z => z.id === 'Asia/Taipei'),
         ALL_ZONES.find(z => z.id === 'America/New_York'),
@@ -122,6 +125,20 @@ function App() {
     const { timerSeconds, setTimerSeconds, isTimerRunning, setIsTimerRunning, timerInitial, setTimerInitial, isEditingTimer, setIsEditingTimer, timerInput, setTimerInput, handleTimerInput, getTimerInputSeconds } = useTimer({ playAlarm, showNotification, triggerSuccess });
     const { pomoMode, setPomoMode, pomoSeconds, setPomoSeconds, isPomoRunning, setIsPomoRunning, resetPomo } = usePomodoro({ playAlarm, showNotification, triggerSuccess, enableFocusAnalytics, setFocusStats, t });
     const { stopwatchTime, setStopwatchTime, isStopwatchRunning, setIsStopwatchRunning, laps, setLaps } = useStopwatch();
+    const sequenceProps = useTimerSequence({ playAlarm, showNotification, t });
+
+    // Global Spacekey Shortcut
+    useSpaceKey(() => {
+        if (mode === 'timer') {
+            if (!isEditingTimer) setIsTimerRunning(prev => !prev);
+        } else if (mode === 'stopwatch') {
+            setIsStopwatchRunning(prev => !prev);
+        } else if (mode === 'pomodoro') {
+            setIsPomoRunning(prev => !prev);
+        } else if (mode === 'sequence') {
+            sequenceProps.toggleSequence();
+        }
+    });
 
     const handleToggleNotifications = async () => {
         if (!notificationsEnabled) {
@@ -181,6 +198,24 @@ function App() {
         }, 30000); // 降低檢測頻率
         return () => clearInterval(interval);
     }, [isScreenSaverActive]);
+
+    const [isDocumentHidden, setIsDocumentHidden] = useState(false);
+    useEffect(() => {
+        const handleVis = () => setIsDocumentHidden(document.hidden);
+        document.addEventListener('visibilitychange', handleVis);
+        return () => document.removeEventListener('visibilitychange', handleVis);
+    }, []);
+
+    const isEcoActive = enableEcoMode && (isDocumentHidden || isScreenSaverActive);
+
+    // Auto Dark Mode
+    useEffect(() => {
+        if (!autoDarkMode) return;
+        const h = time.getHours();
+        const isNight = h >= 18 || h < 6;
+        if (isNight && theme === 'light') setTheme('modern');
+        else if (!isNight && theme === 'modern') setTheme('light');
+    }, [time.getHours(), autoDarkMode, theme, setTheme]);
 
     // 螢幕保護位移邏輯 - 優化版 (使用 CSS Transition 代替每幀更新)
     useEffect(() => {
@@ -257,6 +292,21 @@ function App() {
             setIsExporting(false);
         }, 500);
     };
+
+    // --- 微縮模式 (Mini Overlay) ---
+    const isMiniMode = useMemo(() => window.location.search.includes('mini=true'), []);
+    useEffect(() => {
+        if (isMiniMode) {
+            setIsZenMode(true);
+            setDashboardMode(false);
+        }
+    }, [isMiniMode]);
+
+    const openMiniWindow = useCallback(() => {
+        const url = window.location.href.split('?')[0] + '?mini=true';
+        const w = window.open(url, 'ClockomistryMini', 'width=380,height=220,toolbar=0,menubar=0,location=0,status=0,scrollbars=0,resizable=1');
+        if (w) w.focus();
+    }, []);
 
     // 初始化時從 IndexedDB 載入字體
     useEffect(() => {
@@ -437,6 +487,8 @@ function App() {
                 autoZenMode={autoZenMode} setAutoZenMode={setAutoZenMode} showProgressRing={showProgressRing} setShowProgressRing={setShowProgressRing}
                 enableMiniTask={enableMiniTask} setEnableMiniTask={setEnableMiniTask} enableFocusAnalytics={enableFocusAnalytics} setEnableFocusAnalytics={setEnableFocusAnalytics}
                 enableMeetingPlanner={enableMeetingPlanner} setEnableMeetingPlanner={setEnableMeetingPlanner}
+                enableParticles={enableParticles} setEnableParticles={setEnableParticles} autoDarkMode={autoDarkMode} setAutoDarkMode={setAutoDarkMode}
+                enableEcoMode={enableEcoMode} setEnableEcoMode={setEnableEcoMode}
                 ringPosition={ringPosition} setRingPosition={setRingPosition} alarmSound={alarmSound} setAlarmSound={setAlarmSound} playAlarm={playAlarm}
                 exportTheme={exportTheme} handleExportImage={handleExportImage} isExporting={isExporting} importTheme={importTheme}
                 isDownloadingApp={isDownloadingApp} handleDownloadApp={handleDownloadApp} APP_VERSION={APP_VERSION} updateStatus={updateStatus}
@@ -462,6 +514,7 @@ function App() {
 
             {/* Decor — Ambient blobs (GPU optimized) */}
             <div className={`absolute inset-0 overflow-hidden pointer-events-none transition-opacity duration-1000 ${isZenMode ? 'opacity-10' : 'opacity-100'}`}>
+                {enableParticles && <ParticleBackground theme={theme} isEcoActive={isEcoActive} />}
                 <div className="ambient-blob ambient-blob-1 absolute -top-[5%] -left-[5%] w-[55vw] h-[55vw] rounded-full opacity-20 bg-blue-500/20"></div>
                 <div className="ambient-blob ambient-blob-2 absolute -bottom-[5%] -right-[5%] w-[55vw] h-[55vw] rounded-full opacity-20 bg-violet-500/20"></div>
             </div>
@@ -496,7 +549,7 @@ function App() {
                         ) : (
                             <div className="flex flex-col items-center select-none">
                                 <WeatherWidget weather={weather} accent={currentTheme.accent} />
-                                <ClockDisplay h={h} m={m} s={s} ms={ms} showMillis={showMillis} accent={currentTheme.accent} dateLabel={showDate ? dateLabel : null} isZenMode={isZenMode} clockLayout={clockLayout} showSeconds={showSeconds} ampm={ampm} />
+                                <ClockDisplay h={h} m={m} s={s} ms={ms} showMillis={showMillis} accent={currentTheme.accent} dateLabel={showDate ? dateLabel : null} isZenMode={isZenMode} clockLayout={clockLayout} showSeconds={showSeconds} ampm={ampm} isEcoActive={isEcoActive} />
                                 {showNextEvent && nextEvent && (
                                     <div className="mt-4 md:mt-6 flex items-center gap-3 px-6 py-3 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm animate-fade-in">
                                         <Sparkles size={16} className={currentTheme.accent} />
@@ -571,6 +624,16 @@ function App() {
                         </div>
                     )}
 
+                    {mode === 'sequence' && (
+                        <div className="flex flex-col items-center w-full animate-fade-in">
+                            <div className="flex items-center gap-2 mb-4 opacity-40">
+                                <Layers size={14} />
+                                <span className="text-[11px] font-bold tracking-[0.2em] uppercase">{t('tabSequence') || 'Sequence'}</span>
+                            </div>
+                            <SequenceView {...sequenceProps} currentTheme={currentTheme} ringPosition={ringPosition} showProgressRing={showProgressRing} theme={theme} isZenMode={isZenMode} isCleanMode={isCleanMode} t={t} showControls={showControls} />
+                        </div>
+                    )}
+
                     {mode === 'calendar' && (
                         <div className="flex flex-col items-center w-full animate-fade-in">
                             <div className="flex items-center gap-2 mb-4 opacity-40">
@@ -627,6 +690,8 @@ function App() {
                 setShowSettings={setShowSettings}
                 setIsZenMode={setIsZenMode}
                 isCleanMode={isCleanMode}
+                isMiniMode={isMiniMode}
+                openMiniWindow={openMiniWindow}
                 t={t}
             />
         </div >

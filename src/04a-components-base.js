@@ -1,4 +1,69 @@
 // --- Memoized Components ---
+const ParticleBackground = React.memo(({ theme, isEcoActive }) => {
+    const canvasRef = useRef(null);
+
+    useEffect(() => {
+        if (isEcoActive) return;
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        let animationFrameId;
+        const particles = [];
+        const particleCount = 50;
+
+        const resize = () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        };
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.size = Math.random() * 2 + 0.5;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = theme === 'custom' ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.15)';
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+
+        const animate = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            animationFrameId = requestAnimationFrame(animate);
+        };
+
+        animate();
+
+        return () => {
+            window.removeEventListener('resize', resize);
+            cancelAnimationFrame(animationFrameId);
+        };
+    }, [theme, isEcoActive]);
+
+    return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0" style={{ opacity: 0.8 }} />;
+});
+
 const ProgressRing = React.memo(({ progress, accent, position }) => {
     const clampedProgress = Math.min(100, Math.max(0, progress || 0));
     const radius = 46;
@@ -54,13 +119,13 @@ const WeatherWidget = React.memo(({ weather, accent }) => (
     </div>
 ));
 
-const ClockDisplay = React.memo(({ h, m, s, ms: initialMs, showMillis, accent, dateLabel, isZenMode, clockLayout, showSeconds = true, ampm = '' }) => {
+const ClockDisplay = React.memo(({ h, m, s, ms: initialMs, showMillis, accent, dateLabel, isZenMode, clockLayout, showSeconds = true, ampm = '', isEcoActive = false }) => {
     const layout = clockLayout || 'classic';
     const [localMs, setLocalMs] = useState(initialMs);
     const requestRef = useRef();
 
     useEffect(() => {
-        if (showMillis) {
+        if (showMillis && !isEcoActive) {
             let lastUpdate = 0;
             const update = (timestamp) => {
                 // 優化效能與省電：將毫秒更新頻率降至約 15FPS (66ms)，大幅減少前景重繪的耗能
@@ -73,7 +138,7 @@ const ClockDisplay = React.memo(({ h, m, s, ms: initialMs, showMillis, accent, d
             requestRef.current = requestAnimationFrame(update);
             return () => cancelAnimationFrame(requestRef.current);
         }
-    }, [showMillis]);
+    }, [showMillis, isEcoActive]);
 
     const displayMs = showMillis ? localMs : initialMs;
 
@@ -201,7 +266,7 @@ const ClockDisplay = React.memo(({ h, m, s, ms: initialMs, showMillis, accent, d
 });
 
 
-const NavigationBar = React.memo(({ mode, setMode, isZenMode, accent, showControls, toggleFullscreen, setShowSettings, setIsZenMode, isCleanMode, t }) => {
+const NavigationBar = React.memo(({ mode, setMode, isZenMode, accent, showControls, toggleFullscreen, setShowSettings, setIsZenMode, isCleanMode, isMiniMode, openMiniWindow, t }) => {
     const APP_NAMES = {
         'clock':       'Clock',
         'apps':        'Apps',
@@ -267,6 +332,15 @@ const NavigationBar = React.memo(({ mode, setMode, isZenMode, accent, showContro
                 >
                     <Monitor size={16} />
                 </button>
+                {!isMiniMode && (
+                    <button
+                        onClick={openMiniWindow}
+                        className="w-10 h-10 justify-center items-center rounded-full opacity-50 hover:opacity-90 hover:bg-white/8 transition-all nav-btn hidden sm:flex"
+                        title="Mini Mode Overlay"
+                    >
+                        <ExternalLink size={16} />
+                    </button>
+                )}
                 <button
                     onClick={toggleFullscreen}
                     className="w-10 h-10 justify-center items-center rounded-full opacity-50 hover:opacity-90 hover:bg-white/8 transition-all nav-btn hidden sm:flex"
