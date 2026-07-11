@@ -23,11 +23,7 @@ function App() {
     const [autoDarkMode, setAutoDarkMode] = useLocalBoolean('clock_autoDarkMode', false);
     const [enableEcoMode, setEnableEcoMode] = useLocalBoolean('clock_ecoMode', false);
 
-    // Detect if running in OBS Studio (via window.obsStudio or URL parameter)
-    const isObsMode = useMemo(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        return !!window.obsStudio || urlParams.has('obs') || urlParams.has('obsMode');
-    }, []);
+
     
     const [selectedZones, setSelectedZones] = useLocalJSON('clock_zones', () => [
         ALL_ZONES.find(z => z.id === 'Asia/Taipei'),
@@ -89,20 +85,23 @@ function App() {
     // Life Calendar & Mini Mode
     const [birthDate, setBirthDate] = useLocalString('clock_birthdate', '2000-01-01');
 
-    // Auto-detect OBS
-    const isOBS = useMemo(() => typeof window.obsstudio !== 'undefined', []);
+    // Auto-detect OBS (Consolidated)
+    const isObsMode = useMemo(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        return typeof window.obsstudio !== 'undefined' || !!window.obsStudio || urlParams.has('obs') || urlParams.has('obsMode');
+    }, []);
 
-    // If OBS, the UI becomes super clean
-    const isCleanMode = isOBS;
+    // Clean mode hides UI controls (can still be triggered manually, but not automatically forced by OBS)
+    const [isCleanMode, setIsCleanMode] = useState(false);
 
     // Apply transparent bg if OBS
     useEffect(() => {
-        if (isCleanMode) {
+        if (isObsMode) {
             document.body.style.backgroundColor = 'transparent';
         } else {
             document.body.style.backgroundColor = '';
         }
-    }, [isCleanMode]);
+    }, [isObsMode]);
 
     // Screen Saver 狀態
     const [isScreenSaverActive, setIsScreenSaverActive] = useState(false);
