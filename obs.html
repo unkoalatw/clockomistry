@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clockomistry OBS Mode</title>
+    <style>
+        /* Load Mirai font */
+        @font-face {
+            font-family: 'Mirai';
+            src: url('./public/fonts/mirai.woff2') format('woff2'),
+                 url('./public/fonts/mirai.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        body {
+            background-color: transparent;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            font-family: 'Mirai', -apple-system, sans-serif;
+            overflow: hidden;
+            display: flex;
+            flex-col: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 100vw;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        .obs-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        /* Displays */
+        .time-display {
+            font-size: 120px;
+            font-weight: bold;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.02em;
+            line-height: 1;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+        }
+
+        .time-display .sec {
+            font-size: 50px;
+            opacity: 0.5;
+            margin-left: 10px;
+        }
+
+        .date-display {
+            font-size: 24px;
+            opacity: 0.8;
+            margin-top: 15px;
+            letter-spacing: 0.1em;
+            font-weight: 300;
+        }
+
+        /* Controls / Mode Switcher */
+        .mode-dock {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px border rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 4px;
+            border-radius: 9999px;
+            display: flex;
+            gap: 4px;
+            z-index: 99;
+            transition: opacity 0.3s;
+        }
+
+        .mode-btn {
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-radius: 9999px;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .mode-btn:hover {
+            opacity: 0.9;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .mode-btn.active {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Timer / Stopwatch Action Buttons */
+        .controls-row {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            font-family: inherit;
+            padding: 10px 24px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .action-btn:active {
+            transform: scale(0.97);
+        }
+
+        /* Setup / Editor views */
+        .setup-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .number-input {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            font-family: inherit;
+            padding: 8px 12px;
+            font-size: 16px;
+            border-radius: 8px;
+            width: 80px;
+            text-align: center;
+            outline: none;
+        }
+
+        .number-input:focus {
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Hide helper class */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="obs-container">
+        <!-- 1. CLOCK VIEW -->
+        <div id="view-clock">
+            <div class="time-display" id="clock-time">00:00<span class="sec">00</span></div>
+            <div class="date-display" id="clock-date">2026年7月11日 星期六</div>
+        </div>
+
+        <!-- 2. TIMER VIEW -->
+        <div id="view-timer" class="hidden">
+            <div class="time-display" id="timer-time">25:00</div>
+            
+            <div class="setup-row" id="timer-setup">
+                <input type="number" id="timer-input-min" class="number-input" value="25" min="1" max="999">
+                <span style="opacity: 0.7; font-size: 14px;">分鐘</span>
+                <button class="action-btn" id="timer-set-btn">設定</button>
+            </div>
+
+            <div class="controls-row">
+                <button class="action-btn" id="timer-start-btn">開始</button>
+                <button class="action-btn" id="timer-reset-btn">重設</button>
+                <button class="action-btn" id="timer-edit-btn">自訂時間</button>
+            </div>
+        </div>
+
+        <!-- 3. STOPWATCH VIEW -->
+        <div id="view-stopwatch" class="hidden">
+            <div class="time-display" id="stopwatch-time">00:00<span class="sec">00</span></div>
+            <div class="controls-row">
+                <button class="action-btn" id="stopwatch-start-btn">開始</button>
+                <button class="action-btn" id="stopwatch-reset-btn">重設</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mode Dock -->
+    <div class="mode-dock">
+        <button class="mode-btn active" onclick="switchMode('clock')">時鐘</button>
+        <button class="mode-btn" onclick="switchMode('timer')">倒計時</button>
+        <button class="mode-btn" onclick="switchMode('stopwatch')">碼表</button>
+    </div>
+
+    <!-- Audio Element for Alarm -->
+    <audio id="alarm-sound" src="public/audio/digital.mp3" preload="auto"></audio>
+
+    <script>
+        let currentMode = 'clock';
+
+        function switchMode(newMode) {
+            currentMode = newMode;
+            
+            // Switch active dock state
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.includes(newMode === 'clock' ? '時鐘' : newMode === 'timer' ? '倒計時' : '碼表'));
+            });
+
+            // Toggle view visibility
+            document.getElementById('view-clock').classList.toggle('hidden', newMode !== 'clock');
+            document.getElementById('view-timer').classList.toggle('hidden', newMode !== 'timer');
+            document.getElementById('view-stopwatch').classList.toggle('hidden', newMode !== 'stopwatch');
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // 1. CLOCK LOGIC
+        // ═══════════════════════════════════════════════════════════════
+        function updateClock() {
+            const now = new Date();
+            const h = now.getHours().toString().padStart(2, '0');
+            const m = now.getMinutes().toString().padStart(2, '0');
+            const s = now.getSeconds().toString().padStart(2, '0');
+
+            document.getElementById('clock-time').innerHTML = `${h}:${m}<span class="sec">${s}</span>`;
+
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('clock-date').innerText = now.toLocaleDateString('zh-TW', options);
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // ═══════════════════════════════════════════════════════════════
+        // 2. TIMER LOGIC (倒計時)
+        // ═══════════════════════════════════════════════════════════════
+        let timerDuration = 25 * 60; // 預設 25 分鐘
+        let timerRemaining = 25 * 60;
+        let timerInterval = null;
+        let isTimerRunning = false;
+
+        const timerTimeEl = document.getElementById('timer-time');
+        const timerStartBtn = document.getElementById('timer-start-btn');
+        const timerResetBtn = document.getElementById('timer-reset-btn');
+        const timerEditBtn = document.getElementById('timer-edit-btn');
+        const timerSetupEl = document.getElementById('timer-setup');
+        const timerInputMin = document.getElementById('timer-input-min');
+        const timerSetBtn = document.getElementById('timer-set-btn');
+        const alarmSound = document.getElementById('alarm-sound');
+
+        function updateTimerDisplay() {
+            const m = Math.floor(timerRemaining / 60).toString().padStart(2, '0');
+            const s = (timerRemaining % 60).toString().padStart(2, '0');
+            timerTimeEl.innerText = `${m}:${s}`;
+        }
+
+        function startTimer() {
+            if (isTimerRunning) {
+                // Pause
+                clearInterval(timerInterval);
+                timerStartBtn.innerText = '開始';
+                isTimerRunning = false;
+            } else {
+                // Start
+                timerSetupEl.classList.add('hidden');
+                isTimerRunning = true;
+                timerStartBtn.innerText = '暫停';
+                
+                const targetTime = Date.now() + timerRemaining * 1000;
+                timerInterval = setInterval(() => {
+                    timerRemaining = Math.max(0, Math.round((targetTime - Date.now()) / 1000));
+                    updateTimerDisplay();
+
+                    if (timerRemaining <= 0) {
+                        clearInterval(timerInterval);
+                        isTimerRunning = false;
+                        timerStartBtn.innerText = '開始';
+                        alarmSound.play().catch(e => console.log('Audio playback failed', e));
+                    }
+                }, 200); // Higher check rate for accuracy, renders every second implicitly
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            timerRemaining = timerDuration;
+            timerStartBtn.innerText = '開始';
+            updateTimerDisplay();
+        }
+
+        timerStartBtn.addEventListener('click', startTimer);
+        timerResetBtn.addEventListener('click', resetTimer);
+        timerEditBtn.addEventListener('click', () => {
+            timerSetupEl.classList.toggle('hidden');
+        });
+        timerSetBtn.addEventListener('click', () => {
+            const mins = Math.max(1, parseInt(timerInputMin.value, 10) || 25);
+            timerDuration = mins * 60;
+            timerRemaining = timerDuration;
+            timerSetupEl.classList.add('hidden');
+            resetTimer();
+        });
+
+        // ═══════════════════════════════════════════════════════════════
+        // 3. STOPWATCH LOGIC (碼表)
+        // ═══════════════════════════════════════════════════════════════
+        let stopwatchElapsed = 0; // milliseconds
+        let stopwatchInterval = null;
+        let isStopwatchRunning = false;
+        let swStartTime = 0;
+
+        const stopwatchTimeEl = document.getElementById('stopwatch-time');
+        const stopwatchStartBtn = document.getElementById('stopwatch-start-btn');
+        const stopwatchResetBtn = document.getElementById('stopwatch-reset-btn');
+
+        function updateStopwatchDisplay() {
+            const totalSecs = Math.floor(stopwatchElapsed / 1000);
+            const m = Math.floor(totalSecs / 60).toString().padStart(2, '0');
+            const s = (totalSecs % 60).toString().padStart(2, '0');
+            const ms = Math.floor((stopwatchElapsed % 1000) / 10).toString().padStart(2, '0');
+            stopwatchTimeEl.innerHTML = `${m}:${s}<span class="sec">${ms}</span>`;
+        }
+
+        function startStopwatch() {
+            if (isStopwatchRunning) {
+                // Pause
+                clearInterval(stopwatchInterval);
+                stopwatchStartBtn.innerText = '開始';
+                isStopwatchRunning = false;
+            } else {
+                // Start
+                isStopwatchRunning = true;
+                stopwatchStartBtn.innerText = '暫停';
+                swStartTime = Date.now() - stopwatchElapsed;
+                
+                stopwatchInterval = setInterval(() => {
+                    stopwatchElapsed = Date.now() - swStartTime;
+                    updateStopwatchDisplay();
+                }, 40); // Fast update for milliseconds (25 FPS)
+            }
+        }
+
+        function resetStopwatch() {
+            clearInterval(stopwatchInterval);
+            isStopwatchRunning = false;
+            stopwatchElapsed = 0;
+            stopwatchStartBtn.innerText = '開始';
+            updateStopwatchDisplay();
+        }
+
+        stopwatchStartBtn.addEventListener('click', startStopwatch);
+        stopwatchResetBtn.addEventListener('click', resetStopwatch);
+
+        // ═══════════════════════════════════════════════════════════════
+        // 4. GLOBAL SPACEBAR & HOTKEY SHORTCUTS
+        // ═══════════════════════════════════════════════════════════════
+        document.addEventListener('keydown', (e) => {
+            const tag = e.target.tagName.toLowerCase();
+            if (tag === 'input' || tag === 'textarea') return;
+
+            if (e.code === 'Space' || e.key === ' ' || e.keyCode === 32) {
+                e.preventDefault();
+                if (currentMode === 'timer') {
+                    startTimer();
+                } else if (currentMode === 'stopwatch') {
+                    startStopwatch();
+                }
+            } else if (e.code === 'Escape') {
+                if (currentMode === 'timer') {
+                    resetTimer();
+                } else if (currentMode === 'stopwatch') {
+                    resetStopwatch();
+                }
+            }
+        }, true);
+    </script>
+</body>
+</html>
