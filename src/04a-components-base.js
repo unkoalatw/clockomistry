@@ -123,14 +123,9 @@ const ClockDisplay = React.memo(({ h, m, s, ms: initialMs, showMillis, accent, d
     const layout = clockLayout || 'classic';
     const [localMs, setLocalMs] = useState(initialMs);
     const requestRef = useRef();
-    const [isObs, setIsObs] = useState(false);
-    useEffect(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        setIsObs(typeof window.obsstudio !== 'undefined' || !!window.obsStudio || urlParams.has('obs') || urlParams.has('obsMode'));
-    }, []);
 
     useEffect(() => {
-        if (showMillis && !isEcoActive && !isObs) {
+        if (showMillis && !isEcoActive) {
             let lastUpdate = 0;
             const update = (timestamp) => {
                 // 優化效能與省電：將毫秒更新頻率降至約 15FPS (66ms)，大幅減少前景重繪的耗能
@@ -143,11 +138,9 @@ const ClockDisplay = React.memo(({ h, m, s, ms: initialMs, showMillis, accent, d
             requestRef.current = requestAnimationFrame(update);
             return () => cancelAnimationFrame(requestRef.current);
         }
-    }, [showMillis, isEcoActive, isObs]);
+    }, [showMillis, isEcoActive]);
 
-    // Force hide millisecond display in OBS mode to prevent high frequency rerenders
-    const displayMs = isObs ? '00' : (showMillis ? localMs : initialMs);
-    const renderMillis = showMillis && !isObs;
+    const displayMs = showMillis ? localMs : initialMs;
 
     // --- Layout: Classic (原始水平排列) ---
     if (layout === 'classic') return (
@@ -159,7 +152,7 @@ const ClockDisplay = React.memo(({ h, m, s, ms: initialMs, showMillis, accent, d
                 {showSeconds && (
                     <div className={`flex flex-col ml-2 md:ml-4 justify-end pb-[2vw] md:pb-12`}>
                         <span className={`opacity-50 font-medium text-[10vw] md:text-[60px]`}>{s}</span>
-                        {renderMillis && <span className={`${accent} opacity-80 text-[5vw] md:text-[30px]`}>{displayMs}</span>}
+                        {showMillis && <span className={`${accent} opacity-80 text-[5vw] md:text-[30px]`}>{displayMs}</span>}
                     </div>
                 )}
             </div>
@@ -178,7 +171,7 @@ const ClockDisplay = React.memo(({ h, m, s, ms: initialMs, showMillis, accent, d
             {showSeconds && (
                 <div className="flex items-center gap-3 mt-2 md:mt-4">
                     <span className="opacity-40 font-medium text-[8vw] md:text-[48px] tabular-nums">{s}</span>
-                    {renderMillis && <span className={`${accent} opacity-60 text-[5vw] md:text-[30px] tabular-nums`}>.{displayMs}</span>}
+                    {showMillis && <span className={`${accent} opacity-60 text-[5vw] md:text-[30px] tabular-nums`}>.{displayMs}</span>}
                 </div>
             )}
             {ampm && <div className={`text-[4vw] md:text-[28px] font-light tracking-[0.3em] opacity-50 mt-2 ${accent}`}>{ampm}</div>}
@@ -218,7 +211,7 @@ const ClockDisplay = React.memo(({ h, m, s, ms: initialMs, showMillis, accent, d
                 {showSeconds && (
                     <div className="flex flex-col items-center">
                         <span className={`text-[10vw] md:text-[72px] leading-none tracking-tighter opacity-40`}>{s}</span>
-                        {renderMillis && <span className={`${accent} opacity-60 text-[4vw] md:text-[28px] mt-1`}>{displayMs}</span>}
+                        {showMillis && <span className={`${accent} opacity-60 text-[4vw] md:text-[28px] mt-1`}>{displayMs}</span>}
                     </div>
                 )}
             </div>
@@ -252,7 +245,7 @@ const ClockDisplay = React.memo(({ h, m, s, ms: initialMs, showMillis, accent, d
                             <span className="text-[6vw] md:text-[36px] font-bold tabular-nums opacity-60 leading-none">{s}</span>
                         </div>
                     )}
-                    {showSeconds && renderMillis && (
+                    {showSeconds && showMillis && (
                         <div className={`bg-white/5 border border-white/10 rounded-xl px-4 py-2 backdrop-blur-sm min-w-[14vw] md:min-w-[64px] flex justify-center items-center`}>
                             <span className={`text-[4vw] md:text-[24px] font-bold tabular-nums ${accent} opacity-80 leading-none`}>{displayMs}</span>
                         </div>
