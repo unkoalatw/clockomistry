@@ -51,10 +51,23 @@ function App() {
     const [customBgImage, setCustomBgImage] = useLocalString('clock_custom_bg', '');
 
     const [lang, setLang] = useLocalString('clock_lang', () => {
-        const browserLang = navigator.language.split('-')[0];
-        if (I18N[browserLang]) return browserLang;
-        if (navigator.language === 'zh-CN' || navigator.language === 'zh-HK') return 'zh-TW';
-        return 'zh-TW';
+        const full = navigator.language;
+        const short = full.split('-')[0];
+        
+        // 優先完全匹配
+        if (I18N[full]) return full;
+        
+        // 特殊處理中文區域
+        if (short === 'zh') {
+            // 目前預設給繁中，或是未來可偵測特定方言碼如 zh-min-nan
+            if (full.toLowerCase().includes('nan')) return 'nan';
+            return 'zh-TW';
+        }
+        
+        // 匹配簡短代碼 (en, ja, fr, de, ru, es, la)
+        if (I18N[short]) return short;
+        
+        return 'en'; // 全域備用語言
     });
 
     // Anniversary 狀態

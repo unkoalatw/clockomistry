@@ -39,5 +39,8 @@ const LANG_LA = {
     particles: 'Particulae fundi', tabSequence: 'Sequentia', localBackup: 'Auxilium locale (JSON)',
     readyToStart: 'Paratus', emptySequence: 'Sequentia vacua',
     meetingGood: 'Horae laboris (Bene)', meetingAcceptable: 'Extra horas (Acceptabile)', meetingUnsuitable: 'Horae somni (Non convenit)',
+    supportTitle: 'Auxilium & Feedback',
+    supportDesc: 'Problema invenisti an suggestionem habes? A te audire velimus.',
+    reportIssue: 'Referre Problema / Querimoniam',
     hourlyChimeTitle: 'Signum horarium', eventToday: 'Hodie est!'
 };

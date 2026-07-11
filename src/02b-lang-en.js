@@ -55,5 +55,13 @@ const LANG_EN = {
     particles: 'Particle Backgrounds', tabSequence: 'Timer Sequence', localBackup: 'Local Backup (JSON)',
     readyToStart: 'Ready to Start', emptySequence: 'Empty Sequence List',
     meetingGood: 'Business Hours (Good)', meetingAcceptable: 'Outside Hours (Acceptable)', meetingUnsuitable: 'Sleeping Hours (Unsuitable)',
+    supportTitle: 'Support & Feedback',
+    supportDesc: 'Encountered an issue or have a suggestion? We would love to hear from you.',
+    reportIssue: 'Report an Issue / Complaint',
+    particlesDesc: 'Add a floating particle effect to the background',
+    localBackupDesc: 'Save your themes, settings, and events as a JSON file to your device, or restore them from a previous backup.',
+    exportConfig: 'Export Config',
+    importConfig: 'Import Config',
+    taskName: 'Task Name', addTask: 'Add Task', minutes: 'mins',
     hourlyChimeTitle: 'Hourly Chime', eventToday: 'Today!'
 };

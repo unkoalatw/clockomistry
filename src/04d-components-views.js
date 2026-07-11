@@ -22,13 +22,13 @@ const WorldClockView = React.memo(({ enableMeetingPlanner, meetingOffset, setMee
                 if (enableMeetingPlanner) {
                     if (tzHour >= 9 && tzHour < 17) {
                         dotColor = 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]';
-                        tooltip = t('meetingGood') || 'Business Hours';
+                        tooltip = t('meetingGood');
                     } else if ((tzHour >= 7 && tzHour < 9) || (tzHour >= 17 && tzHour < 21)) {
                         dotColor = 'bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.5)]';
-                        tooltip = t('meetingAcceptable') || 'Outside Business Hours';
+                        tooltip = t('meetingAcceptable');
                     } else {
                         dotColor = 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]';
-                        tooltip = t('meetingUnsuitable') || 'Sleeping Hours';
+                        tooltip = t('meetingUnsuitable');
                     }
                 }
 
@@ -608,7 +608,7 @@ const SequenceView = React.memo(({
                             <div className={`w-8 h-8 rounded-full ${idx === currentIndex ? currentTheme.accent : 'bg-white/10'} flex items-center justify-center font-bold text-xs`}>{idx + 1}</div>
                             <div>
                                 <div className="font-bold">{item.label}</div>
-                                <div className="text-xs opacity-50 uppercase tracking-widest">{item.duration / 60} mins</div>
+                                <div className="text-xs opacity-50 uppercase tracking-widest">{item.duration / 60} {t('minutes')}</div>
                             </div>
                         </div>
                         <button onClick={() => removeSeqEvent(item.id)} className="p-2 rounded-full hover:bg-red-500/20 opacity-0 md:opacity-100 hover:opacity-100 transition-all"><Trash2 size={16}/></button>
@@ -617,19 +617,19 @@ const SequenceView = React.memo(({
                 
                 {isAdding ? (
                     <div className="p-4 rounded-2xl border border-white/20 bg-white/10 flex flex-col gap-3 mt-2">
-                        <input type="text" placeholder="Task Name" value={newLabel} onChange={e => setNewLabel(e.target.value)} className="w-full bg-black/20 border border-white/10 px-4 py-2 rounded-xl outline-none" />
+                        <input type="text" placeholder={t('taskName')} value={newLabel} onChange={e => setNewLabel(e.target.value)} className="w-full bg-black/20 border border-white/10 px-4 py-2 rounded-xl outline-none" />
                         <div className="flex items-center gap-4">
                             <input type="number" min="1" max="999" value={newMins} onChange={e => setNewMins(Number(e.target.value))} className="w-24 bg-black/20 border border-white/10 px-4 py-2 rounded-xl outline-none" />
-                            <span className="text-sm opacity-50">Minutes</span>
+                            <span className="text-sm opacity-50">{t('minutes')}</span>
                         </div>
                         <div className="flex gap-2">
-                            <button onClick={() => setIsAdding(false)} className="px-4 py-2 rounded-xl hover:bg-white/10 text-sm flex-1">Cancel</button>
-                            <button onClick={() => { addSeqEvent(newLabel || 'Task', Number(newMins)); setIsAdding(false); setNewLabel(''); setNewMins(5); }} className="px-4 py-2 rounded-xl bg-blue-500 hover:bg-blue-400 text-sm font-bold flex-1">Add</button>
+                            <button onClick={() => setIsAdding(false)} className="px-4 py-2 rounded-xl hover:bg-white/10 text-sm flex-1">{t('cancel')}</button>
+                            <button onClick={() => { addSeqEvent(newLabel || t('tabTimer'), Number(newMins)); setIsAdding(false); setNewLabel(''); setNewMins(5); }} className="px-4 py-2 rounded-xl bg-blue-500 hover:bg-blue-400 text-sm font-bold flex-1">{t('add')}</button>
                         </div>
                     </div>
                 ) : (
                     <button onClick={() => setIsAdding(true)} className="mt-2 py-4 rounded-2xl border border-dashed border-white/20 hover:bg-white/5 hover:border-white/40 flex justify-center items-center gap-2 transition-all opacity-60 hover:opacity-100 text-sm uppercase tracking-widest">
-                        <Plus size={16} /> Add Sequence Task
+                        <Plus size={16} /> {t('addTask')}
                     </button>
                 )}
             </div>

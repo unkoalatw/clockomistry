@@ -55,5 +55,13 @@ const LANG_ZH_TW = {
     particles: '背景粒子特效', tabSequence: '序列計時器', localBackup: '區域備份 (JSON)',
     readyToStart: '準備就緒', emptySequence: '尚未設定序列任務',
     meetingGood: '商務時間 (適合聯繫)', meetingAcceptable: '邊緣時間 (非工作時段)', meetingUnsuitable: '深夜時段 (休息中)',
+    supportTitle: '意見回饋與投訴',
+    supportDesc: '遇到了問題或有任何改進建議？我們非常重視您的回饋。',
+    reportIssue: '回報問題 / 提交投訴',
+    particlesDesc: '在背景增加漂浮的分子動力特效',
+    localBackupDesc: '將您的主題、設定與事件以 JSON 格式備份至裝置，或從舊備份還原。',
+    exportConfig: '匯出設定檔',
+    importConfig: '匯入設定檔',
+    taskName: '任務名稱', addTask: '新增任務', minutes: '分鐘',
     hourlyChimeTitle: '整點報時', eventToday: '就在今天！'
 };

@@ -123,7 +123,7 @@ const AppearanceSettings = React.memo(({ t, currentTheme, DEFAULT_THEMES, theme,
             <label className="flex items-center justify-between p-6 rounded-2xl bg-white/5 cursor-pointer hover:bg-white/10 transition-colors">
                 <div>
                     <span className="block text-base">{t('particles') || 'Particle Background'}</span>
-                    <span className="block text-xs opacity-50 mt-1">Add a floating particle effect to the background</span>
+                    <span className="block text-xs opacity-50 mt-1">{t('particlesDesc') || 'Add a floating particle effect to the background'}</span>
                 </div>
                 <div onClick={() => setEnableParticles(!enableParticles)} className={`w-14 h-8 rounded-full relative transition-colors ${enableParticles ? 'bg-blue-500' : 'bg-slate-600'}`}>
                     <div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all ${enableParticles ? 'left-7' : 'left-1'}`} />
@@ -262,6 +262,15 @@ const AboutSettings = React.memo(({ t, exportTheme, handleExportImage, isExporti
                 </button>
             </div>
         </div>
+        <div className="space-y-6 pt-6 border-t border-white/10">
+            <h3 className="text-xl font-medium flex items-center gap-3 pb-4"><MessageSquare size={24} className="text-blue-400" /> {t('supportTitle') || 'Support & Feedback'}</h3>
+            <div className="p-6 rounded-2xl bg-blue-500/5 border border-blue-500/20 flex flex-col gap-4">
+                <p className="text-sm opacity-80 leading-relaxed">{t('supportDesc') || 'Encountered an issue or have a suggestion? We would love to hear from you.'}</p>
+                <a href="https://github.com/unkoalatw/clockomistry/issues" target="_blank" className="w-full py-4 rounded-xl bg-blue-500/10 border border-blue-500/30 hover:bg-blue-500/20 transition-all font-bold flex items-center justify-center gap-3 text-sm">
+                    <Github size={18}/> {t('reportIssue') || 'Report an Issue / Complaint'}
+                </a>
+            </div>
+        </div>
         <div className="space-y-6">
             <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><AlertCircle size={24} /> {t('legal')}</h3>
             <div className="grid grid-cols-2 gap-4">
@@ -282,10 +291,10 @@ const SystemSettings = React.memo(({ t, isDownloadingApp, handleDownloadApp, APP
         <div className="space-y-6">
             <h3 className="text-xl font-medium flex items-center gap-3 border-b border-white/10 pb-4"><CloudSun size={24} className="text-amber-400" /> {t('localBackup') || 'Local Backup (JSON)'}</h3>
             <div className="p-6 rounded-2xl bg-amber-500/5 border border-amber-500/20 flex flex-col gap-4">
-                <p className="text-sm opacity-80 leading-relaxed">Save your themes, settings, and events as a JSON file to your device, or restore them from a previous backup.</p>
+                <p className="text-sm opacity-80 leading-relaxed">{t('localBackupDesc') || 'Save your themes, settings, and events as a JSON file to your device, or restore them from a previous backup.'}</p>
                 <div className="flex gap-4 mt-2">
-                    <button onClick={() => window.exportSettingsToFile()} className="flex-1 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-amber-500/10 hover:border-amber-500/30 transition-all font-medium flex items-center justify-center gap-2 text-sm"><Upload size={16}/> Export Config</button>
-                    <button onClick={() => fileRef.current.click()} className="flex-1 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-amber-500/10 hover:border-amber-500/30 transition-all font-medium flex items-center justify-center gap-2 text-sm"><Download size={16}/> Import Config</button>
+                    <button onClick={() => window.exportSettingsToFile()} className="flex-1 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-amber-500/10 hover:border-amber-500/30 transition-all font-medium flex items-center justify-center gap-2 text-sm"><Upload size={16}/> {t('exportConfig') || 'Export Config'}</button>
+                    <button onClick={() => fileRef.current.click()} className="flex-1 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-amber-500/10 hover:border-amber-500/30 transition-all font-medium flex items-center justify-center gap-2 text-sm"><Download size={16}/> {t('importConfig') || 'Import Config'}</button>
                     <input type="file" ref={fileRef} className="hidden" accept=".json" onChange={async (e) => {
                         const file = e.target.files[0];
                         if (file) {

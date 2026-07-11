@@ -472,18 +472,17 @@ function useTimerSequence({ playAlarm, showNotification, t }) {
     return { sequence, setSequence, currentIndex, sqSeconds, isSqRunning, addSeqEvent, removeSeqEvent, toggleSequence, resetSequence, startSequence, skipToNext };
 }
 
-// --- Keyboard Shortcut Hook ---
 function useSpaceKey(callback) {
     useEffect(() => {
         const handler = (e) => {
             const tag = e.target.tagName.toLowerCase();
-            if (tag === 'input' || tag === 'textarea') return;
-            if (e.code === 'Space') {
+            if (tag === 'input' || tag === 'textarea' || e.target.isContentEditable) return;
+            if (e.code === 'Space' || e.key === ' ' || e.keyCode === 32) {
                 e.preventDefault();
                 callback();
             }
         };
-        window.addEventListener('keydown', handler);
-        return () => window.removeEventListener('keydown', handler);
+        document.addEventListener('keydown', handler, true);
+        return () => document.removeEventListener('keydown', handler, true);
     }, [callback]);
 }
