@@ -18,16 +18,11 @@ function App() {
     const [showNextEvent, setShowNextEvent] = useLocalBoolean('clock_showNextEvent', false);
     const [dashboardMode, setDashboardMode] = useLocalBoolean('clock_dashboardMode', false);
 
+    // New Automation Settings
     const [autoZenMode, setAutoZenMode] = useLocalBoolean('clock_autoZenMode', true);
     const [enableParticles, setEnableParticles] = useLocalBoolean('clock_particles', false);
     const [autoDarkMode, setAutoDarkMode] = useLocalBoolean('clock_autoDarkMode', false);
     const [enableEcoMode, setEnableEcoMode] = useLocalBoolean('clock_ecoMode', false);
-
-    // Detect if running in OBS Studio (via window.obsStudio or URL parameter)
-    const isObsMode = useMemo(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        return !!window.obsStudio || urlParams.has('obs') || urlParams.has('obsMode');
-    }, []);
     
     const [selectedZones, setSelectedZones] = useLocalJSON('clock_zones', () => [
         ALL_ZONES.find(z => z.id === 'Asia/Taipei'),
@@ -210,13 +205,12 @@ function App() {
 
     useEffect(() => {
         const interval = setInterval(() => {
-            if (isObsMode) return; // Prevent screensaver in OBS Mode
             if (!isScreenSaverActive && Date.now() - lastActivityRef.current > 5 * 60 * 1000) {
                 setIsScreenSaverActive(true);
             }
         }, 30000); // 降低檢測頻率
         return () => clearInterval(interval);
-    }, [isScreenSaverActive, isObsMode]);
+    }, [isScreenSaverActive]);
 
     const [isDocumentHidden, setIsDocumentHidden] = useState(false);
     useEffect(() => {
@@ -462,23 +456,13 @@ function App() {
     }, [use12Hour, rawH]);
     const stopwatch = formatDuration(stopwatchTime);
     const currentFontStyle = useMemo(() => (font === 'custom' && hasCustomFont) ? { fontFamily: 'CustomFont' } : (DEFAULT_FONTS[font]?.style || {}), [font, hasCustomFont]);
-    const containerStyle = useMemo(() => {
-        if (isObsMode) {
-            return {
-                ...currentFontStyle,
-                background: 'transparent',
-                backgroundColor: 'transparent',
-                color: theme === 'custom' ? customColors.text : undefined
-            };
-        }
-        return theme === 'custom' && !isCleanMode ? {
-            ...currentFontStyle,
-            background: customBgImage
-                ? `linear-gradient(${customColors.bg1}cc, ${customColors.bg1}cc), url(${customBgImage}) center/cover no-repeat fixed`
-                : `linear-gradient(135deg, ${customColors.bg1}, ${customColors.bg2}, ${customColors.bg3})`,
-            color: customColors.text
-        } : currentFontStyle;
-    }, [theme, isCleanMode, currentFontStyle, customColors, customBgImage, isObsMode]);
+    const containerStyle = useMemo(() => theme === 'custom' && !isCleanMode ? {
+        ...currentFontStyle,
+        background: customBgImage
+            ? `linear-gradient(${customColors.bg1}cc, ${customColors.bg1}cc), url(${customBgImage}) center/cover no-repeat fixed`
+            : `linear-gradient(135deg, ${customColors.bg1}, ${customColors.bg2}, ${customColors.bg3})`,
+        color: customColors.text
+    } : currentFontStyle, [theme, isCleanMode, currentFontStyle, customColors, customBgImage]);
 
 
 
@@ -487,7 +471,7 @@ function App() {
             ref={containerRef}
             onMouseMove={handleMouseMove}
             style={containerStyle}
-            className={`h-[100dvh] w-full flex flex-col items-center pt-4 sm:pt-8 pb-32 transition-all duration-1000 ${theme !== 'custom' && !isCleanMode && !isObsMode ? `bg-gradient-to-br ${currentTheme.gradient} ${currentTheme.text}` : ''} ${isCleanMode || isObsMode ? 'bg-transparent text-white' : ''} overflow-hidden relative selection:bg-pink-500 selection:text-white`}
+            className={`h-[100dvh] w-full flex flex-col items-center pt-4 sm:pt-8 pb-32 transition-all duration-1000 ${theme !== 'custom' && !isCleanMode ? `bg-gradient-to-br ${currentTheme.gradient} ${currentTheme.text}` : ''} ${isCleanMode ? 'bg-transparent text-white' : ''} overflow-hidden relative selection:bg-pink-500 selection:text-white`}
         >
             {theme === 'custom' && <style>{`
                 .custom-accent { color: ${customColors.accent}; }
