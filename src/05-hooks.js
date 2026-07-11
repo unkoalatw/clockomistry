@@ -51,6 +51,11 @@ function useWeather() {
     const [weather, setWeather] = useState({ temp: '--', condition: '', city: '--', sunrise: null, sunset: null });
 
     const fetchWeather = async () => {
+        // Detect if running in OBS Mode to bypass network fetching and save resources
+        const urlParams = new URLSearchParams(window.location.search);
+        const isObs = typeof window.obsstudio !== 'undefined' || !!window.obsStudio || urlParams.has('obs') || urlParams.has('obsMode');
+        if (isObs) return;
+
         try {
             const locRes = await fetch('https://ipapi.co/json/');
             if (!locRes.ok) return;
@@ -87,6 +92,10 @@ function useWeather() {
     };
 
     useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const isObs = typeof window.obsstudio !== 'undefined' || !!window.obsStudio || urlParams.has('obs') || urlParams.has('obsMode');
+        if (isObs) return;
+
         fetchWeather();
         const interval = setInterval(fetchWeather, 30 * 60 * 1000); // 30 minutes
         return () => clearInterval(interval);

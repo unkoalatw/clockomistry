@@ -540,12 +540,14 @@ function App() {
                 ssPos={ssPos} h={h} m={m} t={t}
             />
 
-            {/* Decor — Ambient blobs (GPU optimized) */}
-            <div className={`absolute inset-0 overflow-hidden pointer-events-none transition-opacity duration-1000 ${isZenMode ? 'opacity-10' : 'opacity-100'}`}>
-                {enableParticles && <ParticleBackground theme={theme} isEcoActive={isEcoActive} />}
-                <div className="ambient-blob ambient-blob-1 absolute -top-[5%] -left-[5%] w-[55vw] h-[55vw] rounded-full opacity-20 bg-blue-500/20"></div>
-                <div className="ambient-blob ambient-blob-2 absolute -bottom-[5%] -right-[5%] w-[55vw] h-[55vw] rounded-full opacity-20 bg-violet-500/20"></div>
-            </div>
+            {/* Decor — Ambient blobs (GPU optimized) - Disabled in OBS Mode to prevent lag */}
+            {!isObsMode && (
+                <div className={`absolute inset-0 overflow-hidden pointer-events-none transition-opacity duration-1000 ${isZenMode ? 'opacity-10' : 'opacity-100'}`}>
+                    {enableParticles && <ParticleBackground theme={theme} isEcoActive={isEcoActive} />}
+                    <div className="ambient-blob ambient-blob-1 absolute -top-[5%] -left-[5%] w-[55vw] h-[55vw] rounded-full opacity-20 bg-blue-500/20"></div>
+                    <div className="ambient-blob ambient-blob-2 absolute -bottom-[5%] -right-[5%] w-[55vw] h-[55vw] rounded-full opacity-20 bg-violet-500/20"></div>
+                </div>
+            )}
 
             {/* Main Card */}
             <div className={`relative z-10 w-full my-auto shrink max-h-[calc(100dvh-80px)] overflow-hidden max-w-[95vw] ${dashboardMode && mode === 'clock' ? 'md:max-w-6xl' : 'md:max-w-4xl'} rounded-[36px] sm:rounded-[52px] transition-zen flex flex-col items-center justify-start min-h-[40vh] ${!isCleanMode && !isZenMode ? currentTheme.card : 'shadow-none bg-transparent !border-transparent'} ${isZenMode ? 'scale-[1.05]' : ''} ${isCleanMode ? 'scale-[0.88]' : ''}`}>
@@ -576,7 +578,7 @@ function App() {
                             />
                         ) : (
                             <div className="flex flex-col items-center select-none">
-                                <WeatherWidget weather={weather} accent={currentTheme.accent} />
+                                {!isObsMode && <WeatherWidget weather={weather} accent={currentTheme.accent} />}
                                 <ClockDisplay h={h} m={m} s={s} ms={ms} showMillis={showMillis} accent={currentTheme.accent} dateLabel={showDate ? dateLabel : null} isZenMode={isZenMode} clockLayout={clockLayout} showSeconds={showSeconds} ampm={ampm} isEcoActive={isEcoActive} />
                                 {showNextEvent && nextEvent && (
                                     <div className="mt-4 md:mt-6 flex items-center gap-3 px-6 py-3 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm animate-fade-in">
